@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, MessageSquareText } from "lucide-react";
 import { useChatStore } from "@/stores/chat-store";
@@ -99,11 +99,17 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   } = useChatStore();
   const { send } = useChatSocket();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [promptSelect, setPromptSelect] = useState(false);
+  const [prefill, setPrefill] = useState<string | null>(null);
+  const [prefillKey, setPrefillKey] = useState(0);
 
   const viewingId = conversationId ?? activeConversationId;
   const streamingHere =
     isStreaming &&
     (!streamingConversationId || streamingConversationId === viewingId);
+  const hasDocuments = selectedDocumentIds.length > 0;
+  const docsRequiredMessage = "Select at least one document to send a message";
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -127,7 +133,24 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     setPendingRouteConversationId,
   ]);
 
+  const requireDocuments = () => {
+    if (hasDocuments) return true;
+    setPickerOpen(true);
+    setPromptSelect(true);
+    setError(docsRequiredMessage);
+    return false;
+  };
+
+  const onDocumentsChange = (ids: string[]) => {
+    setSelectedDocumentIds(ids);
+    if (ids.length > 0) {
+      setPromptSelect(false);
+      if (error === docsRequiredMessage) setError(null);
+    }
+  };
+
   const onSend = (query: string) => {
+    if (!requireDocuments()) return;
     setError(null);
     appendUserMessage(query);
     const id = conversationId ?? activeConversationId ?? undefined;
@@ -135,15 +158,24 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     send({
       query,
       conversation_id: id,
-      document_ids: selectedDocumentIds.length ? selectedDocumentIds : undefined,
+      document_ids: selectedDocumentIds,
     });
+  };
+
+  const onSuggest = (query: string) => {
+    if (!requireDocuments()) {
+      setPrefill(query);
+      setPrefillKey((k) => k + 1);
+      return;
+    }
+    onSend(query);
   };
 
   return (
     <div className="chat-soft-surface flex h-full min-h-0 flex-col">
       <div className="flex-1 overflow-y-auto overscroll-contain">
         {messages.length === 0 ? (
-          <EmptyState onSuggest={onSend} />
+          <EmptyState onSuggest={onSuggest} />
         ) : (
           <div className="mx-auto max-w-2xl space-y-4 px-4 py-5 sm:px-6 sm:py-8">
             {messages.map((m) => (
@@ -164,11 +196,28 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
 
       <div className="shrink-0 px-4 pb-4 pt-2 sm:px-6 sm:pb-5">
         <div className="mx-auto max-w-2xl space-y-3">
+          {messages.length === 0 && error && (
+            <div
+              className="chat-soft-card border-error/20 bg-error/5 px-4 py-3 text-sm text-error"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
           <DocumentPicker
             selectedIds={selectedDocumentIds}
-            onChange={setSelectedDocumentIds}
+            onChange={onDocumentsChange}
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            promptSelect={promptSelect}
           />
-          <MessageInput disabled={streamingHere} onSend={onSend} />
+          <MessageInput
+            disabled={streamingHere}
+            onSend={onSend}
+            prefill={prefill}
+            prefillKey={prefillKey}
+            sendBlockedReason={hasDocuments ? null : docsRequiredMessage}
+          />
         </div>
       </div>
     </div>

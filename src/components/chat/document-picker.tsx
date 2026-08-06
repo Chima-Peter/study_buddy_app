@@ -1,20 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ChevronDown, FileText, X } from "lucide-react";
 import { listDocuments } from "@/lib/api/documents";
 import type { Document } from "@/types";
 import { cn } from "@/lib/utils/cn";
+import { routes } from "@/config/routes";
 
 export function DocumentPicker({
   selectedIds,
   onChange,
+  open,
+  onOpenChange,
+  promptSelect,
 }: {
   selectedIds: string[];
   onChange: (ids: string[]) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  promptSelect?: boolean;
 }) {
   const [docs, setDocs] = useState<Document[]>([]);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const isOpen = isControlled ? open : internalOpen;
+
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
 
   useEffect(() => {
     listDocuments({ status: "completed", limit: 50 })
@@ -29,7 +44,27 @@ export function DocumentPicker({
 
   const selected = docs.filter((d) => selectedIds.includes(d.id));
 
-  if (docs.length === 0) return null;
+  if (docs.length === 0) {
+    return (
+      <div
+        className={cn(
+          "chat-soft-card flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-sm",
+          promptSelect && "ring-2 ring-primary-500/35",
+        )}
+      >
+        <FileText className="h-4 w-4 shrink-0 text-primary-700" />
+        <span className="min-w-0 flex-1 text-[var(--text-secondary)]">
+          Upload a document to start chatting.{" "}
+          <Link
+            href={routes.libraryUpload}
+            className="font-medium text-primary-800 underline-offset-2 hover:underline"
+          >
+            Go to library
+          </Link>
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
@@ -57,24 +92,31 @@ export function DocumentPicker({
 
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="chat-soft-card flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-sm"
+        onClick={() => setOpen(!isOpen)}
+        className={cn(
+          "chat-soft-card flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-sm",
+          promptSelect &&
+            selected.length === 0 &&
+            "ring-2 ring-primary-500/35",
+        )}
       >
         <FileText className="h-4 w-4 shrink-0 text-primary-700" />
         <span className="min-w-0 flex-1 text-[var(--text-secondary)]">
           {selected.length
             ? `${selected.length} document${selected.length > 1 ? "s" : ""} selected`
-            : "Select documents to ground answers"}
+            : promptSelect
+              ? "Select at least one document to continue"
+              : "Select documents to ground answers"}
         </span>
         <ChevronDown
           className={cn(
             "h-4 w-4 shrink-0 text-muted transition-transform",
-            open && "rotate-180",
+            isOpen && "rotate-180",
           )}
         />
       </button>
 
-      {open && (
+      {isOpen && (
         <div className="chat-soft-card max-h-44 space-y-0.5 overflow-y-auto overscroll-contain p-2 sm:max-h-52">
           {docs.map((d) => {
             const isSelected = selectedIds.includes(d.id);

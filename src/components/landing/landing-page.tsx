@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import { ArrowRight, BookOpen, MessageSquareText, Upload } from "lucide-react";
 import { routes } from "@/config/routes";
+import { Logo } from "@/components/brand/logo";
 import { ProductVisual } from "./product-visual";
 import { cn } from "@/lib/utils/cn";
 
@@ -88,11 +89,13 @@ export function LandingPage() {
 
       <header className="relative z-20">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-          <Link
-            href={routes.home}
-            className="font-[family-name:var(--font-landing-display)] text-xl font-bold tracking-tight text-[#0c2420] sm:text-2xl"
-          >
-            Study<span className="text-[#0f766e]">Buddy</span>
+          <Link href={routes.home} className="min-w-0">
+            <Logo
+              className="gap-2.5"
+              markClassName="h-8 w-8 rounded-lg sm:h-9 sm:w-9"
+              wordmarkClassName="font-[family-name:var(--font-landing-display)] text-xl font-bold tracking-tight text-[#0c2420] sm:text-2xl"
+              accentClassName="text-[#0f766e]"
+            />
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
@@ -413,9 +416,12 @@ export function LandingPage() {
 
       <footer className="relative z-10 border-t border-white/10 bg-[#081614] px-5 py-10 text-[#7a9a92] sm:px-8">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-          <p className="font-[family-name:var(--font-landing-display)] text-lg font-bold text-[#e8f5f1]">
-            Study<span className="text-[#5eead4]">Buddy</span>
-          </p>
+          <Logo
+            className="gap-2.5"
+            markClassName="h-8 w-8 rounded-lg"
+            wordmarkClassName="font-[family-name:var(--font-landing-display)] text-lg font-bold text-[#e8f5f1]"
+            accentClassName="text-[#5eead4]"
+          />
           <div className="flex flex-wrap gap-6 text-sm">
             <Link href={routes.login} className="transition hover:text-[#e8f5f1]">
               Log in

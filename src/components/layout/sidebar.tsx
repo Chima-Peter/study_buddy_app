@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/routes";
+import { Logo } from "@/components/brand/logo";
 import { UnreadBadge } from "@/components/notifications/unread-badge";
 import { useLogout } from "@/lib/hooks/use-logout";
 
@@ -29,13 +30,10 @@ export function Sidebar() {
 
   return (
     <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-border bg-surface-secondary lg:flex">
-      <div className="flex h-16 items-center gap-2 border-b border-border px-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-700 text-sm font-bold text-white">
-          SB
-        </div>
-        <span className="text-lg font-semibold">
-          Study<span className="text-primary-700">Buddy</span>
-        </span>
+      <div className="flex h-16 items-center border-b border-border px-5">
+        <Link href={routes.library} className="min-w-0">
+          <Logo markClassName="h-8 w-8 rounded-md" />
+        </Link>
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Main">
         {nav.map((item) => {
