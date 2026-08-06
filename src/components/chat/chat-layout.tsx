@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { PanelLeft, PanelLeftClose } from "lucide-react";
+import { History, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { ConversationList } from "./conversation-list";
 
@@ -18,7 +18,7 @@ export function ChatLayout({
   onLoadMore?: () => void;
 }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -35,11 +35,11 @@ export function ChatLayout({
   }, [pathname]);
 
   return (
-    <div className="relative -m-4 flex h-[calc(100vh-4rem)] overflow-hidden lg:-m-6">
+    <div className="relative -m-4 flex h-[calc(100%+2rem)] overflow-hidden lg:-m-6 lg:h-[calc(100%+3rem)]">
       {open && (
         <button
           type="button"
-          className="absolute inset-0 z-40 bg-black/50 lg:hidden"
+          className="absolute inset-0 z-40 bg-black/30 lg:hidden"
           aria-label="Close conversations"
           onClick={() => setOpen(false)}
         />
@@ -47,14 +47,19 @@ export function ChatLayout({
 
       <aside
         className={cn(
-          "z-50 flex h-full shrink-0 flex-col border-r border-border bg-surface-secondary transition-[width,transform] duration-200",
-          "absolute inset-y-0 left-0 w-72 lg:static lg:left-auto",
+          "z-50 flex h-full shrink-0 flex-col border-r border-border/70 bg-[#f4f7f6] transition-[width,transform] duration-200 dark:bg-surface-secondary",
+          "absolute inset-y-0 left-0 w-[min(100%,18rem)] max-w-[85vw] lg:static lg:left-auto lg:w-64 lg:max-w-none",
           open
-            ? "translate-x-0 lg:w-72"
+            ? "translate-x-0 lg:w-64"
             : "-translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden lg:border-r-0",
         )}
       >
-        <div className={cn("flex h-full w-72 flex-col", !open && "lg:invisible")}>
+        <div
+          className={cn(
+            "flex h-full w-full flex-col lg:w-64",
+            !open && "lg:invisible",
+          )}
+        >
           <ConversationList
             hasMore={hasMore}
             loadingMore={loadingMore}
@@ -64,25 +69,19 @@ export function ChatLayout({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-surface-primary">
-        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
+      <div className="flex min-w-0 flex-1 flex-col bg-[#eef3f1] dark:bg-surface-primary">
+        <header className="flex h-14 shrink-0 items-center px-4 sm:px-5">
           <button
             type="button"
-            className="flex min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
-            aria-label={open ? "Hide conversations" : "Show conversations"}
+            className="chat-soft-btn gap-2"
+            aria-label={open ? "Hide history" : "Show history"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? (
-              <PanelLeftClose className="h-5 w-5" />
-            ) : (
-              <PanelLeft className="h-5 w-5" />
-            )}
+            {open ? <X className="h-4 w-4" /> : <History className="h-4 w-4" />}
+            <span>History</span>
           </button>
-          <span className="text-sm text-[var(--text-secondary)]">
-            {open ? "Hide history" : "Chat history"}
-          </span>
-        </div>
+        </header>
         <div className="min-h-0 flex-1">{children}</div>
       </div>
     </div>

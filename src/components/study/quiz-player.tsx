@@ -109,8 +109,8 @@ export function QuizPlayer({
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-surface-secondary p-6">
-        <p className="text-lg font-medium leading-relaxed">{question.question}</p>
+      <div className="rounded-lg border border-border bg-surface-secondary p-4 sm:p-6">
+        <p className="text-base font-medium leading-relaxed sm:text-lg">{question.question}</p>
       </div>
 
       <div className="space-y-3">
@@ -127,13 +127,13 @@ export function QuizPlayer({
         ))}
       </div>
 
-      <div className="flex justify-end">
+      <div className="sticky bottom-0 flex justify-stretch bg-surface-primary/95 py-3 backdrop-blur sm:static sm:justify-end sm:bg-transparent sm:py-0 sm:backdrop-blur-none">
         {!revealed ? (
-          <Button disabled={selected == null} onClick={submit}>
+          <Button className="w-full sm:w-auto" disabled={selected == null} onClick={submit}>
             Check answer
           </Button>
         ) : (
-          <Button onClick={next}>
+          <Button className="w-full sm:w-auto" onClick={next}>
             {index + 1 >= questions.length ? "See results" : "Next question"}
           </Button>
         )}

@@ -12,16 +12,16 @@ export function Header() {
   const handleLogout = useLogout();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-border bg-surface-secondary/90 px-4 backdrop-blur lg:px-6">
+    <header className="z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-surface-secondary/90 px-4 backdrop-blur sm:h-16 lg:px-6">
       <div className="min-w-0">
         <p className="truncate text-sm text-[var(--text-secondary)]">
           Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
         </p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <Link
           href={routes.notifications}
-          className="relative flex min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary"
+          className="relative hidden min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary lg:flex"
           aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
@@ -31,7 +31,7 @@ export function Header() {
         </Link>
         <Link
           href={routes.settings}
-          className="flex min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary"
+          className="hidden min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary lg:flex"
           aria-label="Settings"
         >
           <Settings className="h-5 w-5" />
@@ -39,15 +39,19 @@ export function Header() {
         <button
           type="button"
           onClick={() => void handleLogout()}
-          className="flex min-touch items-center justify-center gap-2 rounded-md px-2 py-2 text-sm text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
+          className="hidden min-touch items-center justify-center gap-2 rounded-md px-2 py-2 text-sm text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)] lg:flex"
           aria-label="Log out"
         >
           <LogOut className="h-5 w-5" />
           <span className="hidden sm:inline">Log out</span>
         </button>
-        <div className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary-500/20 text-sm font-semibold text-primary-700">
+        <Link
+          href={routes.settings}
+          className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary-500/20 text-sm font-semibold text-primary-700 lg:pointer-events-none"
+          aria-label="Profile"
+        >
           {(user?.name?.[0] ?? "S").toUpperCase()}
-        </div>
+        </Link>
       </div>
     </header>
   );

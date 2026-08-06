@@ -20,7 +20,7 @@ export function MobileNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-border bg-surface-secondary pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="flex shrink-0 border-t border-border bg-surface-secondary pb-safe lg:hidden"
       aria-label="Mobile"
     >
       {tabs.map((tab) => {
@@ -31,7 +31,7 @@ export function MobileNav() {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "relative flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] min-touch",
+              "relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] min-touch",
               active ? "text-primary-700" : "text-muted",
             )}
           >

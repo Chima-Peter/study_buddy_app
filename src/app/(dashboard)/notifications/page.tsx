@@ -96,7 +96,7 @@ export default function NotificationsPage() {
         description="Stay updated on documents, study cards, and other alerts"
         onClose={onClose}
         actions={
-          <Button variant="secondary" onClick={onMarkAll}>
+          <Button variant="secondary" className="w-full sm:w-auto" onClick={onMarkAll}>
             Mark all as read
           </Button>
         }

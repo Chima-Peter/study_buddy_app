@@ -28,7 +28,7 @@ export function Sidebar() {
   const handleLogout = useLogout();
 
   return (
-    <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-surface-secondary lg:flex">
+    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-border bg-surface-secondary lg:flex">
       <div className="flex h-16 items-center gap-2 border-b border-border px-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-700 text-sm font-bold text-white">
           SB

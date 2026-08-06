@@ -19,7 +19,7 @@ export default function HomePage() {
 
   if (!hydrated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface-primary">
+      <div className="flex min-h-dvh items-center justify-center bg-surface-primary">
         <Spinner className="h-8 w-8 text-primary-700" />
       </div>
     );
@@ -27,7 +27,7 @@ export default function HomePage() {
 
   if (token) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface-primary">
+      <div className="flex min-h-dvh items-center justify-center bg-surface-primary">
         <Spinner className="h-8 w-8 text-primary-700" />
       </div>
     );

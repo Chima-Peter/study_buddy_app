@@ -62,8 +62,8 @@ export default function LibraryPage() {
         title="My Library"
         description="Upload and manage your study materials"
         actions={
-          <Link href={routes.libraryUpload}>
-            <Button>
+          <Link href={routes.libraryUpload} className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <Plus className="h-4 w-4" />
               Upload
             </Button>

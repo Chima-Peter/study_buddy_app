@@ -52,16 +52,19 @@ export function UploadDropzone({
           handleFiles(e.dataTransfer.files);
         }}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-10 transition-colors",
+          "flex min-touch cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-6 text-center transition-colors sm:p-10",
           dragging ? "border-primary-500 bg-primary-500/10" : "border-border bg-surface-tertiary",
         )}
       >
         <Upload className="mb-3 h-8 w-8 text-primary-700" />
         <p className="text-sm font-medium">
-          {file ? file.name : "Drop files here or click to browse"}
+          {file ? file.name : "Tap to choose a file"}
         </p>
-        <p className="mt-1 text-xs text-muted">
-          PDF, DOCX, TXT, MD and more · max {MAX_FILE_SIZE_MB} MB
+        <p className="mt-1 hidden text-xs text-muted sm:block">
+          Or drop files here · PDF, DOCX, TXT, MD and more · max {MAX_FILE_SIZE_MB} MB
+        </p>
+        <p className="mt-1 text-xs text-muted sm:hidden">
+          PDF, DOCX, TXT, MD · max {MAX_FILE_SIZE_MB} MB
         </p>
         <input
           type="file"

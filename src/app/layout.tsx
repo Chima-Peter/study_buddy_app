@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers/providers";
@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   title: "StudyBuddy — AI tutor from your lecture notes",
   description:
     "Personalise learning with an AI tutor grounded in your materials, plus chapter notes and quizzes.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0f766e",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown, FileText, X } from "lucide-react";
 import { listDocuments } from "@/lib/api/documents";
 import type { Document } from "@/types";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 export function DocumentPicker({
   selectedIds,
@@ -29,46 +29,75 @@ export function DocumentPicker({
 
   const selected = docs.filter((d) => selectedIds.includes(d.id));
 
+  if (docs.length === 0) return null;
+
   return (
     <div className="space-y-2">
       {selected.length > 0 && (
-        <div className="flex flex-wrap gap-2 rounded-lg border border-border bg-surface-secondary px-3 py-2">
-          <span className="text-xs text-muted">{selected.length} documents selected</span>
+        <div className="flex flex-wrap gap-2">
           {selected.map((d) => (
-            <Badge key={d.id} variant="primary" className="gap-1">
-              {d.name}
-              <button type="button" onClick={() => toggle(d.id)} aria-label={`Remove ${d.name}`}>
+            <span
+              key={d.id}
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-sm"
+            >
+              <FileText className="h-3.5 w-3.5 shrink-0 text-primary-700" />
+              <span className="truncate">{d.name}</span>
+              <button
+                type="button"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
+                onClick={() => toggle(d.id)}
+                aria-label={`Remove ${d.name}`}
+              >
                 <X className="h-3 w-3" />
               </button>
-            </Badge>
+            </span>
           ))}
         </div>
       )}
+
       <button
         type="button"
-        className="text-xs text-primary-700 hover:underline"
         onClick={() => setOpen((v) => !v)}
+        className="chat-soft-card flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-sm"
       >
-        {open ? "Hide document picker" : "Scope to documents"}
-      </button>
-      {open && (
-        <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border bg-surface-secondary p-2">
-          {docs.length === 0 && (
-            <p className="p-2 text-xs text-muted">No completed documents</p>
+        <FileText className="h-4 w-4 shrink-0 text-primary-700" />
+        <span className="min-w-0 flex-1 text-[var(--text-secondary)]">
+          {selected.length
+            ? `${selected.length} document${selected.length > 1 ? "s" : ""} selected`
+            : "Select documents to ground answers"}
+        </span>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 text-muted transition-transform",
+            open && "rotate-180",
           )}
-          {docs.map((d) => (
-            <label
-              key={d.id}
-              className="flex min-touch cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-tertiary"
-            >
-              <input
-                type="checkbox"
-                checked={selectedIds.includes(d.id)}
-                onChange={() => toggle(d.id)}
-              />
-              <span className="truncate">{d.name}</span>
-            </label>
-          ))}
+        />
+      </button>
+
+      {open && (
+        <div className="chat-soft-card max-h-44 space-y-0.5 overflow-y-auto overscroll-contain p-2 sm:max-h-52">
+          {docs.map((d) => {
+            const isSelected = selectedIds.includes(d.id);
+            return (
+              <label
+                key={d.id}
+                className={cn(
+                  "flex min-touch cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm",
+                  isSelected
+                    ? "bg-primary-500/10 text-primary-800"
+                    : "hover:bg-white/70",
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggle(d.id)}
+                  className="accent-primary-700"
+                />
+                <span className="truncate">{d.name}</span>
+              </label>
+            );
+          })}
         </div>
       )}
     </div>

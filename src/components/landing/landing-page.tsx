@@ -81,7 +81,7 @@ export function LandingPage() {
       className={cn(
         display.variable,
         sans.variable,
-        "landing min-h-screen overflow-x-hidden font-[family-name:var(--font-landing-sans)] text-[#0c2420]",
+        "landing min-h-dvh overflow-x-hidden font-[family-name:var(--font-landing-sans)] text-[#0c2420]",
       )}
     >
       <div className="landing-atmosphere" aria-hidden />

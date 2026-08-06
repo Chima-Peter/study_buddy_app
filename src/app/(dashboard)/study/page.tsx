@@ -54,7 +54,7 @@ export default function StudyPage() {
         description="Chapters, notes, and quizzes from your materials"
         actions={
           <select
-            className="h-11 rounded-md border border-border bg-surface-tertiary px-3 text-sm"
+            className="h-11 w-full rounded-md border border-border bg-surface-tertiary px-3 text-sm sm:w-auto"
             value={status}
             onChange={(e) => setStatus(e.target.value as "" | StudyCardsStatus)}
           >

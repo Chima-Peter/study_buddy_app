@@ -9,11 +9,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
   useSse();
 
   return (
-    <div className="flex min-h-screen bg-surface-primary">
+    <div className="flex h-dvh overflow-hidden bg-surface-primary">
       <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Header />
-        <main className="flex-1 overflow-auto p-4 pb-24 lg:p-6 lg:pb-6">{children}</main>
+        <main className="relative min-h-0 flex-1 overflow-auto p-4 lg:p-6">
+          {children}
+        </main>
         <MobileNav />
       </div>
     </div>

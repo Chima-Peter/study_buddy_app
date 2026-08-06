@@ -33,7 +33,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastContext.Provider value={value}>
-      <Toast.Provider swipeDirection="right" duration={5000}>
+      <Toast.Provider swipeDirection="down" duration={5000}>
         {children}
         {items.map((item) => (
           <Toast.Root
@@ -59,14 +59,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               )}
             </div>
             <Toast.Close
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted transition hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
+              className="flex min-touch shrink-0 items-center justify-center rounded-md text-muted transition hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
               aria-label="Dismiss"
             >
               <X className="h-4 w-4" />
             </Toast.Close>
           </Toast.Root>
         ))}
-        <Toast.Viewport className="fixed right-4 top-4 z-[100] flex w-[360px] max-w-[calc(100vw-2rem)] flex-col gap-2 outline-none" />
+        <Toast.Viewport className="fixed inset-x-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-[100] flex w-auto max-w-full flex-col gap-2 outline-none lg:inset-x-auto lg:bottom-auto lg:right-4 lg:top-4 lg:w-[360px] lg:max-w-[calc(100vw-2rem)]" />
       </Toast.Provider>
     </ToastContext.Provider>
   );

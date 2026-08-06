@@ -15,9 +15,9 @@ const buttonVariants = cva(
         success: "bg-success text-white hover:bg-success-dark active:scale-[0.98]",
       },
       size: {
-        sm: "h-8 px-3 text-[13px]",
-        md: "h-10 px-4 text-sm",
-        lg: "h-12 px-6 text-base",
+        sm: "min-h-11 px-3 text-[13px]",
+        md: "min-h-11 px-4 text-sm",
+        lg: "min-h-12 px-6 text-base",
       },
     },
     defaultVariants: {

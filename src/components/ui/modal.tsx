@@ -25,13 +25,14 @@ export function Modal({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
         <Dialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 w-[min(100%-2rem,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-surface-elevated p-6 shadow-lg",
-            "max-h-[90vh] overflow-y-auto",
+            "fixed z-50 w-full border border-border bg-surface-elevated shadow-lg",
+            "inset-x-0 bottom-0 max-h-[90dvh] overflow-y-auto rounded-t-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]",
+            "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-[min(100%-2rem,32rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:p-6 sm:pb-6 sm:max-h-[90vh]",
             className,
           )}
         >
           <div className="mb-4 flex items-start justify-between gap-4">
-            <div>
+            <div className="min-w-0">
               {title && (
                 <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>
               )}
@@ -41,7 +42,7 @@ export function Modal({
                 </Dialog.Description>
               )}
             </div>
-            <Dialog.Close className="rounded-md p-2 text-muted hover:bg-surface-tertiary min-touch">
+            <Dialog.Close className="rounded-md p-2 text-muted hover:bg-surface-tertiary min-touch shrink-0">
               <X className="h-4 w-4" />
             </Dialog.Close>
           </div>

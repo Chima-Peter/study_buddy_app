@@ -6,11 +6,12 @@ import { useParams } from "next/navigation";
 import { getStudyCards } from "@/lib/api/study-cards";
 import { useStudyStore } from "@/stores/study-store";
 import { ChapterNav } from "@/components/study/chapter-nav";
-import { SectionContent } from "@/components/study/section-content";
+import { MiniStudyCards } from "@/components/study/mini-study-cards";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
+import { formatChapterTitle } from "@/lib/utils/format";
 
 export default function StudyDeckPage() {
   const params = useParams<{ documentId: string }>();
@@ -80,14 +81,33 @@ export default function StudyDeckPage() {
         backHref={routes.study}
         actions={
           (active.quiz?.length ?? 0) > 0 ? (
-            <Link href={routes.studyQuiz(params.documentId, active.chapter_key)}>
-              <Button>Take chapter quiz</Button>
+            <Link
+              href={routes.studyQuiz(params.documentId, active.chapter_key)}
+              className="w-full sm:w-auto"
+            >
+              <Button className="w-full sm:w-auto">Take chapter quiz</Button>
             </Link>
           ) : undefined
         }
       />
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-        <aside className="rounded-lg border border-border bg-surface-secondary p-3">
+
+      <label className="block space-y-1.5 lg:hidden">
+        <span className="text-sm font-medium text-[var(--text-secondary)]">Chapter</span>
+        <select
+          className="h-11 w-full rounded-md border border-border bg-surface-secondary px-3 text-sm"
+          value={active.chapter_key}
+          onChange={(e) => setActiveKey(e.target.value)}
+        >
+          {chapters.map((ch) => (
+            <option key={ch.chapter_key} value={ch.chapter_key}>
+              {formatChapterTitle(ch.chapter_key)}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="grid gap-6 lg:grid-cols-[240px_1fr] lg:items-start">
+        <aside className="hidden rounded-2xl border border-border bg-surface-secondary p-3 lg:sticky lg:top-4 lg:block">
           <h2 className="mb-2 px-2 text-sm font-semibold">Chapters</h2>
           <ChapterNav
             chapters={chapters}
@@ -95,19 +115,23 @@ export default function StudyDeckPage() {
             onSelect={setActiveKey}
           />
         </aside>
-        <div className="space-y-6">
-          <SectionContent chapter={active} />
-          <div className="flex justify-between gap-3">
+
+        <div className="min-w-0 space-y-6">
+          <MiniStudyCards chapter={active} />
+
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
             <Button
               variant="ghost"
               disabled={activeIndex <= 0}
               onClick={() => setActiveKey(chapters[activeIndex - 1].chapter_key)}
             >
-              ← Prev
+              ← Prev chapter
             </Button>
             {(active.quiz?.length ?? 0) > 0 && (
               <Link href={routes.studyQuiz(params.documentId, active.chapter_key)}>
-                <Button variant="secondary">Quiz this chapter</Button>
+                <Button variant="secondary" className="hidden sm:inline-flex">
+                  Quiz this chapter
+                </Button>
               </Link>
             )}
             <Button
@@ -115,7 +139,7 @@ export default function StudyDeckPage() {
               disabled={activeIndex >= chapters.length - 1}
               onClick={() => setActiveKey(chapters[activeIndex + 1].chapter_key)}
             >
-              Next →
+              Next chapter →
             </Button>
           </div>
         </div>
