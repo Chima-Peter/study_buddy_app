@@ -1,19 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   listNotifications,
-  markNotificationRead,
   markNotificationsRead,
 } from "@/lib/api/notifications";
 import { useNotificationsStore } from "@/stores/notifications-store";
 import { NotificationList } from "@/components/notifications/notification-list";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
+import { routes } from "@/config/routes";
+
+async function flushPendingReads() {
+  const ids = useNotificationsStore.getState().consumePendingReads();
+  if (ids.length === 0) return;
+  try {
+    await markNotificationsRead(ids);
+  } catch {
+    // Keep optimistic UI; unread badge may refresh on next fetch
+  }
+}
 
 export default function NotificationsPage() {
-  const { items, hasMore, nextCursor, setPage, markRead } = useNotificationsStore();
+  const router = useRouter();
+  const { items, hasMore, nextCursor, setPage, queueRead, markRead } =
+    useNotificationsStore();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const { toast } = useToast();
@@ -31,20 +45,12 @@ export default function NotificationsPage() {
     })();
     return () => {
       cancelled = true;
+      void flushPendingReads();
     };
   }, [setPage]);
 
-  const onRead = async (id: string) => {
-    try {
-      await markNotificationRead(id);
-      markRead([id]);
-    } catch (err) {
-      toast({
-        title: "Could not mark as read",
-        description: err instanceof ApiError ? err.message : undefined,
-        variant: "error",
-      });
-    }
+  const onSelect = (id: string) => {
+    queueRead(id);
   };
 
   const onMarkAll = async () => {
@@ -63,6 +69,15 @@ export default function NotificationsPage() {
     }
   };
 
+  const onClose = async () => {
+    await flushPendingReads();
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(routes.library);
+    }
+  };
+
   const loadMore = async () => {
     if (!nextCursor) return;
     setLoadingMore(true);
@@ -76,21 +91,21 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Notifications</h1>
-          <p className="text-sm text-[var(--text-secondary)]">
-            Stay updated on document processing and study cards
-          </p>
-        </div>
-        <Button variant="secondary" onClick={onMarkAll}>
-          Mark all as read
-        </Button>
-      </div>
+      <PageHeader
+        title="Notifications"
+        description="Stay updated on documents, study cards, and other alerts"
+        backHref={routes.library}
+        onClose={onClose}
+        actions={
+          <Button variant="secondary" onClick={onMarkAll}>
+            Mark all as read
+          </Button>
+        }
+      />
       {loading ? (
         <p className="text-sm text-muted">Loading…</p>
       ) : (
-        <NotificationList items={items} onRead={onRead} />
+        <NotificationList items={items} onSelect={onSelect} />
       )}
       {hasMore && (
         <div className="flex justify-center">

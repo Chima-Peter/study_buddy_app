@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   BookOpen,
   Library,
@@ -12,9 +12,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/routes";
-import { logout } from "@/lib/api/auth";
-import { useSessionStore } from "@/stores/session-store";
 import { UnreadBadge } from "@/components/notifications/unread-badge";
+import { useLogout } from "@/lib/hooks/use-logout";
 
 const nav = [
   { href: routes.library, label: "Library", icon: Library },
@@ -26,26 +25,17 @@ const nav = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const clearSession = useSessionStore((s) => s.clearSession);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      // clear locally even if API fails
-    }
-    clearSession();
-    router.replace(routes.login);
-  };
+  const handleLogout = useLogout();
 
   return (
     <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-surface-secondary lg:flex">
       <div className="flex h-16 items-center gap-2 border-b border-border px-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-500 text-sm font-bold text-white">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-700 text-sm font-bold text-white">
           SB
         </div>
-        <span className="text-lg font-semibold">StudyBuddy</span>
+        <span className="text-lg font-semibold">
+          Study<span className="text-primary-700">Buddy</span>
+        </span>
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Main">
         {nav.map((item) => {
@@ -59,7 +49,7 @@ export function Sidebar() {
               className={cn(
                 "flex min-touch items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-primary-500/15 text-primary-400"
+                  ? "bg-primary-500/15 text-primary-700"
                   : "text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]",
               )}
             >
@@ -73,7 +63,7 @@ export function Sidebar() {
       <div className="border-t border-border p-3">
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={() => void handleLogout()}
           className="flex w-full min-touch items-center gap-3 rounded-md px-3 py-2 text-sm text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
         >
           <LogOut className="h-4 w-4" />

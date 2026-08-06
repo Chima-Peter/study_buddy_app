@@ -46,7 +46,7 @@ export function DocumentPicker({
       )}
       <button
         type="button"
-        className="text-xs text-primary-400 hover:underline"
+        className="text-xs text-primary-700 hover:underline"
         onClick={() => setOpen((v) => !v)}
       >
         {open ? "Hide document picker" : "Scope to documents"}

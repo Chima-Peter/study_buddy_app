@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, PanelLeftClose } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/routes";
 import { useChatStore } from "@/stores/chat-store";
@@ -15,10 +15,12 @@ export function ConversationList({
   onLoadMore,
   hasMore,
   loadingMore,
+  onCollapse,
 }: {
   onLoadMore?: () => void;
   hasMore?: boolean;
   loadingMore?: boolean;
+  onCollapse?: () => void;
 }) {
   const pathname = usePathname();
   const conversations = useChatStore((s) => s.conversations);
@@ -41,16 +43,33 @@ export function ConversationList({
   };
 
   return (
-    <div className="flex h-full flex-col border-r border-border bg-surface-secondary">
-      <div className="flex items-center justify-between border-b border-border p-3">
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between gap-1 border-b border-border p-3">
         <h2 className="text-sm font-semibold">Conversations</h2>
-        <Link href={routes.chat}>
-          <Button size="sm" variant="ghost" aria-label="New chat">
-            <Plus className="h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="flex items-center">
+          <Link href={routes.chat}>
+            <Button size="sm" variant="ghost" aria-label="New chat">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </Link>
+          {onCollapse && (
+            <button
+              type="button"
+              className="flex min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary"
+              aria-label="Collapse conversations"
+              onClick={onCollapse}
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto p-2">
+        {conversations.length === 0 && (
+          <p className="px-2 py-6 text-center text-sm text-[var(--text-secondary)]">
+            No conversations yet
+          </p>
+        )}
         {conversations.map((c) => {
           const active = pathname === routes.chatConversation(c.id);
           return (

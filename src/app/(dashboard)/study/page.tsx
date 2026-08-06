@@ -6,6 +6,8 @@ import { useStudyStore } from "@/stores/study-store";
 import { DeckCard } from "@/components/study/deck-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/spinner";
+import { PageHeader } from "@/components/layout/page-header";
+import { routes } from "@/config/routes";
 import type { StudyCardsStatus } from "@/types";
 
 export default function StudyPage() {
@@ -48,24 +50,23 @@ export default function StudyPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Study Decks</h1>
-          <p className="text-sm text-[var(--text-secondary)]">
-            Chapters, notes, and quizzes from your materials
-          </p>
-        </div>
-        <select
-          className="h-11 rounded-md border border-border bg-surface-tertiary px-3 text-sm"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as "" | StudyCardsStatus)}
-        >
-          <option value="">All statuses</option>
-          <option value="success">Success</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-        </select>
-      </div>
+      <PageHeader
+        title="Study Decks"
+        description="Chapters, notes, and quizzes from your materials"
+        backHref={routes.library}
+        actions={
+          <select
+            className="h-11 rounded-md border border-border bg-surface-tertiary px-3 text-sm"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "" | StudyCardsStatus)}
+          >
+            <option value="">All statuses</option>
+            <option value="success">Success</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+        }
+      />
 
       {loading && items.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

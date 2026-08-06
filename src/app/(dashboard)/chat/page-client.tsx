@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ConversationList } from "@/components/chat/conversation-list";
+import { ChatLayout } from "@/components/chat/chat-layout";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { listConversations } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
@@ -34,17 +34,8 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="-m-4 flex h-[calc(100vh-4rem)] flex-col lg:-m-6 lg:h-[calc(100vh-4rem)] lg:flex-row">
-      <div className="hidden w-72 shrink-0 lg:block">
-        <ConversationList
-          hasMore={hasMore}
-          loadingMore={loadingMore}
-          onLoadMore={loadMore}
-        />
-      </div>
-      <div className="min-w-0 flex-1 bg-surface-primary">
-        <ChatWindow />
-      </div>
-    </div>
+    <ChatLayout hasMore={hasMore} loadingMore={loadingMore} onLoadMore={loadMore}>
+      <ChatWindow />
+    </ChatLayout>
   );
 }

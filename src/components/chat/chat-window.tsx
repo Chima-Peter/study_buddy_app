@@ -37,7 +37,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   };
 
   return (
-    <div className="flex h-full min-h-[60vh] flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 && (
           <div className="flex h-full items-center justify-center text-center">

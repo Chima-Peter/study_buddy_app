@@ -32,7 +32,7 @@ export function MobileNav() {
             href={tab.href}
             className={cn(
               "relative flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] min-touch",
-              active ? "text-primary-400" : "text-muted",
+              active ? "text-primary-700" : "text-muted",
             )}
           >
             <Icon className="h-5 w-5" />

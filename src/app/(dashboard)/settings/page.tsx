@@ -16,6 +16,9 @@ import { ApiError } from "@/lib/api/client";
 import { THEME_STORAGE_KEY } from "@/config/constants";
 import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
+import { PageHeader } from "@/components/layout/page-header";
+import { useLogout } from "@/lib/hooks/use-logout";
+import { LogOut } from "lucide-react";
 
 export default function SettingsPage() {
   const user = useSessionStore((s) => s.user);
@@ -23,9 +26,11 @@ export default function SettingsPage() {
   const clearSession = useSessionStore((s) => s.clearSession);
   const router = useRouter();
   const { toast } = useToast();
+  const handleLogout = useLogout();
   const [theme, setTheme] = useState<"dark" | "light" | "system">("dark");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const {
     register,
@@ -105,10 +110,11 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Manage your profile and preferences</p>
-      </div>
+      <PageHeader
+        title="Settings"
+        description="Manage your profile and preferences"
+        backHref={routes.library}
+      />
 
       <Card>
         <CardHeader>
@@ -169,6 +175,29 @@ export default function SettingsPage() {
               </label>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Session</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="secondary"
+            disabled={loggingOut}
+            onClick={async () => {
+              setLoggingOut(true);
+              try {
+                await handleLogout();
+              } finally {
+                setLoggingOut(false);
+              }
+            }}
+          >
+            <LogOut className="h-4 w-4" />
+            {loggingOut ? "Logging out…" : "Log out"}
+          </Button>
         </CardContent>
       </Card>
 

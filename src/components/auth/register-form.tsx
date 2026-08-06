@@ -68,7 +68,7 @@ export function RegisterForm() {
       </Button>
       <p className="text-center text-sm text-[var(--text-secondary)]">
         Already have an account?{" "}
-        <Link href={routes.login} className="text-primary-400 hover:underline">
+        <Link href={routes.login} className="text-primary-700 hover:underline">
           Sign in
         </Link>
       </p>

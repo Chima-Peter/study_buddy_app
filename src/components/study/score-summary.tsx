@@ -26,7 +26,7 @@ export function ScoreSummary({
         </h1>
       </div>
       <div className="rounded-xl border border-border bg-surface-secondary p-8">
-        <p className="text-5xl font-bold text-primary-400">{percent}%</p>
+        <p className="text-5xl font-bold text-primary-700">{percent}%</p>
         <p className="mt-2 text-[var(--text-secondary)]">
           {correct} / {total} correct
         </p>

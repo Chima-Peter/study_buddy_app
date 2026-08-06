@@ -56,7 +56,7 @@ export function UploadDropzone({
           dragging ? "border-primary-500 bg-primary-500/10" : "border-border bg-surface-tertiary",
         )}
       >
-        <Upload className="mb-3 h-8 w-8 text-primary-400" />
+        <Upload className="mb-3 h-8 w-8 text-primary-700" />
         <p className="text-sm font-medium">
           {file ? file.name : "Drop files here or click to browse"}
         </p>

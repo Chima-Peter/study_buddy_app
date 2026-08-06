@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ConversationList } from "@/components/chat/conversation-list";
+import { ChatLayout } from "@/components/chat/chat-layout";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { getConversation, listConversations } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
@@ -63,23 +63,14 @@ export default function ConversationPage() {
   };
 
   return (
-    <div className="-m-4 flex h-[calc(100vh-4rem)] flex-col lg:-m-6 lg:flex-row">
-      <div className="hidden w-72 shrink-0 lg:block">
-        <ConversationList
-          hasMore={hasMore}
-          loadingMore={loadingMore}
-          onLoadMore={loadMore}
-        />
-      </div>
-      <div className="min-w-0 flex-1 bg-surface-primary">
-        {loading ? (
-          <div className="flex h-full items-center justify-center">
-            <Spinner className="h-8 w-8" />
-          </div>
-        ) : (
-          <ChatWindow conversationId={params.conversationId} />
-        )}
-      </div>
-    </div>
+    <ChatLayout hasMore={hasMore} loadingMore={loadingMore} onLoadMore={loadMore}>
+      {loading ? (
+        <div className="flex h-full items-center justify-center">
+          <Spinner className="h-8 w-8" />
+        </div>
+      ) : (
+        <ChatWindow conversationId={params.conversationId} />
+      )}
+    </ChatLayout>
   );
 }

@@ -14,7 +14,7 @@ export function DocumentCard({ document }: { document: Document }) {
     <Link href={routes.libraryDetail(document.id)}>
       <Card interactive className="h-full">
         <CardHeader>
-          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary-500/15 text-primary-400">
+          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary-500/15 text-primary-700">
             <FileText className="h-5 w-5" />
           </div>
           <CardTitle className="line-clamp-2 text-base">{document.name}</CardTitle>

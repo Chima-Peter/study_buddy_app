@@ -1,22 +1,26 @@
 import type { StudyChapter } from "@/types";
+import { Markdown } from "@/components/ui/markdown";
+import { formatChapterTitle } from "@/lib/utils/format";
 
 export function SectionContent({ chapter }: { chapter: StudyChapter }) {
   return (
-    <article className="prose prose-invert max-w-none space-y-6">
+    <article className="max-w-none space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold">{chapter.chapter_key}</h1>
+        <h1 className="text-2xl font-semibold">
+          {formatChapterTitle(chapter.chapter_key)}
+        </h1>
         {chapter.introduction && (
-          <p className="mt-3 text-[var(--text-secondary)] leading-relaxed">
+          <Markdown className="mt-3 text-[var(--text-secondary)]">
             {chapter.introduction}
-          </p>
+          </Markdown>
         )}
       </header>
       {chapter.sections.map((section) => (
         <section key={section.title} className="space-y-3">
           <h2 className="text-xl font-semibold">{section.title}</h2>
-          <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-[var(--text-primary)]">
+          <Markdown className="text-[15px] text-[var(--text-primary)]">
             {section.content}
-          </div>
+          </Markdown>
           {(section.references?.length > 0 || section.external_references?.length > 0) && (
             <div className="rounded-md border border-border bg-surface-secondary p-4">
               <h3 className="mb-2 text-sm font-semibold">References</h3>

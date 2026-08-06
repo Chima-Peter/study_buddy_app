@@ -21,6 +21,7 @@ import { useDocumentsStore } from "@/stores/documents-store";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { Modal } from "@/components/ui/modal";
+import { PageHeader } from "@/components/layout/page-header";
 
 export default function DocumentDetailPage() {
   const params = useParams<{ id: string }>();
@@ -150,15 +151,12 @@ export default function DocumentDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">{doc.name}</h1>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            Uploaded {formatDate(doc.created_at)}
-          </p>
-        </div>
-        <StatusBadge status={doc.status} />
-      </div>
+      <PageHeader
+        title={doc.name}
+        description={`Uploaded ${formatDate(doc.created_at)}`}
+        backHref={routes.library}
+        actions={<StatusBadge status={doc.status} />}
+      />
 
       <Card>
         <CardHeader>

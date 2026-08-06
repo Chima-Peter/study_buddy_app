@@ -6,13 +6,16 @@ import { QuizOption } from "./quiz-option";
 import { ScoreSummary } from "./score-summary";
 import { Button } from "@/components/ui/button";
 
-const STORAGE_KEY = (documentId: string) => `studybuddy_quiz_${documentId}`;
+const STORAGE_KEY = (documentId: string, chapterKey: string) =>
+  `studybuddy_quiz_${documentId}_${chapterKey}`;
 
 export function QuizPlayer({
   documentId,
+  chapterKey,
   questions,
 }: {
   documentId: string;
+  chapterKey: string;
   questions: QuizQuestion[];
 }) {
   const [index, setIndex] = useState(0);
@@ -23,7 +26,7 @@ export function QuizPlayer({
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY(documentId));
+      const raw = localStorage.getItem(STORAGE_KEY(documentId, chapterKey));
       if (!raw) return;
       const parsed = JSON.parse(raw) as {
         index: number;
@@ -36,14 +39,14 @@ export function QuizPlayer({
     } catch {
       // ignore
     }
-  }, [documentId]);
+  }, [documentId, chapterKey]);
 
   useEffect(() => {
     localStorage.setItem(
-      STORAGE_KEY(documentId),
+      STORAGE_KEY(documentId, chapterKey),
       JSON.stringify({ index, answers, done }),
     );
-  }, [documentId, index, answers, done]);
+  }, [documentId, chapterKey, index, answers, done]);
 
   const question = questions[index];
   const progress = useMemo(
@@ -66,7 +69,7 @@ export function QuizPlayer({
           setRevealed(false);
           setAnswers([]);
           setDone(false);
-          localStorage.removeItem(STORAGE_KEY(documentId));
+          localStorage.removeItem(STORAGE_KEY(documentId, chapterKey));
         }}
       />
     );

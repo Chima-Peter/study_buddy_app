@@ -62,7 +62,7 @@ export function LoginForm() {
       </Button>
       <p className="text-center text-sm text-[var(--text-secondary)]">
         Don&apos;t have an account?{" "}
-        <Link href={routes.register} className="text-primary-400 hover:underline">
+        <Link href={routes.register} className="text-primary-700 hover:underline">
           Sign up
         </Link>
       </p>

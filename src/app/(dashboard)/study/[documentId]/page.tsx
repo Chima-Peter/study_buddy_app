@@ -9,6 +9,7 @@ import { ChapterNav } from "@/components/study/chapter-nav";
 import { SectionContent } from "@/components/study/section-content";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
 
 export default function StudyDeckPage() {
@@ -60,7 +61,7 @@ export default function StudyDeckPage() {
   if (!current || current.status !== "success" || !active) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Study deck unavailable</h1>
+        <PageHeader title="Study deck unavailable" backHref={routes.study} />
         <p className="text-[var(--text-secondary)]">
           Cards may still be generating, or generation failed. Check the Study index.
         </p>
@@ -73,14 +74,17 @@ export default function StudyDeckPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href={routes.study} className="text-sm text-primary-400 hover:underline">
-          ← Back to Deck
-        </Link>
-        <Link href={routes.studyQuiz(params.documentId)}>
-          <Button>Take Quiz</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Study Deck"
+        backHref={routes.study}
+        actions={
+          (active.quiz?.length ?? 0) > 0 ? (
+            <Link href={routes.studyQuiz(params.documentId, active.chapter_key)}>
+              <Button>Take chapter quiz</Button>
+            </Link>
+          ) : undefined
+        }
+      />
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
         <aside className="rounded-lg border border-border bg-surface-secondary p-3">
           <h2 className="mb-2 px-2 text-sm font-semibold">Chapters</h2>
@@ -92,7 +96,7 @@ export default function StudyDeckPage() {
         </aside>
         <div className="space-y-6">
           <SectionContent chapter={active} />
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-3">
             <Button
               variant="ghost"
               disabled={activeIndex <= 0}
@@ -100,6 +104,11 @@ export default function StudyDeckPage() {
             >
               ← Prev
             </Button>
+            {(active.quiz?.length ?? 0) > 0 && (
+              <Link href={routes.studyQuiz(params.documentId, active.chapter_key)}>
+                <Button variant="secondary">Quiz this chapter</Button>
+              </Link>
+            )}
             <Button
               variant="ghost"
               disabled={activeIndex >= chapters.length - 1}

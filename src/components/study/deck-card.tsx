@@ -16,6 +16,9 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
   const chapters = deck.result?.chapters?.length ?? 0;
   const questions =
     deck.result?.chapters?.reduce((sum, c) => sum + (c.quiz?.length ?? 0), 0) ?? 0;
+  const quizChapter =
+    deck.result?.chapters?.find((c) => (c.quiz?.length ?? 0) > 0)?.chapter_key ??
+    deck.result?.chapters?.[0]?.chapter_key;
 
   const retry = async () => {
     try {
@@ -41,7 +44,7 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
       }
     >
       <CardHeader>
-        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-secondary-500/15 text-secondary-400">
+        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary-500/15 text-primary-700">
           <BookOpen className="h-5 w-5" />
         </div>
         <CardTitle className="text-base">Document {deck.document_id.slice(0, 8)}…</CardTitle>
@@ -73,11 +76,13 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
             <Link href={routes.studyDeck(deck.document_id)}>
               <Button size="sm">Read</Button>
             </Link>
-            <Link href={routes.studyQuiz(deck.document_id)}>
-              <Button size="sm" variant="secondary">
-                Take Quiz
-              </Button>
-            </Link>
+            {quizChapter && (
+              <Link href={routes.studyQuiz(deck.document_id, quizChapter)}>
+                <Button size="sm" variant="secondary">
+                  Take Quiz
+                </Button>
+              </Link>
+            )}
           </>
         )}
         {deck.status === "failed" && (

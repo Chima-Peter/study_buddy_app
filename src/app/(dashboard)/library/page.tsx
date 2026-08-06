@@ -7,6 +7,7 @@ import { listDocuments } from "@/lib/api/documents";
 import { DocumentFilters } from "@/components/library/document-filters";
 import { DocumentGrid } from "@/components/library/document-grid";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
 import { Plus } from "lucide-react";
 
@@ -57,20 +58,19 @@ export default function LibraryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">My Library</h1>
-          <p className="text-sm text-[var(--text-secondary)]">
-            Upload and manage your study materials
-          </p>
-        </div>
-        <Link href={routes.libraryUpload}>
-          <Button>
-            <Plus className="h-4 w-4" />
-            Upload
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="My Library"
+        description="Upload and manage your study materials"
+        backHref={routes.library}
+        actions={
+          <Link href={routes.libraryUpload}>
+            <Button>
+              <Plus className="h-4 w-4" />
+              Upload
+            </Button>
+          </Link>
+        }
+      />
 
       <DocumentFilters
         name={name}

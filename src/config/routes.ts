@@ -9,7 +9,8 @@ export const routes = {
   chatConversation: (id: string) => `/chat/${id}`,
   study: "/study",
   studyDeck: (documentId: string) => `/study/${documentId}`,
-  studyQuiz: (documentId: string) => `/study/${documentId}/quiz`,
+  studyQuiz: (documentId: string, chapterKey: string) =>
+    `/study/${documentId}/quiz/${encodeURIComponent(chapterKey)}`,
   notifications: "/notifications",
   settings: "/settings",
 } as const;
