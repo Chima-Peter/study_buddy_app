@@ -54,6 +54,7 @@ export default function ChapterQuizPage() {
     <div className="space-y-6">
       <PageHeader
         title={`${formatChapterTitle(chapterKey)} Quiz`}
+        showBack
         backHref={routes.studyDeck(params.documentId)}
       />
       {!found ? (

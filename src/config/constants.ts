@@ -17,4 +17,4 @@ export const ALLOWED_FILE_EXTENSIONS = [
   ".epub",
 ] as const;
 
-export const MAX_FILE_SIZE_MB = 10;
+export const MAX_FILE_SIZE_MB = 50;

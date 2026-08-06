@@ -61,7 +61,7 @@ export default function StudyDeckPage() {
   if (!current || current.status !== "success" || !active) {
     return (
       <div className="space-y-4">
-        <PageHeader title="Study deck unavailable" backHref={routes.study} />
+        <PageHeader title="Study deck unavailable" showBack backHref={routes.study} />
         <p className="text-[var(--text-secondary)]">
           Cards may still be generating, or generation failed. Check the Study index.
         </p>
@@ -76,6 +76,7 @@ export default function StudyDeckPage() {
     <div className="space-y-4">
       <PageHeader
         title="Study Deck"
+        showBack
         backHref={routes.study}
         actions={
           (active.quiz?.length ?? 0) > 0 ? (

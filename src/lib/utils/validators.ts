@@ -22,8 +22,8 @@ export const profileSchema = z.object({
 });
 
 export const uploadSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  category: z.string().min(1, "Category is required"),
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  category: z.string().min(3, "Category must be at least 3 characters"),
   description: z.string().optional(),
 });
 

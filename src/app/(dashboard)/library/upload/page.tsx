@@ -8,6 +8,7 @@ export default function UploadPage() {
       <PageHeader
         title="Upload document"
         description="Files are uploaded securely, then processed for chat and study cards"
+        showBack
         backHref={routes.library}
       />
       <UploadWizard />

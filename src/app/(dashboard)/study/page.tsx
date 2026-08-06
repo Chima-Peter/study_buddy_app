@@ -7,7 +7,6 @@ import { DeckCard } from "@/components/study/deck-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
-import { routes } from "@/config/routes";
 import type { StudyCardsStatus } from "@/types";
 
 export default function StudyPage() {
@@ -53,7 +52,6 @@ export default function StudyPage() {
       <PageHeader
         title="Study Decks"
         description="Chapters, notes, and quizzes from your materials"
-        backHref={routes.library}
         actions={
           <select
             className="h-11 rounded-md border border-border bg-surface-tertiary px-3 text-sm"

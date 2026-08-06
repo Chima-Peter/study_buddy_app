@@ -61,7 +61,6 @@ export default function LibraryPage() {
       <PageHeader
         title="My Library"
         description="Upload and manage your study materials"
-        backHref={routes.library}
         actions={
           <Link href={routes.libraryUpload}>
             <Button>

@@ -7,6 +7,7 @@ import { ChatWindow } from "@/components/chat/chat-window";
 import { getConversation, listConversations } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
 import { Spinner } from "@/components/ui/spinner";
+import { useChatSocket } from "@/lib/ws/use-chat-socket";
 
 export default function ConversationPage() {
   const params = useParams<{ conversationId: string }>();
@@ -50,6 +51,9 @@ export default function ConversationPage() {
     setMessages,
     setActiveConversationId,
   ]);
+
+  // Keep the single shared socket alive for this conversation view
+  useChatSocket();
 
   const loadMore = async () => {
     if (!nextCursor) return;

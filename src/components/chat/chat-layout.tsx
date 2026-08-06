@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, PanelLeft, PanelLeftClose } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { PanelLeft, PanelLeftClose } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { ConversationList } from "./conversation-list";
-import { routes } from "@/config/routes";
 
 export function ChatLayout({
   children,
@@ -19,7 +18,6 @@ export function ChatLayout({
   onLoadMore?: () => void;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(true);
 
   useEffect(() => {
@@ -35,14 +33,6 @@ export function ChatLayout({
       setOpen(false);
     }
   }, [pathname]);
-
-  const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push(routes.library);
-  };
 
   return (
     <div className="relative -m-4 flex h-[calc(100vh-4rem)] overflow-hidden lg:-m-6">
@@ -76,14 +66,6 @@ export function ChatLayout({
 
       <div className="flex min-w-0 flex-1 flex-col bg-surface-primary">
         <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
-          <button
-            type="button"
-            onClick={goBack}
-            className="flex min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
           <button
             type="button"
             className="flex min-touch items-center justify-center rounded-md p-2 text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]"

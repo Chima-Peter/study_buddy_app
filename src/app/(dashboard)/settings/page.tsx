@@ -27,7 +27,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const handleLogout = useLogout();
-  const [theme, setTheme] = useState<"dark" | "light" | "system">("dark");
+  const [theme, setTheme] = useState<"dark" | "light" | "system">("light");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -47,7 +47,7 @@ export default function SettingsPage() {
       | "light"
       | "system"
       | null;
-    setTheme(stored ?? "dark");
+    setTheme(stored ?? "light");
     getMe()
       .then((me) => {
         setUser(me);
@@ -113,7 +113,6 @@ export default function SettingsPage() {
       <PageHeader
         title="Settings"
         description="Manage your profile and preferences"
-        backHref={routes.library}
       />
 
       <Card>

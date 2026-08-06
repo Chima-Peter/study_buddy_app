@@ -94,7 +94,6 @@ export default function NotificationsPage() {
       <PageHeader
         title="Notifications"
         description="Stay updated on documents, study cards, and other alerts"
-        backHref={routes.library}
         onClose={onClose}
         actions={
           <Button variant="secondary" onClick={onMarkAll}>

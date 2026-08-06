@@ -3,6 +3,12 @@ import type { WsFrame } from "@/types";
 
 type FrameHandler = (frame: WsFrame) => void;
 
+export type ChatSendPayload = {
+  query: string;
+  conversation_id?: string;
+  document_ids?: string[];
+};
+
 export class ChatSocket {
   private ws: WebSocket | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -24,27 +30,32 @@ export class ChatSocket {
   disconnect() {
     this.shouldReconnect = false;
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
-    this.ws?.close();
-    this.ws = null;
+    this.reconnectTimer = null;
+    if (this.ws) {
+      this.ws.onclose = null;
+      this.ws.close();
+      this.ws = null;
+    }
+    this.queue = [];
     this.onStatus?.(false);
   }
 
   reconnectWithNewToken() {
-    this.ws?.close();
+    this.shouldReconnect = true;
     this.open();
   }
 
-  send(payload: {
-    query: string;
-    conversation_id?: string;
-    document_ids?: string[];
-  }) {
+  send(payload: ChatSendPayload) {
     const message = JSON.stringify(payload);
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(message);
     } else {
       this.queue.push(message);
     }
+  }
+
+  get connected() {
+    return this.ws?.readyState === WebSocket.OPEN;
   }
 
   private open() {
@@ -79,7 +90,7 @@ export class ChatSocket {
         }
         this.onFrame(frame);
       } catch {
-        // ignore
+        // ignore malformed frames
       }
     };
 
@@ -100,4 +111,45 @@ export class ChatSocket {
       this.open();
     }, this.backoffMs);
   }
+}
+
+/** Single shared socket for all conversations (scoped via conversation_id). */
+let sharedSocket: ChatSocket | null = null;
+let frameHandler: FrameHandler = () => {};
+let lastToken: string | null = null;
+
+export function setChatFrameHandler(handler: FrameHandler) {
+  frameHandler = handler;
+}
+
+export function ensureSharedChatSocket(getToken: () => string | null): ChatSocket | null {
+  const token = getToken();
+  if (!token) {
+    disconnectSharedChatSocket();
+    return null;
+  }
+
+  if (!sharedSocket) {
+    sharedSocket = new ChatSocket(getToken, (frame) => frameHandler(frame));
+    sharedSocket.connect();
+    lastToken = token;
+    return sharedSocket;
+  }
+
+  if (lastToken !== token) {
+    lastToken = token;
+    sharedSocket.reconnectWithNewToken();
+  }
+
+  return sharedSocket;
+}
+
+export function disconnectSharedChatSocket() {
+  sharedSocket?.disconnect();
+  sharedSocket = null;
+  lastToken = null;
+}
+
+export function getSharedChatSocket() {
+  return sharedSocket;
 }

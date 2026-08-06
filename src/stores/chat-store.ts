@@ -13,6 +13,10 @@ interface ChatState {
   nextCursor: string | null;
   hasMore: boolean;
   activeConversationId: string | null;
+  /** Conversation the current WS turn belongs to (set on send / first frame). */
+  streamingConversationId: string | null;
+  /** After creating a chat on /chat, navigate to /chat/[id]. */
+  pendingRouteConversationId: string | null;
   messages: UiMessage[];
   streamingContent: string;
   isStreaming: boolean;
@@ -28,9 +32,13 @@ interface ChatState {
   setActiveConversationId: (id: string | null) => void;
   setMessages: (messages: UiMessage[]) => void;
   appendUserMessage: (content: string) => void;
-  startAssistantMessage: () => void;
+  prepareSend: (conversationId: string | null) => void;
+  bindStream: (conversationId: string) => void;
+  startAssistantMessage: (conversationId?: string) => void;
   appendStreamChunk: (chunk: string) => void;
   finalizeStream: (conversationId?: string) => void;
+  clearStreaming: () => void;
+  setPendingRouteConversationId: (id: string | null) => void;
   setSelectedDocumentIds: (ids: string[]) => void;
   setError: (error: string | null) => void;
   updateTitle: (id: string, title: string) => void;
@@ -42,6 +50,8 @@ export const useChatStore = create<ChatState>((set) => ({
   nextCursor: null,
   hasMore: false,
   activeConversationId: null,
+  streamingConversationId: null,
+  pendingRouteConversationId: null,
   messages: [],
   streamingContent: "",
   isStreaming: false,
@@ -70,10 +80,18 @@ export const useChatStore = create<ChatState>((set) => ({
         { id: `u-${Date.now()}`, role: "user", content },
       ],
     })),
-  startAssistantMessage: () =>
+  prepareSend: (conversationId) =>
+    set({
+      streamingConversationId: conversationId,
+      error: null,
+    }),
+  bindStream: (conversationId) =>
+    set({ streamingConversationId: conversationId }),
+  startAssistantMessage: (conversationId) =>
     set((state) => ({
       isStreaming: true,
       streamingContent: "",
+      streamingConversationId: conversationId ?? state.streamingConversationId,
       messages: [
         ...state.messages,
         { id: `a-${Date.now()}`, role: "assistant", content: "", streaming: true },
@@ -98,9 +116,17 @@ export const useChatStore = create<ChatState>((set) => ({
         messages,
         isStreaming: false,
         streamingContent: "",
+        streamingConversationId: null,
         activeConversationId: conversationId ?? state.activeConversationId,
       };
     }),
+  clearStreaming: () =>
+    set({
+      isStreaming: false,
+      streamingContent: "",
+      streamingConversationId: null,
+    }),
+  setPendingRouteConversationId: (id) => set({ pendingRouteConversationId: id }),
   setSelectedDocumentIds: (ids) => set({ selectedDocumentIds: ids }),
   setError: (error) => set({ error }),
   updateTitle: (id, title) =>
@@ -112,9 +138,11 @@ export const useChatStore = create<ChatState>((set) => ({
   resetActive: () =>
     set({
       activeConversationId: null,
+      pendingRouteConversationId: null,
       messages: [],
       streamingContent: "",
       isStreaming: false,
+      streamingConversationId: null,
       error: null,
     }),
 }));

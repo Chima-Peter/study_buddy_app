@@ -34,6 +34,7 @@ export default function DocumentDetailPage() {
   const [loading, setLoading] = useState(!storeDoc);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,9 +96,12 @@ export default function DocumentDetailPage() {
   };
 
   const onRetry = async () => {
-    setBusy(true);
+    setRetrying(true);
     try {
       await retryIngest(doc.id);
+      const updated = await getDocument(doc.id);
+      setDoc(updated);
+      upsert(updated);
       toast({ title: "Retry queued", variant: "success" });
     } catch (err) {
       toast({
@@ -106,7 +110,7 @@ export default function DocumentDetailPage() {
         variant: "error",
       });
     } finally {
-      setBusy(false);
+      setRetrying(false);
     }
   };
 
@@ -154,6 +158,7 @@ export default function DocumentDetailPage() {
       <PageHeader
         title={doc.name}
         description={`Uploaded ${formatDate(doc.created_at)}`}
+        showBack
         backHref={routes.library}
         actions={<StatusBadge status={doc.status} />}
       />
@@ -200,8 +205,20 @@ export default function DocumentDetailPage() {
           Download
         </Button>
         {doc.status === "failed" && (
-          <Button className="w-full" variant="secondary" disabled={busy} onClick={onRetry}>
-            Retry ingest
+          <Button
+            className="w-full"
+            variant="secondary"
+            disabled={retrying || busy}
+            onClick={onRetry}
+          >
+            {retrying ? (
+              <>
+                <Spinner className="h-4 w-4 border-primary-700 border-t-transparent" />
+                Retrying…
+              </>
+            ) : (
+              "Retry ingest"
+            )}
           </Button>
         )}
         <Link href={routes.studyDeck(doc.id)}>

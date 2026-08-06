@@ -6,12 +6,15 @@ import { ChatLayout } from "@/components/chat/chat-layout";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { listConversations } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
+import { useChatSocket } from "@/lib/ws/use-chat-socket";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
   const { setConversations, nextCursor, hasMore, setSelectedDocumentIds, resetActive } =
     useChatStore();
   const [loadingMore, setLoadingMore] = useState(false);
+
+  useChatSocket();
 
   useEffect(() => {
     resetActive();

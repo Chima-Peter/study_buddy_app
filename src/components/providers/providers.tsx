@@ -8,17 +8,16 @@ import { THEME_STORAGE_KEY } from "@/config/constants";
 function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem(THEME_STORAGE_KEY) as "dark" | "light" | "system" | null;
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const theme =
-      stored === "light" || stored === "dark"
-        ? stored
-        : systemDark
-          ? "dark"
-          : "light";
-    document.documentElement.setAttribute("data-theme", theme || "dark");
-    if (!stored) {
-      document.documentElement.setAttribute("data-theme", "dark");
+    // Default to light (white + green). Only dark when explicitly chosen.
+    let resolved: "dark" | "light" = "light";
+    if (stored === "dark") resolved = "dark";
+    else if (stored === "system") {
+      resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    } else {
+      resolved = "light";
+      if (!stored) localStorage.setItem(THEME_STORAGE_KEY, "light");
     }
+    document.documentElement.setAttribute("data-theme", resolved);
   }, []);
 
   return <>{children}</>;
