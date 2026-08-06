@@ -5,7 +5,6 @@ Next.js 14 student client for the StudyBuddy API.
 ## Setup
 
 ```bash
-cd frontend
 npm install
 cp .env.local.example .env.local   # or use existing .env.local
 npm run dev
