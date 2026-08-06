@@ -1,0 +1,100 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { listStudyCards } from "@/lib/api/study-cards";
+import { useStudyStore } from "@/stores/study-store";
+import { DeckCard } from "@/components/study/deck-card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/spinner";
+import type { StudyCardsStatus } from "@/types";
+
+export default function StudyPage() {
+  const { items, hasMore, nextCursor, setPage } = useStudyStore();
+  const [status, setStatus] = useState<"" | StudyCardsStatus>("");
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await listStudyCards({
+          status: status || undefined,
+        });
+        if (!cancelled) setPage(data.items, data.next_cursor, data.has_more);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [status, setPage]);
+
+  const loadMore = async () => {
+    if (!nextCursor) return;
+    setLoadingMore(true);
+    try {
+      const data = await listStudyCards({
+        cursor: nextCursor,
+        status: status || undefined,
+      });
+      setPage(data.items, data.next_cursor, data.has_more, true);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Study Decks</h1>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Chapters, notes, and quizzes from your materials
+          </p>
+        </div>
+        <select
+          className="h-11 rounded-md border border-border bg-surface-tertiary px-3 text-sm"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as "" | StudyCardsStatus)}
+        >
+          <option value="">All statuses</option>
+          <option value="success">Success</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+        </select>
+      </div>
+
+      {loading && items.length === 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-40" />
+          ))}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-border p-12 text-center">
+          <p className="font-medium">No study decks yet</p>
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">
+            Generate cards from a completed document in your library
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {items.map((deck) => (
+            <DeckCard key={deck.id || deck.document_id} deck={deck} />
+          ))}
+        </div>
+      )}
+
+      {hasMore && (
+        <div className="flex justify-center">
+          <Button variant="secondary" onClick={loadMore} disabled={loadingMore}>
+            {loadingMore ? "Loading..." : "Load more"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}

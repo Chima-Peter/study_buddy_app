@@ -37,7 +37,7 @@ interface ChatState {
   resetActive: () => void;
 }
 
-export const useChatStore = create<ChatState>((set, get) => ({
+export const useChatStore = create<ChatState>((set) => ({
   conversations: [],
   nextCursor: null,
   hasMore: false,
