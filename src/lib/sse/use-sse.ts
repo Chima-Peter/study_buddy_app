@@ -89,6 +89,7 @@ export function useSse() {
             useStudyStore.getState().upsert({
               id: data.document_id,
               document_id: data.document_id,
+              document_name: data.name ?? "",
               status: "success",
               result: null,
               created_at: new Date().toISOString(),
@@ -114,6 +115,7 @@ export function useSse() {
           useStudyStore.getState().upsert({
             id: data.document_id,
             document_id: data.document_id,
+            document_name: data.name ?? "",
             status: "failed",
             result: null,
             created_at: new Date().toISOString(),

@@ -106,6 +106,7 @@ export interface StudyCardsResult {
 export interface StudyCards {
   id: string;
   document_id: string;
+  document_name: string;
   status: StudyCardsStatus;
   result?: StudyCardsResult | null;
   created_at: string;

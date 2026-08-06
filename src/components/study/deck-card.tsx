@@ -1,24 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
 import type { StudyCards } from "@/types";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
 import { generateStudyCards } from "@/lib/api/study-cards";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
+import { cn } from "@/lib/utils/cn";
+
+function statusLabel(status: StudyCards["status"]) {
+  if (status === "success") return "Ready";
+  if (status === "failed") return "Failed";
+  return "Generating";
+}
 
 export function DeckCard({ deck }: { deck: StudyCards }) {
   const { toast } = useToast();
   const chapters = deck.result?.chapters?.length ?? 0;
   const questions =
     deck.result?.chapters?.reduce((sum, c) => sum + (c.quiz?.length ?? 0), 0) ?? 0;
-  const quizChapter =
-    deck.result?.chapters?.find((c) => (c.quiz?.length ?? 0) > 0)?.chapter_key ??
-    deck.result?.chapters?.[0]?.chapter_key;
+
+  const title =
+    deck.document_name?.trim() || `Document ${deck.document_id.slice(0, 8)}…`;
 
   const retry = async () => {
     try {
@@ -34,63 +38,80 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
   };
 
   return (
-    <Card
-      status={
-        deck.status === "success"
-          ? "success"
-          : deck.status === "failed"
-            ? "error"
-            : "info"
-      }
-    >
-      <CardHeader>
-        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary-500/15 text-primary-700">
-          <BookOpen className="h-5 w-5" />
-        </div>
-        <CardTitle className="text-base">Document {deck.document_id.slice(0, 8)}…</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <Badge
-          variant={
-            deck.status === "success"
-              ? "success"
-              : deck.status === "failed"
-                ? "error"
-                : "warning"
-          }
+    <article className="study-flashcard relative overflow-hidden">
+      <div
+        className="pointer-events-none absolute right-0 top-0 h-14 w-14"
+        style={{
+          background:
+            "linear-gradient(225deg, rgba(240,196,25,0.55) 0%, rgba(240,196,25,0.08) 45%, transparent 55%)",
+        }}
+        aria-hidden
+      />
+
+      <div className="flex items-center justify-between gap-3 border-b border-[#0c2420]/08 px-5 pb-3 pt-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#0f766e]">
+          Study deck
+        </p>
+        <span
+          className={cn(
+            "text-[11px] font-semibold uppercase tracking-[0.12em]",
+            deck.status === "success" && "text-[#0f766e]",
+            deck.status === "failed" && "text-[#b91c1c]",
+            deck.status === "pending" && "text-[#b45309]",
+          )}
         >
-          {deck.status}
-        </Badge>
+          {statusLabel(deck.status)}
+        </span>
+      </div>
+
+      <div className="relative px-5 pb-2 pt-5">
+        <div
+          className="absolute left-0 top-5 bottom-2 w-1 rounded-r-full bg-[#14b8a6]"
+          aria-hidden
+        />
+        <h3 className="line-clamp-2 pl-3 font-[family-name:var(--font-study-display)] text-xl font-semibold leading-tight tracking-tight text-[#0c2420]">
+          {title}
+        </h3>
+
         {deck.status === "success" && (
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
             {chapters} chapters · {questions} questions
           </p>
         )}
         {deck.status === "pending" && (
-          <p className="text-sm text-[var(--text-secondary)]">Generating study cards…</p>
-        )}
-      </CardContent>
-      <CardFooter>
-        {deck.status === "success" && (
-          <>
-            <Link href={routes.studyDeck(deck.document_id)}>
-              <Button size="sm">Read</Button>
-            </Link>
-            {quizChapter && (
-              <Link href={routes.studyQuiz(deck.document_id, quizChapter)}>
-                <Button size="sm" variant="secondary">
-                  Take Quiz
-                </Button>
-              </Link>
-            )}
-          </>
+          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
+            Generating study cards…
+          </p>
         )}
         {deck.status === "failed" && (
-          <Button size="sm" variant="secondary" onClick={retry}>
+          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
+            Generation failed — you can retry
+          </p>
+        )}
+      </div>
+
+      <div className="px-5 pb-5 pt-4">
+        {deck.status === "success" && (
+          <Link href={routes.studyDeck(deck.document_id)} className="block w-full">
+            <Button
+              size="sm"
+              className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488]"
+            >
+              Read
+            </Button>
+          </Link>
+        )}
+        {deck.status === "failed" && (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={retry}
+            className="w-full rounded-full border-[#0f766e]/30 text-[#0f766e]"
+          >
             Retry
           </Button>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </article>
   );
 }

@@ -127,13 +127,6 @@ export default function StudyDeckPage() {
             >
               ← Prev chapter
             </Button>
-            {(active.quiz?.length ?? 0) > 0 && (
-              <Link href={routes.studyQuiz(params.documentId, active.chapter_key)}>
-                <Button variant="secondary" className="hidden sm:inline-flex">
-                  Quiz this chapter
-                </Button>
-              </Link>
-            )}
             <Button
               variant="ghost"
               disabled={activeIndex >= chapters.length - 1}
