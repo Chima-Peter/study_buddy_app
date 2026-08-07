@@ -8,9 +8,11 @@ export function QuestionPreviewList({
 }: {
   questions: QuestionBankQuestion[];
 }) {
-  if (questions.length === 0) {
+  const list = Array.isArray(questions) ? questions : [];
+
+  if (list.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-[var(--text-secondary)]">
+      <p className="rounded-xl border border-dashed border-[#0c2420]/15 bg-white/70 px-4 py-10 text-center text-sm text-[#5a7a73]">
         No questions in this bank yet.
       </p>
     );
@@ -18,7 +20,7 @@ export function QuestionPreviewList({
 
   return (
     <ol className="space-y-3">
-      {questions.map((q, i) => {
+      {list.map((q, i) => {
         const difficulty = q.difficulty?.trim();
         return (
           <li

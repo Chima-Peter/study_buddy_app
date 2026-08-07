@@ -1,10 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { QuestionBank } from "@/types";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
-import { generateQuestionBank } from "@/lib/api/question-bank";
+import {
+  generateQuestionBank,
+  getQuestionBank,
+} from "@/lib/api/question-bank";
+import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
@@ -16,11 +21,32 @@ function statusLabel(status: QuestionBank["status"]) {
 }
 
 export function BankCard({ bank }: { bank: QuestionBank }) {
+  const router = useRouter();
   const { toast } = useToast();
-  const questions = bank.result?.length ?? 0;
+  const setCurrent = useQuestionBankStore((s) => s.setCurrent);
+  const upsert = useQuestionBankStore((s) => s.upsert);
+  const [opening, setOpening] = useState(false);
 
   const title =
     bank.document_name?.trim() || `Document ${bank.document_id.slice(0, 8)}…`;
+
+  const openBank = async () => {
+    setOpening(true);
+    try {
+      const full = await getQuestionBank(bank.document_id);
+      setCurrent(full);
+      upsert(full);
+      router.push(routes.questionBankDetail(bank.document_id));
+    } catch (err) {
+      toast({
+        title: "Could not open quiz",
+        description: err instanceof ApiError ? err.message : undefined,
+        variant: "error",
+      });
+    } finally {
+      setOpening(false);
+    }
+  };
 
   const retry = async () => {
     try {
@@ -71,11 +97,6 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
           {title}
         </h3>
 
-        {bank.status === "success" && (
-          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
-            {questions} question{questions === 1 ? "" : "s"}
-          </p>
-        )}
         {bank.status === "pending" && (
           <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
             Generating question bank…
@@ -90,14 +111,14 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
 
       <div className="px-5 pb-5 pt-4">
         {bank.status === "success" && (
-          <Link href={routes.questionBankDetail(bank.document_id)} className="block w-full">
-            <Button
-              size="sm"
-              className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488]"
-            >
-              Open
-            </Button>
-          </Link>
+          <Button
+            size="sm"
+            onClick={openBank}
+            disabled={opening}
+            className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488]"
+          >
+            {opening ? "Opening…" : "Open"}
+          </Button>
         )}
         {bank.status === "failed" && (
           <Button

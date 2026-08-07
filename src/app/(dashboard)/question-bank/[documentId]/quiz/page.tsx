@@ -3,33 +3,61 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getQuestionBank } from "@/lib/api/question-bank";
-import type { QuestionBankQuestion } from "@/types";
+import {
+  getQuestionBank,
+  normalizeQuestionBankResult,
+} from "@/lib/api/question-bank";
+import { useQuestionBankStore } from "@/stores/question-bank-store";
+import type { QuestionBank, QuestionBankQuestion } from "@/types";
 import { QuizPlayer } from "@/components/study/quiz-player";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
 
+function bankFromStore(documentId: string): QuestionBank | null {
+  const { current, items } = useQuestionBankStore.getState();
+  if (current?.document_id === documentId && current.result != null) {
+    return current;
+  }
+  return items.find((b) => b.document_id === documentId && b.result != null) ?? null;
+}
+
 export default function QuestionBankQuizPage() {
   const params = useParams<{ documentId: string }>();
+  const upsert = useQuestionBankStore((s) => s.upsert);
+  const setCurrent = useQuestionBankStore((s) => s.setCurrent);
   const [questions, setQuestions] = useState<QuestionBankQuestion[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !bankFromStore(params.documentId));
   const [found, setFound] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+
+    const apply = (bank: QuestionBank) => {
+      if (bank.status !== "success") {
+        setFound(false);
+        setQuestions([]);
+        return;
+      }
+      setFound(true);
+      setQuestions(normalizeQuestionBankResult(bank.result));
+    };
+
     (async () => {
+      const cached = bankFromStore(params.documentId);
+      if (cached) {
+        apply(cached);
+        setLoading(false);
+        return;
+      }
+
       try {
         const bank = await getQuestionBank(params.documentId);
         if (cancelled) return;
-        if (bank.status !== "success") {
-          setFound(false);
-          setQuestions([]);
-          return;
-        }
-        setFound(true);
-        setQuestions(bank.result ?? []);
+        upsert(bank);
+        setCurrent(bank);
+        apply(bank);
       } catch {
         if (!cancelled) {
           setFound(false);
@@ -39,10 +67,11 @@ export default function QuestionBankQuizPage() {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [params.documentId]);
+  }, [params.documentId, upsert, setCurrent]);
 
   if (loading) {
     return (

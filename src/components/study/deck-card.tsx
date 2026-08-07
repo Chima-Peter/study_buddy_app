@@ -17,9 +17,6 @@ function statusLabel(status: StudyCards["status"]) {
 
 export function DeckCard({ deck }: { deck: StudyCards }) {
   const { toast } = useToast();
-  const chapters = deck.result?.chapters?.length ?? 0;
-  const questions =
-    deck.result?.chapters?.reduce((sum, c) => sum + (c.quiz?.length ?? 0), 0) ?? 0;
 
   const title =
     deck.document_name?.trim() || `Document ${deck.document_id.slice(0, 8)}…`;
@@ -73,11 +70,6 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
           {title}
         </h3>
 
-        {deck.status === "success" && (
-          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
-            {chapters} chapters · {questions} questions
-          </p>
-        )}
         {deck.status === "pending" && (
           <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
             Generating study cards…
