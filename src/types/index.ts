@@ -96,6 +96,8 @@ export interface StudyChapter {
   chapter_key: string;
   introduction: string;
   sections: StudySection[];
+  /** Concept/section title → short memory aid. Empty `{}` for non-main chapters. */
+  mnemonics?: Record<string, string>;
   quiz: QuizQuestion[];
 }
 

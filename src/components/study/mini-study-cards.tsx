@@ -21,7 +21,8 @@ const sans = Plus_Jakarta_Sans({
 
 type StudyCard =
   | { kind: "intro"; title: string; content: string }
-  | { kind: "section"; title: string; section: StudySection };
+  | { kind: "section"; title: string; section: StudySection }
+  | { kind: "mnemonic"; title: string; content: string };
 
 function buildCards(chapter: StudyChapter): StudyCard[] {
   const cards: StudyCard[] = [];
@@ -35,7 +36,18 @@ function buildCards(chapter: StudyChapter): StudyCard[] {
   for (const section of chapter.sections) {
     cards.push({ kind: "section", title: section.title, section });
   }
+  for (const [title, content] of Object.entries(chapter.mnemonics ?? {})) {
+    const trimmed = content?.trim();
+    if (!title.trim() || !trimmed) continue;
+    cards.push({ kind: "mnemonic", title: title.trim(), content: trimmed });
+  }
   return cards;
+}
+
+function cardKindLabel(kind: StudyCard["kind"]) {
+  if (kind === "intro") return "Chapter overview";
+  if (kind === "mnemonic") return "Memory aid";
+  return "Study section";
 }
 
 function isHttpUrl(value: string) {
@@ -121,8 +133,9 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
           ...(card.section.external_references ?? []),
         ]
       : [];
-  const isIntro = card.kind === "intro";
-  const body = isIntro ? card.content : card.section.content;
+  const isMnemonic = card.kind === "mnemonic";
+  const body =
+    card.kind === "section" ? card.section.content : card.content;
 
   return (
     <div
@@ -136,8 +149,9 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
         <div
           className="pointer-events-none absolute -inset-x-2 -top-4 bottom-8 rounded-[2rem] opacity-90 lg:-inset-x-6 lg:-top-6"
           style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 20% 0%, rgba(45,212,191,0.22), transparent 55%), radial-gradient(ellipse 70% 50% at 95% 30%, rgba(240,196,25,0.14), transparent 50%)",
+            background: isMnemonic
+              ? "radial-gradient(ellipse 80% 60% at 20% 0%, rgba(240,196,25,0.28), transparent 55%), radial-gradient(ellipse 70% 50% at 95% 30%, rgba(45,212,191,0.12), transparent 50%)"
+              : "radial-gradient(ellipse 80% 60% at 20% 0%, rgba(45,212,191,0.22), transparent 55%), radial-gradient(ellipse 70% 50% at 95% 30%, rgba(240,196,25,0.14), transparent 50%)",
           }}
           aria-hidden
         />
@@ -146,14 +160,20 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
           {safeIndex < cards.length - 1 && (
             <div
               aria-hidden
-              className="absolute inset-x-4 top-4 bottom-0 rounded-[1.25rem] bg-[#0f766e]/12 lg:inset-x-6 lg:rounded-[1.5rem]"
+              className={cn(
+                "absolute inset-x-4 top-4 bottom-0 rounded-[1.25rem] lg:inset-x-6 lg:rounded-[1.5rem]",
+                isMnemonic ? "bg-[#b45309]/10" : "bg-[#0f766e]/12",
+              )}
               style={{ transform: "translateY(14px) rotate(-1.5deg) scale(0.98)" }}
             />
           )}
           {safeIndex < cards.length - 2 && (
             <div
               aria-hidden
-              className="absolute inset-x-7 top-5 bottom-0 rounded-[1.25rem] bg-[#0f766e]/08 lg:inset-x-10 lg:rounded-[1.5rem]"
+              className={cn(
+                "absolute inset-x-7 top-5 bottom-0 rounded-[1.25rem] lg:inset-x-10 lg:rounded-[1.5rem]",
+                isMnemonic ? "bg-[#b45309]/06" : "bg-[#0f766e]/08",
+              )}
               style={{ transform: "translateY(26px) rotate(1.2deg) scale(0.96)" }}
             />
           )}
@@ -178,24 +198,33 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
                 rotate: direction >= 0 ? -2 : 2,
               }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="study-flashcard relative z-10 cursor-grab active:cursor-grabbing lg:rounded-[1.5rem]"
+              className={cn(
+                "study-flashcard relative z-10 cursor-grab active:cursor-grabbing lg:rounded-[1.5rem]",
+                isMnemonic && "study-flashcard--mnemonic",
+              )}
             >
               <div
                 className="pointer-events-none absolute right-0 top-0 h-16 w-16 lg:h-24 lg:w-24"
                 style={{
-                  background:
-                    "linear-gradient(225deg, rgba(240,196,25,0.55) 0%, rgba(240,196,25,0.08) 45%, transparent 55%)",
+                  background: isMnemonic
+                    ? "linear-gradient(225deg, rgba(240,196,25,0.75) 0%, rgba(240,196,25,0.12) 45%, transparent 55%)"
+                    : "linear-gradient(225deg, rgba(240,196,25,0.55) 0%, rgba(240,196,25,0.08) 45%, transparent 55%)",
                 }}
                 aria-hidden
               />
 
               <div className="flex items-center justify-between gap-3 border-b border-[#0c2420]/08 px-5 pb-3 pt-4 lg:px-8 lg:pb-4 lg:pt-6">
                 <div className="min-w-0">
-                  <p className="truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-[#0f766e] lg:text-xs">
+                  <p
+                    className={cn(
+                      "truncate text-[11px] font-semibold uppercase tracking-[0.16em] lg:text-xs",
+                      isMnemonic ? "text-[#b45309]" : "text-[#0f766e]",
+                    )}
+                  >
                     {formatChapterTitle(chapter.chapter_key)}
                   </p>
                   <p className="mt-0.5 text-[11px] text-[#5a7a73] lg:text-sm">
-                    {isIntro ? "Chapter overview" : "Study section"}
+                    {cardKindLabel(card.kind)}
                     <span className="lg:hidden"> · swipe</span>
                     <span className="hidden lg:inline"> · ← → keys</span>
                   </p>
@@ -210,7 +239,10 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
 
               <div className="relative px-5 pb-2 pt-5 lg:px-8 lg:pt-7">
                 <div
-                  className="absolute left-0 top-5 bottom-2 w-1 rounded-r-full bg-[#14b8a6] lg:top-7 lg:w-1.5"
+                  className={cn(
+                    "absolute left-0 top-5 bottom-2 w-1 rounded-r-full lg:top-7 lg:w-1.5",
+                    isMnemonic ? "bg-[#f0c419]" : "bg-[#14b8a6]",
+                  )}
                   aria-hidden
                 />
                 <h2 className="pl-3 font-[family-name:var(--font-study-display)] text-[1.55rem] font-semibold leading-[1.2] tracking-tight text-[#0c2420] lg:pl-4 lg:text-[2rem]">
@@ -218,10 +250,21 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
                 </h2>
               </div>
 
-              <div className="study-flashcard-body mx-3 mb-3 mt-2 max-h-[min(48dvh,24rem)] overflow-y-auto overscroll-contain rounded-xl px-4 lg:mx-5 lg:mb-5 lg:mt-3 lg:max-h-[min(56dvh,32rem)] lg:rounded-2xl lg:px-7">
-                <Markdown className="study-flashcard-md font-[family-name:var(--font-study-sans)] text-[15px] text-[#0c2420] lg:text-base">
-                  {body}
-                </Markdown>
+              <div
+                className={cn(
+                  "mx-3 mb-3 mt-2 max-h-[min(48dvh,24rem)] overflow-y-auto overscroll-contain rounded-xl px-4 lg:mx-5 lg:mb-5 lg:mt-3 lg:max-h-[min(56dvh,32rem)] lg:rounded-2xl lg:px-7",
+                  isMnemonic ? "study-flashcard-mnemonic" : "study-flashcard-body",
+                )}
+              >
+                {isMnemonic ? (
+                  <p className="font-[family-name:var(--font-study-display)] text-[1.2rem] font-medium leading-snug tracking-tight text-[#0c2420] lg:text-[1.45rem] lg:leading-snug">
+                    {body}
+                  </p>
+                ) : (
+                  <Markdown className="study-flashcard-md font-[family-name:var(--font-study-sans)] text-[15px] text-[#0c2420] lg:text-base">
+                    {body}
+                  </Markdown>
+                )}
 
                 {refs.length > 0 && (
                   <div className="study-flashcard-refs">
@@ -243,12 +286,16 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
               </div>
 
               <div className="flex items-center gap-1 px-5 pb-4 lg:px-8 lg:pb-6">
-                {cards.map((_, i) => (
+                {cards.map((c, i) => (
                   <div
                     key={i}
                     className={cn(
                       "h-1 flex-1 rounded-full transition-colors duration-200 lg:h-1.5",
-                      i <= safeIndex ? "bg-[#0f766e]" : "bg-[#0c2420]/08",
+                      i > safeIndex
+                        ? "bg-[#0c2420]/08"
+                        : c.kind === "mnemonic"
+                          ? "bg-[#b45309]"
+                          : "bg-[#0f766e]",
                     )}
                   />
                 ))}
@@ -275,18 +322,25 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
 
         <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
           <div className="flex max-w-full items-center gap-1.5 overflow-x-auto py-1">
-            {cards.map((_, i) => (
+            {cards.map((c, i) => (
               <button
                 key={i}
                 type="button"
-                aria-label={`Card ${i + 1}`}
+                aria-label={
+                  c.kind === "mnemonic" ? `Mnemonic ${i + 1}` : `Card ${i + 1}`
+                }
                 aria-current={i === safeIndex ? "true" : undefined}
                 onClick={() => go(i)}
                 className={cn(
                   "h-2.5 shrink-0 rounded-full transition-all duration-200",
                   i === safeIndex
-                    ? "w-6 bg-[#0f766e] lg:w-8"
-                    : "w-2.5 bg-[#0c2420]/15 hover:bg-[#14b8a6]",
+                    ? cn(
+                        "w-6 lg:w-8",
+                        c.kind === "mnemonic" ? "bg-[#b45309]" : "bg-[#0f766e]",
+                      )
+                    : c.kind === "mnemonic"
+                      ? "w-2.5 bg-[#b45309]/30 hover:bg-[#b45309]"
+                      : "w-2.5 bg-[#0c2420]/15 hover:bg-[#14b8a6]",
                 )}
               />
             ))}
