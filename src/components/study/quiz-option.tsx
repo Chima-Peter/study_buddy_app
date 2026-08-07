@@ -29,7 +29,7 @@ export function QuizOption({
       disabled={revealed}
       onClick={onSelect}
       className={cn(
-        "flex w-full min-touch items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
+        "flex w-full min-h-11 items-start gap-3 rounded-2xl border px-4 py-3.5 text-left text-[15px] leading-snug transition-colors sm:min-touch sm:rounded-lg sm:py-3 sm:text-sm sm:leading-normal",
         styles,
       )}
     >

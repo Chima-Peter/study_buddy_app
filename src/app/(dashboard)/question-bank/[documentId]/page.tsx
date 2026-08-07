@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/question-bank";
 import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { QuestionPreviewList } from "@/components/question-bank/question-preview-list";
+import { ExamSetupModal } from "@/components/question-bank/exam-setup-modal";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
@@ -81,6 +82,7 @@ export default function QuestionBankDetailPage() {
     () => !bankFromStore(params.documentId),
   );
   const [retrying, setRetrying] = useState(false);
+  const [examOpen, setExamOpen] = useState(false);
 
   const bankMatches =
     current?.document_id === params.documentId ? current : null;
@@ -127,24 +129,17 @@ export default function QuestionBankDetailPage() {
     setRetrying(true);
     try {
       await generateQuestionBank(params.documentId);
-      upsert({
+      const pending = {
         id: params.documentId,
         document_id: params.documentId,
         document_name: bankMatches?.document_name ?? null,
-        status: "pending",
+        status: "pending" as const,
         result: null,
         created_at: bankMatches?.created_at ?? new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      });
-      setCurrent({
-        id: params.documentId,
-        document_id: params.documentId,
-        document_name: bankMatches?.document_name ?? null,
-        status: "pending",
-        result: null,
-        created_at: bankMatches?.created_at ?? new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      });
+      };
+      upsert(pending);
+      setCurrent(pending);
       toast({ title: "Regeneration queued", variant: "success" });
     } catch (err) {
       toast({
@@ -305,7 +300,7 @@ export default function QuestionBankDetailPage() {
           title={title}
           description={
             questionCount > 0
-              ? "Review questions, then take the shuffled quiz"
+              ? "Review questions, then take a timed-style exam"
               : "No questions in this bank yet"
           }
           showBack
@@ -313,20 +308,32 @@ export default function QuestionBankDetailPage() {
           className="[&_h1]:font-[family-name:var(--font-study-display)] [&_h1]:tracking-tight [&_h1]:text-[#0c2420]"
           actions={
             questionCount > 0 ? (
-              <Link
-                href={routes.questionBankQuiz(params.documentId)}
-                className="w-full sm:w-auto"
+              <Button
+                className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488] sm:w-auto"
+                onClick={() => setExamOpen(true)}
               >
-                <Button className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488] sm:w-auto">
-                  Take quiz
-                </Button>
-              </Link>
+                Take quiz
+              </Button>
             ) : undefined
           }
         />
 
         <QuestionPreviewList questions={questions} />
       </div>
+
+      <ExamSetupModal
+        open={examOpen}
+        onOpenChange={setExamOpen}
+        total={questionCount}
+        onStart={({ count, timerMinutes }) => {
+          setExamOpen(false);
+          const qs = new URLSearchParams({ count: String(count) });
+          if (timerMinutes != null) qs.set("timer", String(timerMinutes));
+          router.push(
+            `${routes.questionBankQuiz(params.documentId)}?${qs}`,
+          );
+        }}
+      />
     </div>
   );
 }
