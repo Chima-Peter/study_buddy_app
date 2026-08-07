@@ -60,7 +60,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastContext.Provider value={value}>
-      <Toast.Provider swipeDirection="down" duration={5000}>
+      <Toast.Provider swipeDirection="right" duration={5000}>
         {children}
         {items.map((item) => {
           const variant = item.variant ?? "default";
@@ -110,7 +110,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             </Toast.Root>
           );
         })}
-        <Toast.Viewport className="fixed inset-x-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-[100] flex w-auto max-w-full flex-col gap-2 outline-none lg:inset-x-auto lg:bottom-auto lg:right-4 lg:top-4 lg:w-[360px] lg:max-w-[calc(100vw-2rem)]" />
+        <Toast.Viewport className="fixed inset-x-4 top-[calc(0.75rem+env(safe-area-inset-top,0px))] z-[100] flex w-auto max-w-full flex-col gap-2 outline-none lg:inset-x-auto lg:right-4 lg:left-auto lg:w-[360px] lg:max-w-[calc(100vw-2rem)]" />
       </Toast.Provider>
     </ToastContext.Provider>
   );
