@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
+  ClipboardList,
   Library,
   MessageSquare,
   Bell,
@@ -20,6 +21,7 @@ const nav = [
   { href: routes.library, label: "Library", icon: Library },
   { href: routes.chat, label: "Chat", icon: MessageSquare },
   { href: routes.study, label: "Study", icon: BookOpen },
+  { href: routes.questionBank, label: "Quizzes", icon: ClipboardList },
   { href: routes.notifications, label: "Inbox", icon: Bell },
   { href: routes.settings, label: "Settings", icon: Settings },
 ];

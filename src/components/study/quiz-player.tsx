@@ -6,18 +6,27 @@ import { QuizOption } from "./quiz-option";
 import { ScoreSummary } from "./score-summary";
 import { Button } from "@/components/ui/button";
 
-const STORAGE_KEY = (documentId: string, chapterKey: string) =>
-  `studybuddy_quiz_${documentId}_${chapterKey}`;
+export type QuizPlayerQuestion = QuizQuestion & {
+  explanation?: string | null;
+  difficulty?: string | null;
+};
 
 export function QuizPlayer({
   documentId,
   chapterKey,
   questions,
+  storagePrefix = "studybuddy_quiz",
+  backHref,
+  backLabel,
 }: {
   documentId: string;
   chapterKey: string;
-  questions: QuizQuestion[];
+  questions: QuizPlayerQuestion[];
+  storagePrefix?: string;
+  backHref?: string;
+  backLabel?: string;
 }) {
+  const storageKey = `${storagePrefix}_${documentId}_${chapterKey}`;
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -26,7 +35,7 @@ export function QuizPlayer({
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY(documentId, chapterKey));
+      const raw = localStorage.getItem(storageKey);
       if (!raw) return;
       const parsed = JSON.parse(raw) as {
         index: number;
@@ -39,14 +48,11 @@ export function QuizPlayer({
     } catch {
       // ignore
     }
-  }, [documentId, chapterKey]);
+  }, [storageKey]);
 
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY(documentId, chapterKey),
-      JSON.stringify({ index, answers, done }),
-    );
-  }, [documentId, chapterKey, index, answers, done]);
+    localStorage.setItem(storageKey, JSON.stringify({ index, answers, done }));
+  }, [storageKey, index, answers, done]);
 
   const question = questions[index];
   const progress = useMemo(
@@ -63,13 +69,15 @@ export function QuizPlayer({
       <ScoreSummary
         documentId={documentId}
         answers={answers}
+        backHref={backHref}
+        backLabel={backLabel}
         onRetake={() => {
           setIndex(0);
           setSelected(null);
           setRevealed(false);
           setAnswers([]);
           setDone(false);
-          localStorage.removeItem(STORAGE_KEY(documentId, chapterKey));
+          localStorage.removeItem(storageKey);
         }}
       />
     );
@@ -92,6 +100,9 @@ export function QuizPlayer({
     setRevealed(false);
   };
 
+  const explanation = question.explanation?.trim();
+  const difficulty = question.difficulty?.trim();
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
@@ -110,6 +121,11 @@ export function QuizPlayer({
       </div>
 
       <div className="rounded-lg border border-border bg-surface-secondary p-4 sm:p-6">
+        {difficulty && (
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-700">
+            {difficulty}
+          </p>
+        )}
         <p className="text-base font-medium leading-relaxed sm:text-lg">{question.question}</p>
       </div>
 
@@ -126,6 +142,15 @@ export function QuizPlayer({
           />
         ))}
       </div>
+
+      {revealed && explanation && (
+        <div className="rounded-lg border border-primary-700/15 bg-primary-500/10 px-4 py-3 text-sm leading-relaxed text-[var(--text-primary)]">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-700">
+            Explanation
+          </p>
+          <p>{explanation}</p>
+        </div>
+      )}
 
       <div className="sticky bottom-0 flex justify-stretch bg-surface-primary/95 py-3 backdrop-blur sm:static sm:justify-end sm:bg-transparent sm:py-0 sm:backdrop-blur-none">
         {!revealed ? (

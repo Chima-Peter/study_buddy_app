@@ -115,6 +115,30 @@ export interface StudyCards {
   updated_at: string;
 }
 
+export type QuestionBankStatus = "pending" | "failed" | "success";
+
+export interface QuestionBankQuestion {
+  question: string;
+  options: string[];
+  correct_option_index: number;
+  explanation: string;
+  difficulty: string;
+  internal_references: string[];
+  external_references: string[];
+}
+
+export interface QuestionBank {
+  id: string;
+  document_id: string;
+  document_name: string | null;
+  status: QuestionBankStatus;
+  /** Flat shuffled question list; null while pending. */
+  result?: QuestionBankQuestion[] | null;
+  reason?: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
 export interface Notification {
   id: string;
   title: string;

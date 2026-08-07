@@ -2,14 +2,13 @@
 
 import { cn } from "@/lib/utils/cn";
 import { formatChapterTitle } from "@/lib/utils/format";
-import type { StudyChapter } from "@/types";
 
 export function ChapterNav({
   chapters,
   activeKey,
   onSelect,
 }: {
-  chapters: StudyChapter[];
+  chapters: { chapter_key: string }[];
   activeKey: string;
   onSelect: (key: string) => void;
 }) {

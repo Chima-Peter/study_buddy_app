@@ -9,14 +9,19 @@ export function ScoreSummary({
   documentId,
   answers,
   onRetake,
+  backHref,
+  backLabel = "Back to Deck",
 }: {
   documentId: string;
   answers: boolean[];
   onRetake: () => void;
+  backHref?: string;
+  backLabel?: string;
 }) {
   const correct = answers.filter(Boolean).length;
   const total = answers.length;
   const percent = formatPercent(correct, total);
+  const href = backHref ?? routes.studyDeck(documentId);
 
   return (
     <div className="mx-auto max-w-lg space-y-8 py-10 text-center">
@@ -49,8 +54,8 @@ export function ScoreSummary({
         <Button variant="secondary" onClick={onRetake}>
           Retake Quiz
         </Button>
-        <Link href={routes.studyDeck(documentId)}>
-          <Button variant="ghost">Back to Deck</Button>
+        <Link href={href}>
+          <Button variant="ghost">{backLabel}</Button>
         </Link>
       </div>
     </div>

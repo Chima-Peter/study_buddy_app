@@ -5,10 +5,12 @@ import { NotificationStream } from "./notification-stream";
 import { useSessionStore } from "@/stores/session-store";
 import { useDocumentsStore } from "@/stores/documents-store";
 import { useStudyStore } from "@/stores/study-store";
+import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { useNotificationsStore } from "@/stores/notifications-store";
 import { useToast } from "@/components/ui/toast";
 import type { DocumentStatus, SseEvent } from "@/types";
 import { getStudyCards } from "@/lib/api/study-cards";
+import { getQuestionBank } from "@/lib/api/question-bank";
 
 type ServerNotice = {
   content?: string | null;
@@ -113,6 +115,61 @@ export function useSse() {
         };
         if (data.document_id) {
           useStudyStore.getState().upsert({
+            id: data.document_id,
+            document_id: data.document_id,
+            document_name: data.name ?? "",
+            status: "failed",
+            result: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+        useNotificationsStore.getState().incrementUnread();
+        toastFromServer(toastRef.current, data);
+        return;
+      }
+
+      if (event.type === "question_bank_generated") {
+        const data = event.data as {
+          document_id?: string;
+          name?: string | null;
+          status?: string | null;
+          comment?: string | null;
+          title?: string | null;
+          content?: string | null;
+        };
+        if (data.document_id) {
+          try {
+            const bank = await getQuestionBank(data.document_id);
+            useQuestionBankStore.getState().upsert(bank);
+          } catch {
+            useQuestionBankStore.getState().upsert({
+              id: data.document_id,
+              document_id: data.document_id,
+              document_name: data.name ?? "",
+              status: "success",
+              result: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            });
+          }
+        }
+        useNotificationsStore.getState().incrementUnread();
+        toastFromServer(toastRef.current, data);
+        return;
+      }
+
+      if (event.type === "question_bank_failed") {
+        const data = event.data as {
+          document_id?: string;
+          name?: string | null;
+          status?: string | null;
+          comment?: string | null;
+          title?: string | null;
+          content?: string | null;
+        };
+        if (data.document_id) {
+          useQuestionBankStore.getState().upsert({
             id: data.document_id,
             document_id: data.document_id,
             document_name: data.name ?? "",

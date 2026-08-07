@@ -138,16 +138,12 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     if (hasDocuments) return true;
     setPickerOpen(true);
     setPromptSelect(true);
-    setError(docsRequiredMessage);
     return false;
   };
 
   const onDocumentsChange = (ids: string[]) => {
     setSelectedDocumentIds(ids);
-    if (ids.length > 0) {
-      setPromptSelect(false);
-      if (error === docsRequiredMessage) setError(null);
-    }
+    if (ids.length > 0) setPromptSelect(false);
   };
 
   const onSend = (query: string) => {
@@ -198,14 +194,6 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
 
       <div className="shrink-0 px-4 pb-4 pt-2 sm:px-6 sm:pb-5">
         <div className="mx-auto max-w-2xl space-y-3">
-          {messages.length === 0 && error && (
-            <div
-              className="chat-soft-card border-error/20 bg-error/5 px-4 py-3 text-sm text-error"
-              role="alert"
-            >
-              {error}
-            </div>
-          )}
           <DocumentPicker
             selectedIds={selectedDocumentIds}
             onChange={onDocumentsChange}

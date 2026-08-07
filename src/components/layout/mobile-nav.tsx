@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Library, MessageSquare, Bell, User } from "lucide-react";
+import {
+  BookOpen,
+  ClipboardList,
+  Library,
+  MessageSquare,
+  Bell,
+  User,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/routes";
 import { UnreadBadge } from "@/components/notifications/unread-badge";
@@ -11,6 +18,7 @@ const tabs = [
   { href: routes.library, label: "Library", icon: Library },
   { href: routes.chat, label: "Chat", icon: MessageSquare },
   { href: routes.study, label: "Study", icon: BookOpen },
+  { href: routes.questionBank, label: "Quizzes", icon: ClipboardList },
   { href: routes.notifications, label: "Inbox", icon: Bell },
   { href: routes.settings, label: "Profile", icon: User },
 ];

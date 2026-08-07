@@ -13,11 +13,16 @@ import { cn } from "@/lib/utils/cn";
 
 function getNotificationStyle(notification: Notification) {
   const normalized = `${notification.title} ${notification.content}`.toLowerCase();
-  const isStudyCards = normalized.includes("study card");
+  const isQuestionBank = normalized.includes("question bank");
+  const isStudyCards = !isQuestionBank && normalized.includes("study card");
 
   if (normalized.includes("failed") || normalized.includes("error")) {
     return {
-      title: isStudyCards ? "Study cards failed" : "Ingestion failed",
+      title: isQuestionBank
+        ? "Question bank failed"
+        : isStudyCards
+          ? "Study cards failed"
+          : "Ingestion failed",
       icon: CircleAlert,
       iconClass: "bg-error/10 text-error",
     };
@@ -34,7 +39,11 @@ function getNotificationStyle(notification: Notification) {
     normalized.includes("ready to use")
   ) {
     return {
-      title: isStudyCards ? "Study cards ready" : "Document ready",
+      title: isQuestionBank
+        ? "Question bank ready"
+        : isStudyCards
+          ? "Study cards ready"
+          : "Document ready",
       icon: CheckCircle2,
       iconClass: "bg-success/10 text-success",
     };

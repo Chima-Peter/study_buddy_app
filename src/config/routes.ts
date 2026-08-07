@@ -11,6 +11,9 @@ export const routes = {
   studyDeck: (documentId: string) => `/study/${documentId}`,
   studyQuiz: (documentId: string, chapterKey: string) =>
     `/study/${documentId}/quiz/${encodeURIComponent(chapterKey)}`,
+  questionBank: "/question-bank",
+  questionBankDetail: (documentId: string) => `/question-bank/${documentId}`,
+  questionBankQuiz: (documentId: string) => `/question-bank/${documentId}/quiz`,
   notifications: "/notifications",
   settings: "/settings",
 } as const;

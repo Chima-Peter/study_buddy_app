@@ -13,25 +13,43 @@ import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
 import { formatChapterTitle } from "@/lib/utils/format";
 
+function deckFromStore(documentId: string) {
+  const { current, items } = useStudyStore.getState();
+  if (current?.document_id === documentId && current.result) return current;
+  return items.find((d) => d.document_id === documentId && d.result) ?? null;
+}
+
 export default function StudyDeckPage() {
   const params = useParams<{ documentId: string }>();
   const setCurrent = useStudyStore((s) => s.setCurrent);
   const upsert = useStudyStore((s) => s.upsert);
   const current = useStudyStore((s) => s.current);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !deckFromStore(params.documentId));
   const [activeKey, setActiveKey] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
+
+    const apply = (deck: NonNullable<ReturnType<typeof deckFromStore>>) => {
+      setCurrent(deck);
+      upsert(deck);
+      const first = deck.result?.chapters?.[0]?.chapter_key;
+      if (first) setActiveKey((prev) => prev || first);
+    };
+
     (async () => {
+      const cached = deckFromStore(params.documentId);
+      if (cached) {
+        apply(cached);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         const deck = await getStudyCards(params.documentId);
         if (cancelled) return;
-        setCurrent(deck);
-        upsert(deck);
-        const first = deck.result?.chapters?.[0]?.chapter_key;
-        if (first) setActiveKey(first);
+        apply(deck);
       } finally {
         if (!cancelled) setLoading(false);
       }

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getStudyCards } from "@/lib/api/study-cards";
-import type { QuizQuestion } from "@/types";
+import { useStudyStore } from "@/stores/study-store";
+import type { QuizQuestion, StudyCards } from "@/types";
 import { QuizPlayer } from "@/components/study/quiz-player";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -12,35 +13,58 @@ import { PageHeader } from "@/components/layout/page-header";
 import { formatChapterTitle } from "@/lib/utils/format";
 import { routes } from "@/config/routes";
 
+function deckFromStore(documentId: string): StudyCards | null {
+  const { current, items } = useStudyStore.getState();
+  if (current?.document_id === documentId && current.result) return current;
+  return items.find((d) => d.document_id === documentId && d.result) ?? null;
+}
+
 export default function ChapterQuizPage() {
   const params = useParams<{ documentId: string; chapterKey: string }>();
   const chapterKey = decodeURIComponent(params.chapterKey);
+  const upsert = useStudyStore((s) => s.upsert);
+  const setCurrent = useStudyStore((s) => s.setCurrent);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [found, setFound] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+
+    const applyDeck = (deck: StudyCards) => {
+      const chapter = deck.result?.chapters.find((c) => c.chapter_key === chapterKey);
+      if (!chapter) {
+        setFound(false);
+        setQuestions([]);
+        return;
+      }
+      setFound(true);
+      setQuestions(chapter.quiz ?? []);
+    };
+
     (async () => {
+      const cached = deckFromStore(params.documentId);
+      if (cached) {
+        applyDeck(cached);
+        setLoading(false);
+        return;
+      }
+
       try {
         const deck = await getStudyCards(params.documentId);
         if (cancelled) return;
-        const chapter = deck.result?.chapters.find((c) => c.chapter_key === chapterKey);
-        if (!chapter) {
-          setFound(false);
-          setQuestions([]);
-          return;
-        }
-        setFound(true);
-        setQuestions(chapter.quiz ?? []);
+        upsert(deck);
+        setCurrent(deck);
+        applyDeck(deck);
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [params.documentId, chapterKey]);
+  }, [params.documentId, chapterKey, upsert, setCurrent]);
 
   if (loading) {
     return (
