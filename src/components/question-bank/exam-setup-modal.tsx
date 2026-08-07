@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils/cn";
 
 const COUNT_PRESETS = [5, 10, 15, 20] as const;
@@ -22,6 +23,7 @@ function Stepper({
   max,
   onChange,
   suffix,
+  disabled,
 }: {
   id: string;
   value: number;
@@ -29,13 +31,14 @@ function Stepper({
   max: number;
   onChange: (n: number) => void;
   suffix?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex items-center gap-2">
       <button
         type="button"
         aria-label="Decrease"
-        disabled={value <= min}
+        disabled={disabled || value <= min}
         onClick={() => onChange(Math.max(min, value - 1))}
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface-secondary text-[var(--text-primary)] disabled:opacity-40"
       >
@@ -49,12 +52,13 @@ function Stepper({
           min={min}
           max={max}
           value={value}
+          disabled={disabled}
           onChange={(e) => {
             const n = Number(e.target.value);
             if (!Number.isFinite(n)) return;
             onChange(Math.min(max, Math.max(min, Math.floor(n))));
           }}
-          className="w-14 bg-transparent text-center text-base font-semibold tabular-nums outline-none"
+          className="w-14 bg-transparent text-center text-base font-semibold tabular-nums outline-none disabled:opacity-50"
         />
         {suffix && (
           <span className="text-sm text-[var(--text-secondary)]">{suffix}</span>
@@ -63,7 +67,7 @@ function Stepper({
       <button
         type="button"
         aria-label="Increase"
-        disabled={value >= max}
+        disabled={disabled || value >= max}
         onClick={() => onChange(Math.min(max, value + 1))}
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface-secondary text-[var(--text-primary)] disabled:opacity-40"
       >
@@ -88,12 +92,14 @@ export function ExamSetupModal({
   const [count, setCount] = useState(Math.min(10, maxCount));
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(15);
+  const [starting, setStarting] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setCount(Math.min(10, maxCount));
     setTimerEnabled(false);
     setTimerMinutes(15);
+    setStarting(false);
   }, [open, maxCount]);
 
   const countPresets = COUNT_PRESETS.filter((n) => n <= maxCount);
@@ -101,7 +107,10 @@ export function ExamSetupModal({
   return (
     <Modal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(next) => {
+        if (starting) return;
+        onOpenChange(next);
+      }}
       title="Start exam"
       description={`Choose how many of the ${total} questions to include.`}
     >
@@ -124,6 +133,7 @@ export function ExamSetupModal({
             min={1}
             max={maxCount}
             onChange={setCount}
+            disabled={starting}
           />
           {countPresets.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
@@ -131,12 +141,14 @@ export function ExamSetupModal({
                 <button
                   key={n}
                   type="button"
+                  disabled={starting}
                   onClick={() => setCount(n)}
                   className={cn(
                     "min-h-11 rounded-full border text-sm font-medium transition-colors",
                     count === n
                       ? "border-[#0f766e] bg-[#0f766e]/10 text-[#0f766e]"
                       : "border-border text-[var(--text-secondary)] active:bg-surface-tertiary",
+                    starting && "opacity-50",
                   )}
                 >
                   {n}
@@ -152,8 +164,9 @@ export function ExamSetupModal({
             type="button"
             role="switch"
             aria-checked={timerEnabled}
+            disabled={starting}
             onClick={() => setTimerEnabled((v) => !v)}
-            className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-border bg-surface-secondary px-4"
+            className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-border bg-surface-secondary px-4 disabled:opacity-50"
           >
             <span className="text-sm font-medium text-[var(--text-primary)]">
               Timer
@@ -182,18 +195,21 @@ export function ExamSetupModal({
                 max={180}
                 onChange={setTimerMinutes}
                 suffix="min"
+                disabled={starting}
               />
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                 {TIMER_PRESETS.map((n) => (
                   <button
                     key={n}
                     type="button"
+                    disabled={starting}
                     onClick={() => setTimerMinutes(n)}
                     className={cn(
                       "min-h-11 rounded-full border text-sm font-medium transition-colors",
                       timerMinutes === n
                         ? "border-[#0f766e] bg-[#0f766e]/10 text-[#0f766e]"
                         : "border-border text-[var(--text-secondary)] active:bg-surface-tertiary",
+                      starting && "opacity-50",
                     )}
                   >
                     {n}m
@@ -215,6 +231,7 @@ export function ExamSetupModal({
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
+            disabled={starting}
             className="w-full rounded-full sm:w-auto"
           >
             Cancel
@@ -222,18 +239,23 @@ export function ExamSetupModal({
           <Button
             className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488] sm:w-auto"
             disabled={
+              starting ||
               count < 1 ||
               count > maxCount ||
               (timerEnabled && timerMinutes < 1)
             }
-            onClick={() =>
+            onClick={() => {
+              setStarting(true);
               onStart({
                 count,
                 timerMinutes: timerEnabled ? timerMinutes : null,
-              })
-            }
+              });
+            }}
           >
-            Begin exam
+            {starting && (
+              <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />
+            )}
+            {starting ? "Starting…" : "Begin exam"}
           </Button>
         </div>
       </div>

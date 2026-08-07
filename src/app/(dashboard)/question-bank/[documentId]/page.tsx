@@ -83,6 +83,7 @@ export default function QuestionBankDetailPage() {
   );
   const [retrying, setRetrying] = useState(false);
   const [examOpen, setExamOpen] = useState(false);
+  const [startingExam, setStartingExam] = useState(false);
 
   const bankMatches =
     current?.document_id === params.documentId ? current : null;
@@ -152,7 +153,7 @@ export default function QuestionBankDetailPage() {
     }
   };
 
-  if (loading) {
+  if (loading || startingExam) {
     return (
       <div className="flex justify-center py-20">
         <Spinner className="h-8 w-8" />
@@ -326,6 +327,7 @@ export default function QuestionBankDetailPage() {
         onOpenChange={setExamOpen}
         total={questionCount}
         onStart={({ count, timerMinutes }) => {
+          setStartingExam(true);
           setExamOpen(false);
           const qs = new URLSearchParams({ count: String(count) });
           if (timerMinutes != null) qs.set("timer", String(timerMinutes));

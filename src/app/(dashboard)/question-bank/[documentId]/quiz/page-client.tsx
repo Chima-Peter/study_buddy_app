@@ -25,8 +25,7 @@ function bankFromStore(documentId: string): QuestionBank | null {
 }
 
 function sampleQuestions(pool: QuestionBankQuestion[], count: number) {
-  const max = pool.length <= 1 ? 1 : pool.length - 1;
-  const n = Math.min(Math.max(1, count), max, pool.length);
+  const n = Math.min(Math.max(1, count), pool.length);
   const shuffled = [...pool];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -46,6 +45,7 @@ export default function QuestionBankQuizPage() {
   const [found, setFound] = useState(true);
   const [examKey, setExamKey] = useState(0);
   const [setupOpen, setSetupOpen] = useState(false);
+  const [startingExam, setStartingExam] = useState(false);
 
   const requestedCount = Number(searchParams.get("count"));
   const hasValidCount =
@@ -113,7 +113,7 @@ export default function QuestionBankQuizPage() {
 
   const backHref = routes.questionBankDetail(params.documentId);
 
-  if (loading) {
+  if (loading || (startingExam && examQuestions.length === 0)) {
     return (
       <div className="flex justify-center py-20">
         <Spinner className="h-8 w-8" />
@@ -174,6 +174,7 @@ export default function QuestionBankQuizPage() {
         onOpenChange={setSetupOpen}
         total={pool.length}
         onStart={({ count, timerMinutes }) => {
+          setStartingExam(true);
           setSetupOpen(false);
           setExamKey((k) => k + 1);
           const qs = new URLSearchParams({ count: String(count) });
