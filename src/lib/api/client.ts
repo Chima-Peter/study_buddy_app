@@ -14,6 +14,39 @@ export class ApiError extends Error {
   }
 }
 
+function readErrorField(value: unknown): string | null {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed || null;
+  }
+  if (Array.isArray(value)) {
+    const parts = value
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
+    return parts.length ? parts.join(", ") : null;
+  }
+  return null;
+}
+
+function getErrorMessage(
+  json: ApiEnvelope<unknown> | null,
+  status: number,
+): string {
+  const fallback = `Request failed with status ${status}`;
+  if (!json) return fallback;
+
+  const fromError = readErrorField(json.error);
+  const fromMessage =
+    typeof json.message === "string" ? json.message.trim() || null : null;
+
+  // 4xx responses carry the user-facing detail in `error`
+  if (status >= 400 && status < 500) {
+    return fromError || fromMessage || fallback;
+  }
+
+  return fromMessage || fromError || fallback;
+}
+
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   skipAuth?: boolean;
@@ -98,9 +131,7 @@ export async function apiRequest<T>(
   }
 
   if (!res.ok) {
-    const message =
-      json?.message || json?.error || `Request failed with status ${res.status}`;
-    throw new ApiError(message, res.status, json);
+    throw new ApiError(getErrorMessage(json, res.status), res.status, json);
   }
 
   if (json && "data" in json) {
