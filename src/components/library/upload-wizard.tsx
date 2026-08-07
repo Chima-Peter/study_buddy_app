@@ -18,10 +18,12 @@ export function UploadWizard({
   onSuccess,
   onCancel,
   embedded = false,
+  initialDocument,
 }: {
   onSuccess?: (doc: Document) => void;
   onCancel?: () => void;
   embedded?: boolean;
+  initialDocument?: Pick<Document, "name" | "category" | "description">;
 }) {
   const upsert = useDocumentsStore((s) => s.upsert);
   const { toast } = useToast();
@@ -35,7 +37,11 @@ export function UploadWizard({
     formState: { errors, isSubmitting },
   } = useForm<UploadInput>({
     resolver: zodResolver(uploadSchema),
-    defaultValues: { name: "", category: "", description: "" },
+    defaultValues: {
+      name: initialDocument?.name ?? "",
+      category: initialDocument?.category ?? "",
+      description: initialDocument?.description ?? "",
+    },
   });
 
   const onSubmit = handleSubmit(async (values) => {

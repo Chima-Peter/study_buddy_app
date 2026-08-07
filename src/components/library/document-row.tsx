@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Trash2,
   Upload,
+  XCircle,
 } from "lucide-react";
 import type { Document } from "@/types";
 import { StatusBadge } from "./status-badge";
@@ -22,6 +23,7 @@ import { routes } from "@/config/routes";
 import { deleteDocument, getDownloadUrl } from "@/lib/api/documents";
 import { useDocumentsStore } from "@/stores/documents-store";
 import { useRetryIngest } from "@/lib/hooks/use-retry-ingest";
+import { useCancelIngest } from "@/lib/hooks/use-cancel-ingest";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
@@ -36,12 +38,17 @@ export function DocumentRow({
   const { toast } = useToast();
   const remove = useDocumentsStore((s) => s.remove);
   const { retry, isRetrying } = useRetryIngest();
+  const { cancel, isCancelling } = useCancelIngest();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [busy, setBusy] = useState(false);
   const retrying = isRetrying(document.id);
+  const cancelling = isCancelling(document.id);
   const ready = document.status === "completed";
   const failed = document.status === "failed";
   const cancelled = document.status === "cancelled";
+  const inPipeline =
+    document.status === "pending" || document.status === "processing";
 
   const onDownload = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -145,6 +152,22 @@ export function DocumentRow({
               Retry
             </Button>
           )}
+          {inPipeline && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-error hover:bg-error/10 hover:text-error"
+              disabled={cancelling}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setConfirmCancel(true);
+              }}
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              Cancel ingest
+            </Button>
+          )}
           {cancelled && (
             <Button
               size="sm"
@@ -198,6 +221,29 @@ export function DocumentRow({
           </Button>
         </div>
       </div>
+
+      <Modal
+        open={confirmCancel}
+        onOpenChange={setConfirmCancel}
+        title="Cancel ingestion?"
+        description="Processing will stop. You can upload the document again with the same details."
+      >
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setConfirmCancel(false)}>
+            Keep processing
+          </Button>
+          <Button
+            variant="danger"
+            disabled={cancelling}
+            onClick={async () => {
+              const updated = await cancel(document.id);
+              if (updated) setConfirmCancel(false);
+            }}
+          >
+            {cancelling ? "Cancelling..." : "Cancel ingestion"}
+          </Button>
+        </div>
+      </Modal>
 
       <Modal
         open={confirmDelete}

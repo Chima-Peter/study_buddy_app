@@ -9,6 +9,7 @@ import { DocumentList } from "@/components/library/document-list";
 import { UploadModal } from "@/components/library/upload-modal";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import type { Document } from "@/types";
 
 export default function LibraryPage() {
   const { items, hasMore, nextCursor, setPage } = useDocumentsStore();
@@ -18,6 +19,12 @@ export default function LibraryPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadSource, setUploadSource] = useState<Document | null>(null);
+
+  const openUpload = (document: Document | null = null) => {
+    setUploadSource(document);
+    setUploadOpen(true);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -62,7 +69,7 @@ export default function LibraryPage() {
         title="My Library"
         description="Upload and manage your study materials"
         actions={
-          <Button className="w-full sm:w-auto" onClick={() => setUploadOpen(true)}>
+          <Button className="w-full sm:w-auto" onClick={() => openUpload()}>
             <Plus className="h-4 w-4" />
             Upload
           </Button>
@@ -81,7 +88,7 @@ export default function LibraryPage() {
       <DocumentList
         documents={items}
         loading={loading}
-        onUploadAgain={() => setUploadOpen(true)}
+        onUploadAgain={openUpload}
       />
 
       {hasMore && (
@@ -92,7 +99,14 @@ export default function LibraryPage() {
         </div>
       )}
 
-      <UploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
+      <UploadModal
+        open={uploadOpen}
+        initialDocument={uploadSource}
+        onOpenChange={(open) => {
+          setUploadOpen(open);
+          if (!open) setUploadSource(null);
+        }}
+      />
     </div>
   );
 }

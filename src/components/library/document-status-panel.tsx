@@ -1,39 +1,84 @@
 "use client";
 
-import Link from "next/link";
-import { Loader2, RefreshCw, Upload } from "lucide-react";
+import { useState } from "react";
+import { Loader2, RefreshCw, Upload, XCircle } from "lucide-react";
 import type { Document } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
-import { routes } from "@/config/routes";
 import { useRetryIngest } from "@/lib/hooks/use-retry-ingest";
+import { useCancelIngest } from "@/lib/hooks/use-cancel-ingest";
 
 export function DocumentStatusPanel({
   document,
   onRetried,
+  onCancelled,
+  onUploadAgain,
 }: {
   document: Document;
   onRetried?: (doc: Document) => void;
+  onCancelled?: (doc: Document) => void;
+  onUploadAgain?: () => void;
 }) {
   const { retry, isRetrying } = useRetryIngest();
+  const { cancel, isCancelling } = useCancelIngest();
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const retrying = isRetrying(document.id);
+  const cancelling = isCancelling(document.id);
 
   if (document.status === "pending" || document.status === "processing") {
     return (
-      <div className="flex items-start gap-3 rounded-lg border border-primary-500/30 bg-primary-500/10 p-4">
-        <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-primary-700" />
-        <div>
-          <p className="text-sm font-medium">
-            {document.status === "pending"
-              ? "Queued for processing"
-              : "Processing your document"}
-          </p>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            This usually takes a minute. You can leave this page — we&apos;ll
-            notify you when it&apos;s ready.
-          </p>
+      <>
+        <div className="flex flex-col gap-3 rounded-lg border border-primary-500/30 bg-primary-500/10 p-4 sm:flex-row sm:items-start">
+          <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-primary-700" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">
+              {document.status === "pending"
+                ? "Queued for processing"
+                : "Processing your document"}
+            </p>
+            <p className="mt-1 text-sm text-[var(--text-secondary)]">
+              This usually takes a minute. You can leave this page — we&apos;ll
+              notify you when it&apos;s ready.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="shrink-0 text-error hover:bg-error/10 hover:text-error"
+            onClick={() => setConfirmCancel(true)}
+          >
+            <XCircle className="h-3.5 w-3.5" />
+            Cancel ingest
+          </Button>
         </div>
-      </div>
+
+        <Modal
+          open={confirmCancel}
+          onOpenChange={setConfirmCancel}
+          title="Cancel ingestion?"
+          description="Processing will stop. You can upload the document again with the same details."
+        >
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setConfirmCancel(false)}>
+              Keep processing
+            </Button>
+            <Button
+              variant="danger"
+              disabled={cancelling}
+              onClick={async () => {
+                const updated = await cancel(document.id);
+                if (updated) {
+                  onCancelled?.(updated);
+                  setConfirmCancel(false);
+                }
+              }}
+            >
+              {cancelling ? "Cancelling..." : "Cancel ingestion"}
+            </Button>
+          </div>
+        </Modal>
+      </>
     );
   }
 
@@ -77,12 +122,10 @@ export function DocumentStatusPanel({
             start a new ingest.
           </p>
         </div>
-        <Link href={routes.libraryUpload}>
-          <Button size="sm" variant="secondary">
-            <Upload className="h-3.5 w-3.5" />
-            Upload a new file
-          </Button>
-        </Link>
+        <Button size="sm" variant="secondary" onClick={onUploadAgain}>
+          <Upload className="h-3.5 w-3.5" />
+          Upload again
+        </Button>
       </div>
     );
   }

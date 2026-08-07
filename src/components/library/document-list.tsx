@@ -11,7 +11,7 @@ export function DocumentList({
 }: {
   documents: Document[];
   loading?: boolean;
-  onUploadAgain?: () => void;
+  onUploadAgain?: (document: Document) => void;
 }) {
   if (loading && documents.length === 0) {
     return (
@@ -49,7 +49,7 @@ export function DocumentList({
         <DocumentRow
           key={doc.id}
           document={doc}
-          onUploadAgain={onUploadAgain}
+          onUploadAgain={() => onUploadAgain?.(doc)}
         />
       ))}
     </div>

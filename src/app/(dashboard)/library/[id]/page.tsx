@@ -14,6 +14,7 @@ import type { Document } from "@/types";
 import { StatusBadge } from "@/components/library/status-badge";
 import { DocumentStatusPanel } from "@/components/library/document-status-panel";
 import { DocumentEditForm } from "@/components/library/document-edit-form";
+import { UploadModal } from "@/components/library/upload-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -39,6 +40,7 @@ export default function DocumentDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,6 +156,11 @@ export default function DocumentDetailPage() {
           setDoc(updated);
           setEditing(false);
         }}
+        onCancelled={(updated) => {
+          setDoc(updated);
+          setEditing(false);
+        }}
+        onUploadAgain={() => setUploadOpen(true)}
       />
 
       <Card>
@@ -269,6 +276,12 @@ export default function DocumentDetailPage() {
           </Button>
         </div>
       </Modal>
+
+      <UploadModal
+        open={uploadOpen}
+        initialDocument={doc}
+        onOpenChange={setUploadOpen}
+      />
     </div>
   );
 }

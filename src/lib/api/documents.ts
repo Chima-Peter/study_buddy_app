@@ -67,6 +67,10 @@ export function retryIngest(id: string) {
   return api.post<{ document_id?: string }>(`/documents/${id}/ingest/retry`);
 }
 
+export function cancelIngest(id: string) {
+  return api.patch<Document>(`/documents/${id}/ingest/cancel`);
+}
+
 export function updateDocument(
   id: string,
   body: Partial<Pick<Document, "name" | "description" | "category">>,
