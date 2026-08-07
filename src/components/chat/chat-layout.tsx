@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { History, X } from "lucide-react";
+import { History } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { ConversationList } from "./conversation-list";
 
@@ -73,13 +73,12 @@ export function ChatLayout({
         <header className="flex h-14 shrink-0 items-center px-4 sm:px-5">
           <button
             type="button"
-            className="chat-soft-btn gap-2"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--text-secondary)] shadow-sm transition hover:text-[var(--text-primary)]"
             aria-label={open ? "Hide history" : "Show history"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X className="h-4 w-4" /> : <History className="h-4 w-4" />}
-            <span>History</span>
+            <History className="h-4 w-4" />
           </button>
         </header>
         <div className="min-h-0 flex-1">{children}</div>
