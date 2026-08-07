@@ -18,7 +18,16 @@ import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
 import { PageHeader } from "@/components/layout/page-header";
 import { useLogout } from "@/lib/hooks/use-logout";
-import { LogOut } from "lucide-react";
+import {
+  LogOut,
+  Monitor,
+  Moon,
+  Palette,
+  ShieldAlert,
+  Sun,
+  UserRound,
+} from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 export default function SettingsPage() {
   const user = useSessionStore((s) => s.user);
@@ -58,7 +67,6 @@ export default function SettingsPage() {
           university: me.university ?? "",
           bio: me.bio ?? "",
           timezone: me.timezone ?? "",
-          password: "",
         });
       })
       .catch(() => undefined);
@@ -109,81 +117,126 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
         title="Settings"
-        description="Manage your profile and preferences"
+        description="Manage your profile, appearance, and account"
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Profile</CardTitle>
-          {user && (
-            <p className="text-sm text-[var(--text-secondary)]">
-              Joined {formatDate(user.created_at)}
-            </p>
-          )}
+      <Card className="overflow-hidden p-0">
+        <CardHeader className="mb-0 border-b border-border bg-surface-tertiary/40 p-5">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-500/15 text-primary-700">
+              <UserRound className="h-5 w-5" />
+            </span>
+            <div>
+              <CardTitle className="text-base">Profile information</CardTitle>
+              <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
+                {user
+                  ? `Member since ${formatDate(user.created_at)}`
+                  : "Your personal and academic details"}
+              </p>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={onSave} className="space-y-4">
-            <Input label="Name" error={errors.name?.message} {...register("name")} />
-            <Input label="Email" type="email" error={errors.email?.message} {...register("email")} />
-            <Input label="University" {...register("university")} />
-            <Input label="Gender" {...register("gender")} />
-            <Input label="Timezone" {...register("timezone")} />
+        <CardContent className="p-5">
+          <form onSubmit={onSave} className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                label="Name"
+                error={errors.name?.message}
+                {...register("name")}
+              />
+              <Input
+                label="Email"
+                type="email"
+                error={errors.email?.message}
+                {...register("email")}
+              />
+              <Input label="University" {...register("university")} />
+              <Input label="Gender" {...register("gender")} />
+              <Input
+                label="Timezone"
+                className="sm:max-w-md"
+                {...register("timezone")}
+              />
+            </div>
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-[var(--text-secondary)]">Bio</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)]">
+                Bio
+              </label>
               <textarea
-                className="min-h-[100px] w-full rounded-md border border-border bg-surface-tertiary px-3 py-2 text-sm"
+                className="min-h-[110px] w-full resize-y rounded-md border border-border bg-surface-tertiary px-3 py-2 text-sm outline-none transition-colors focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500"
+                placeholder="Tell us a little about yourself and what you're studying"
                 {...register("bio")}
               />
               {errors.bio?.message && (
                 <p className="text-xs text-error">{errors.bio.message}</p>
               )}
             </div>
-            <Input
-              label="New password (optional)"
-              type="password"
-              error={errors.password?.message}
-              {...register("password")}
-            />
-            <div className="flex justify-end">
+            <div className="flex justify-end border-t border-border pt-4">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save Changes"}
+                {isSubmitting ? "Saving..." : "Save profile"}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Appearance</CardTitle>
+      <Card className="p-5">
+        <CardHeader className="mb-4">
+          <div className="flex items-center gap-2">
+            <Palette className="h-4 w-4 text-primary-700" />
+            <CardTitle className="text-base">Appearance</CardTitle>
+          </div>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Choose how StudyBuddy looks on this device.
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3">
-            {(["light", "dark", "system"] as const).map((value) => (
-              <label key={value} className="flex min-touch items-center gap-2 text-sm">
+          <div className="grid gap-3 sm:grid-cols-3">
+            {(
+              [
+                { value: "light", label: "Light", icon: Sun },
+                { value: "dark", label: "Dark", icon: Moon },
+                { value: "system", label: "System", icon: Monitor },
+              ] as const
+            ).map(({ value, label, icon: Icon }) => (
+              <label
+                key={value}
+                className={cn(
+                  "flex min-h-16 cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors",
+                  theme === value
+                    ? "border-primary-500 bg-primary-500/10 text-primary-700"
+                    : "border-border hover:bg-surface-tertiary",
+                )}
+              >
                 <input
                   type="radio"
                   name="theme"
+                  className="sr-only"
                   checked={theme === value}
                   onChange={() => applyTheme(value)}
                 />
-                {value.charAt(0).toUpperCase() + value.slice(1)}
+                <Icon className="h-5 w-5" />
+                <span className="text-sm font-medium">{label}</span>
               </label>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Session</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="p-5">
+        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold">Current session</p>
+            <p className="mt-1 text-sm text-[var(--text-secondary)]">
+              Sign out of StudyBuddy on this device.
+            </p>
+          </div>
           <Button
             variant="secondary"
+            className="w-full sm:w-auto"
             disabled={loggingOut}
             onClick={async () => {
               setLoggingOut(true);
@@ -200,15 +253,24 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card status="error">
-        <CardHeader>
-          <CardTitle className="text-base">Danger Zone</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="mb-4 text-sm text-[var(--text-secondary)]">
-            This will permanently delete your account and all associated data.
-          </p>
-          <Button variant="danger" onClick={() => setConfirmDelete(true)}>
+      <Card className="border-error/30 p-5">
+        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-error/10 text-error">
+              <ShieldAlert className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Delete account</p>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                Permanently delete your account and all associated data.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="danger"
+            className="w-full shrink-0 sm:w-auto"
+            onClick={() => setConfirmDelete(true)}
+          >
             Delete Account
           </Button>
         </CardContent>

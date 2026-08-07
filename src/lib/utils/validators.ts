@@ -14,7 +14,6 @@ export const registerSchema = z.object({
 export const profileSchema = z.object({
   name: z.string().min(3).optional().or(z.literal("")),
   email: z.string().email().optional().or(z.literal("")),
-  password: z.string().min(8).optional().or(z.literal("")),
   gender: z.string().optional().or(z.literal("")),
   university: z.string().optional().or(z.literal("")),
   bio: z.string().max(1500).optional().or(z.literal("")),
