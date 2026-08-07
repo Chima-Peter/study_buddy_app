@@ -238,11 +238,22 @@
 @keyframes toast-slide-in {
   from {
     opacity: 0;
-    transform: translateY(0.75rem);
+    transform: translateY(0.75rem) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
   }
 }
 
@@ -250,17 +261,32 @@
   @keyframes toast-slide-in {
     from {
       opacity: 0;
-      transform: translateY(-0.75rem);
+      transform: translateY(-0.75rem) scale(0.98);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes toast-slide-out {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-0.5rem) scale(0.98);
     }
   }
 }
 
 .toast-slide-in {
-  animation: toast-slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: toast-slide-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toast-slide-in[data-state="closed"] {
+  animation: toast-slide-out 0.18s ease-in forwards;
 }
 
 @keyframes study-card-sheen {
@@ -439,6 +465,7 @@
   }
 
   .toast-slide-in,
+  .toast-slide-in[data-state="closed"],
   .study-card-sheen {
     animation: none;
   }
