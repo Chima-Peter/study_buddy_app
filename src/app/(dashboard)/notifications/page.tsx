@@ -10,6 +10,7 @@ import { useNotificationsStore } from "@/stores/notifications-store";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
@@ -137,20 +138,8 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="overflow-hidden rounded-xl border border-border bg-surface-secondary">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div
-              key={index}
-              className="flex animate-pulse items-start gap-3 border-b border-border px-4 py-4 last:border-b-0"
-            >
-              <div className="h-9 w-9 shrink-0 rounded-full bg-surface-tertiary" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-32 rounded bg-surface-tertiary" />
-                <div className="h-3 w-4/5 rounded bg-surface-tertiary" />
-                <div className="h-3 w-20 rounded bg-surface-tertiary" />
-              </div>
-            </div>
-          ))}
+        <div className="flex justify-center py-20">
+          <Spinner className="h-8 w-8" />
         </div>
       ) : (
         <NotificationList
@@ -164,7 +153,8 @@ export default function NotificationsPage() {
       {hasMore && (
         <div className="flex justify-center">
           <Button variant="ghost" onClick={loadMore} disabled={loadingMore}>
-            {loadingMore ? "Loading..." : "Load more"}
+            {loadingMore && <Spinner className="h-3.5 w-3.5" />}
+            {loadingMore ? "Loading…" : "Load more"}
           </Button>
         </div>
       )}

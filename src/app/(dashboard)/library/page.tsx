@@ -8,6 +8,7 @@ import { DocumentFilters } from "@/components/library/document-filters";
 import { DocumentList } from "@/components/library/document-list";
 import { UploadModal } from "@/components/library/upload-modal";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import type { Document } from "@/types";
 
@@ -94,7 +95,8 @@ export default function LibraryPage() {
       {hasMore && (
         <div className="flex justify-center">
           <Button variant="secondary" onClick={loadMore} disabled={loadingMore}>
-            {loadingMore ? "Loading..." : "Load more"}
+            {loadingMore && <Spinner className="h-3.5 w-3.5" />}
+            {loadingMore ? "Loading…" : "Load more"}
           </Button>
         </div>
       )}

@@ -2,7 +2,7 @@
 
 import { DocumentRow } from "./document-row";
 import type { Document } from "@/types";
-import { Skeleton } from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 
 export function DocumentList({
   documents,
@@ -13,26 +13,15 @@ export function DocumentList({
   loading?: boolean;
   onUploadAgain?: (document: Document) => void;
 }) {
-  if (loading && documents.length === 0) {
+  if (loading) {
     return (
-      <div className="space-y-2.5">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 rounded-xl border border-border bg-surface-secondary px-4 py-3.5"
-          >
-            <Skeleton className="h-9 w-9 shrink-0 rounded-md" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-40 max-w-[50%]" />
-              <Skeleton className="h-3 w-24 max-w-[30%]" />
-            </div>
-          </div>
-        ))}
+      <div className="flex justify-center py-20">
+        <Spinner className="h-8 w-8" />
       </div>
     );
   }
 
-  if (!loading && documents.length === 0) {
+  if (documents.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border p-12 text-center">
         <p className="text-lg font-medium">No documents yet</p>

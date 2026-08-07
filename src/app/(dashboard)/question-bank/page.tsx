@@ -8,7 +8,7 @@ import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { BankCard } from "@/components/question-bank/bank-card";
 import { CreateBankModal } from "@/components/question-bank/create-bank-modal";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import type { Document, QuestionBankStatus } from "@/types";
 import { cn } from "@/lib/utils/cn";
@@ -138,11 +138,9 @@ export default function QuestionBankPage() {
         />
       </div>
 
-      {loading && items.length === 0 ? (
-        <div className="relative grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-[1.35rem]" />
-          ))}
+      {loading ? (
+        <div className="relative flex justify-center py-20">
+          <Spinner className="h-8 w-8" />
         </div>
       ) : items.length === 0 ? (
         <div className="relative rounded-[1.35rem] border border-dashed border-[#0c2420]/15 bg-white/70 px-8 py-14 text-center backdrop-blur">
@@ -176,7 +174,10 @@ export default function QuestionBankPage() {
             disabled={loadingMore}
             className="rounded-full border-[#0f766e]/25 text-[#0f766e]"
           >
-            {loadingMore ? "Loading..." : "Load more"}
+            {loadingMore && (
+              <Spinner className="h-3.5 w-3.5 border-[#0f766e]/40 border-t-[#0f766e]" />
+            )}
+            {loadingMore ? "Loading…" : "Load more"}
           </Button>
         </div>
       )}

@@ -17,6 +17,7 @@ import { THEME_STORAGE_KEY } from "@/config/constants";
 import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
 import { PageHeader } from "@/components/layout/page-header";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Monitor,
   Moon,
@@ -36,6 +37,7 @@ export default function SettingsPage() {
   const [theme, setTheme] = useState<"dark" | "light" | "system">("light");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const {
     register,
@@ -47,14 +49,17 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
+    let cancelled = false;
     const stored = localStorage.getItem(THEME_STORAGE_KEY) as
       | "dark"
       | "light"
       | "system"
       | null;
     setTheme(stored ?? "light");
+    setLoading(true);
     getMe()
       .then((me) => {
+        if (cancelled) return;
         setUser(me);
         reset({
           name: me.name ?? "",
@@ -65,7 +70,13 @@ export default function SettingsPage() {
           timezone: me.timezone ?? "",
         });
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [reset, setUser]);
 
   const applyTheme = (value: "dark" | "light" | "system") => {
@@ -111,6 +122,14 @@ export default function SettingsPage() {
       setConfirmDelete(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Spinner className="h-8 w-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -172,7 +191,8 @@ export default function SettingsPage() {
             </div>
             <div className="flex justify-end border-t border-border pt-4">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save profile"}
+                {isSubmitting && <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />}
+                {isSubmitting ? "Saving…" : "Save profile"}
               </Button>
             </div>
           </form>
@@ -256,7 +276,8 @@ export default function SettingsPage() {
             Cancel
           </Button>
           <Button variant="danger" disabled={deleting} onClick={onDelete}>
-            {deleting ? "Deleting..." : "Delete forever"}
+            {deleting && <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />}
+            {deleting ? "Deleting…" : "Delete forever"}
           </Button>
         </div>
       </Modal>

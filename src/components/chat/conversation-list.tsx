@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/routes";
 import { useChatStore } from "@/stores/chat-store";
 import { renameConversation } from "@/lib/api/conversations";
+import { Spinner } from "@/components/ui/spinner";
 
 export function ConversationList({
   onLoadMore,
@@ -137,6 +138,7 @@ export function ConversationList({
             disabled={loadingMore}
             onClick={onLoadMore}
           >
+            {loadingMore && <Spinner className="h-3.5 w-3.5" />}
             {loadingMore ? "Loading…" : "Load more"}
           </button>
         </div>
