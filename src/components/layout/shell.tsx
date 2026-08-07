@@ -13,7 +13,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Header />
-        <main className="relative min-h-0 flex-1 overflow-auto p-4 lg:p-6">
+        <main className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto p-4 lg:p-6">
           {children}
         </main>
         <MobileNav />

@@ -145,7 +145,7 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
         sans.variable,
       )}
     >
-      <div className="relative">
+      <div className="relative overflow-x-clip">
         <div
           className="pointer-events-none absolute -inset-x-2 -top-4 bottom-8 rounded-[2rem] opacity-90 lg:-inset-x-6 lg:-top-6"
           style={{
@@ -321,7 +321,7 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
         </button>
 
         <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
-          <div className="flex max-w-full items-center gap-1.5 overflow-x-auto py-1">
+          <div className="flex max-w-full items-center justify-center gap-1.5 overflow-x-hidden py-1">
             {cards.map((c, i) => (
               <button
                 key={i}
