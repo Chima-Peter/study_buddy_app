@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { QuestionBank } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { routes } from "@/config/routes";
 import {
   generateQuestionBank,
@@ -26,6 +27,7 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
   const setCurrent = useQuestionBankStore((s) => s.setCurrent);
   const upsert = useQuestionBankStore((s) => s.upsert);
   const [opening, setOpening] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   const title =
     bank.document_name?.trim() || `Document ${bank.document_id.slice(0, 8)}…`;
@@ -38,17 +40,17 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
       upsert(full);
       router.push(routes.questionBankDetail(bank.document_id));
     } catch (err) {
+      setOpening(false);
       toast({
         title: "Could not open quiz",
         description: err instanceof ApiError ? err.message : undefined,
         variant: "error",
       });
-    } finally {
-      setOpening(false);
     }
   };
 
   const retry = async () => {
+    setRetrying(true);
     try {
       await generateQuestionBank(bank.document_id);
       toast({ title: "Regeneration queued", variant: "success" });
@@ -58,6 +60,8 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
         description: err instanceof ApiError ? err.message : undefined,
         variant: "error",
       });
+    } finally {
+      setRetrying(false);
     }
   };
 
@@ -97,6 +101,11 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
           {title}
         </h3>
 
+        {bank.status === "success" && (
+          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
+            {bank.question_count ?? 0} questions
+          </p>
+        )}
         {bank.status === "pending" && (
           <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
             Generating question bank…
@@ -117,6 +126,9 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
             disabled={opening}
             className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488]"
           >
+            {opening && (
+              <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />
+            )}
             {opening ? "Opening…" : "Open"}
           </Button>
         )}
@@ -125,9 +137,13 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
             size="sm"
             variant="secondary"
             onClick={retry}
+            disabled={retrying}
             className="w-full rounded-full border-[#0f766e]/30 text-[#0f766e]"
           >
-            Retry
+            {retrying && (
+              <Spinner className="h-3.5 w-3.5 border-[#0f766e]/40 border-t-[#0f766e]" />
+            )}
+            {retrying ? "Queuing…" : "Retry"}
           </Button>
         )}
       </div>

@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import type { StudyCards } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { routes } from "@/config/routes";
 import { generateStudyCards } from "@/lib/api/study-cards";
 import { useToast } from "@/components/ui/toast";
@@ -17,11 +19,13 @@ function statusLabel(status: StudyCards["status"]) {
 
 export function DeckCard({ deck }: { deck: StudyCards }) {
   const { toast } = useToast();
+  const [retrying, setRetrying] = useState(false);
 
   const title =
     deck.document_name?.trim() || `Document ${deck.document_id.slice(0, 8)}…`;
 
   const retry = async () => {
+    setRetrying(true);
     try {
       await generateStudyCards(deck.document_id);
       toast({ title: "Regeneration queued", variant: "success" });
@@ -31,6 +35,8 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
         description: err instanceof ApiError ? err.message : undefined,
         variant: "error",
       });
+    } finally {
+      setRetrying(false);
     }
   };
 
@@ -70,6 +76,12 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
           {title}
         </h3>
 
+        {deck.status === "success" && (
+          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
+            {deck.chapter_count ?? 0} chapters · {deck.question_count ?? 0}{" "}
+            questions
+          </p>
+        )}
         {deck.status === "pending" && (
           <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
             Generating study cards…
@@ -98,9 +110,13 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
             size="sm"
             variant="secondary"
             onClick={retry}
+            disabled={retrying}
             className="w-full rounded-full border-[#0f766e]/30 text-[#0f766e]"
           >
-            Retry
+            {retrying && (
+              <Spinner className="h-3.5 w-3.5 border-[#0f766e]/40 border-t-[#0f766e]" />
+            )}
+            {retrying ? "Queuing…" : "Retry"}
           </Button>
         )}
       </div>

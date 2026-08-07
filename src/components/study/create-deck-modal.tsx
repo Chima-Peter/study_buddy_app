@@ -154,6 +154,9 @@ export function CreateDeckModal({
               disabled={!selectedId || submitting}
               className="rounded-full bg-[#0f766e] hover:bg-[#0d9488]"
             >
+              {submitting && (
+                <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />
+              )}
               {submitting ? "Queuing…" : "Generate"}
             </Button>
           </div>

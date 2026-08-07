@@ -111,6 +111,9 @@ export interface StudyCards {
   document_name: string;
   status: StudyCardsStatus;
   result?: StudyCardsResult | null;
+  /** Present on list responses; may be omitted on detail/optimistic rows. */
+  chapter_count?: number;
+  question_count?: number;
   created_at: string;
   updated_at: string;
 }
@@ -134,6 +137,8 @@ export interface QuestionBank {
   status: QuestionBankStatus;
   /** Flat shuffled question list; null while pending. */
   result?: QuestionBankQuestion[] | null;
+  /** Present on list responses; may be omitted on detail/optimistic rows. */
+  question_count?: number;
   reason?: string | null;
   created_at: string;
   updated_at?: string;
