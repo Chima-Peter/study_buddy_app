@@ -84,7 +84,7 @@ export function ExamSetupModal({
   total: number;
   onStart: (options: ExamStartOptions) => void;
 }) {
-  const maxCount = total <= 1 ? 1 : total - 1;
+  const maxCount = Math.max(1, total);
   const [count, setCount] = useState(Math.min(10, maxCount));
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(15);
@@ -103,7 +103,7 @@ export function ExamSetupModal({
       open={open}
       onOpenChange={onOpenChange}
       title="Start exam"
-      description={`Choose a question count below the ${total} in this bank.`}
+      description={`Choose how many of the ${total} questions to include.`}
     >
       <div className="space-y-6">
         <section className="space-y-3">
