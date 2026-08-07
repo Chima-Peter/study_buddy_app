@@ -45,7 +45,11 @@ export function Sidebar() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-touch items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex min-touch items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-medium",
+                "shadow-[0_1px_2px_rgba(12,36,32,0)]",
+                "transition-[transform,box-shadow,border-color,background-color,color] duration-200 ease-out",
+                "hover:-translate-y-0.5 hover:border-primary-700/25",
+                "hover:shadow-[0_10px_28px_rgba(12,36,32,0.12),0_2px_6px_rgba(12,36,32,0.06)]",
                 active
                   ? "bg-primary-500/15 text-primary-700"
                   : "text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]",
@@ -62,7 +66,12 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => void handleLogout()}
-          className="flex w-full min-touch items-center gap-3 rounded-md px-3 py-2 text-sm text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
+          className={cn(
+            "flex w-full min-touch items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm text-[var(--text-secondary)]",
+            "transition-[transform,box-shadow,border-color,background-color,color] duration-200 ease-out",
+            "hover:-translate-y-0.5 hover:border-primary-700/25 hover:bg-surface-tertiary hover:text-[var(--text-primary)]",
+            "hover:shadow-[0_10px_28px_rgba(12,36,32,0.12),0_2px_6px_rgba(12,36,32,0.06)]",
+          )}
         >
           <LogOut className="h-4 w-4" />
           Log out
