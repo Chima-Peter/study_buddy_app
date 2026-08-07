@@ -8,7 +8,7 @@ import { useStudyStore } from "@/stores/study-store";
 import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { useNotificationsStore } from "@/stores/notifications-store";
 import { useToast } from "@/components/ui/toast";
-import type { DocumentStatus, SseEvent } from "@/types";
+import type { DocumentStatus, QuestionBankStatus, StudyCardsStatus, SseEvent } from "@/types";
 import { getStudyCards } from "@/lib/api/study-cards";
 import { getQuestionBank } from "@/lib/api/question-bank";
 
@@ -74,25 +74,37 @@ export function useSse() {
         return;
       }
 
-      if (event.type === "study_cards_generated") {
+      if (event.type === "study_cards.status") {
         const data = event.data as {
           document_id?: string;
           name?: string | null;
-          status?: string | null;
+          status?: StudyCardsStatus;
           comment?: string | null;
           title?: string | null;
           content?: string | null;
         };
-        if (data.document_id) {
-          try {
-            const deck = await getStudyCards(data.document_id);
-            useStudyStore.getState().upsert(deck);
-          } catch {
+        if (data.document_id && data.status) {
+          if (data.status === "success") {
+            try {
+              const deck = await getStudyCards(data.document_id);
+              useStudyStore.getState().upsert(deck);
+            } catch {
+              useStudyStore.getState().upsert({
+                id: data.document_id,
+                document_id: data.document_id,
+                document_name: data.name ?? "",
+                status: "success",
+                result: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              });
+            }
+          } else {
             useStudyStore.getState().upsert({
               id: data.document_id,
               document_id: data.document_id,
               document_name: data.name ?? "",
-              status: "success",
+              status: data.status,
               result: null,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
@@ -104,80 +116,42 @@ export function useSse() {
         return;
       }
 
-      if (event.type === "study_cards_failed") {
+      if (event.type === "question_bank.status") {
         const data = event.data as {
           document_id?: string;
           name?: string | null;
-          status?: string | null;
+          status?: QuestionBankStatus;
           comment?: string | null;
           title?: string | null;
           content?: string | null;
         };
-        if (data.document_id) {
-          useStudyStore.getState().upsert({
-            id: data.document_id,
-            document_id: data.document_id,
-            document_name: data.name ?? "",
-            status: "failed",
-            result: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
-        }
-        useNotificationsStore.getState().incrementUnread();
-        toastFromServer(toastRef.current, data);
-        return;
-      }
-
-      if (event.type === "question_bank_generated") {
-        const data = event.data as {
-          document_id?: string;
-          name?: string | null;
-          status?: string | null;
-          comment?: string | null;
-          title?: string | null;
-          content?: string | null;
-        };
-        if (data.document_id) {
-          try {
-            const bank = await getQuestionBank(data.document_id);
-            useQuestionBankStore.getState().upsert(bank);
-          } catch {
+        if (data.document_id && data.status) {
+          if (data.status === "success") {
+            try {
+              const bank = await getQuestionBank(data.document_id);
+              useQuestionBankStore.getState().upsert(bank);
+            } catch {
+              useQuestionBankStore.getState().upsert({
+                id: data.document_id,
+                document_id: data.document_id,
+                document_name: data.name ?? "",
+                status: "success",
+                result: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              });
+            }
+          } else {
             useQuestionBankStore.getState().upsert({
               id: data.document_id,
               document_id: data.document_id,
               document_name: data.name ?? "",
-              status: "success",
+              status: data.status,
               result: null,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             });
           }
-        }
-        useNotificationsStore.getState().incrementUnread();
-        toastFromServer(toastRef.current, data);
-        return;
-      }
-
-      if (event.type === "question_bank_failed") {
-        const data = event.data as {
-          document_id?: string;
-          name?: string | null;
-          status?: string | null;
-          comment?: string | null;
-          title?: string | null;
-          content?: string | null;
-        };
-        if (data.document_id) {
-          useQuestionBankStore.getState().upsert({
-            id: data.document_id,
-            document_id: data.document_id,
-            document_name: data.name ?? "",
-            status: "failed",
-            result: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
         }
         useNotificationsStore.getState().incrementUnread();
         toastFromServer(toastRef.current, data);
