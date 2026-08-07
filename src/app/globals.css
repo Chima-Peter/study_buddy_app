@@ -594,12 +594,30 @@
   border-top: 1px solid var(--border-default);
 }
 
-.markdown-body table {
+.markdown-body img {
   display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.75em 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-default);
+  background: var(--bg-tertiary);
+}
+
+.markdown-body .markdown-table-wrap {
   width: 100%;
   max-width: 100%;
   margin: 0.75em 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-default);
+}
+
+.markdown-body table {
+  width: 100%;
+  min-width: max-content;
+  margin: 0;
   border-collapse: collapse;
   font-size: 0.925em;
 }
@@ -613,16 +631,22 @@
   padding: 0.5em 0.75em;
   border: 1px solid var(--border-default);
   text-align: left;
-  white-space: nowrap;
+  vertical-align: top;
 }
 
 .markdown-body th {
   font-weight: 600;
+  white-space: nowrap;
   color: var(--text-primary);
 }
 
 .markdown-body td {
   white-space: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  margin-right: 0.4em;
+  vertical-align: middle;
 }
 
 /* Keep study flashcard text on the notebook line grid (overrides .markdown-body). */
@@ -635,7 +659,8 @@
 .markdown-body.study-flashcard-md ol,
 .markdown-body.study-flashcard-md blockquote,
 .markdown-body.study-flashcard-md pre,
-.markdown-body.study-flashcard-md table {
+.markdown-body.study-flashcard-md .markdown-table-wrap,
+.markdown-body.study-flashcard-md img {
   margin-top: 0;
   margin-bottom: var(--study-line);
   line-height: var(--study-line);
