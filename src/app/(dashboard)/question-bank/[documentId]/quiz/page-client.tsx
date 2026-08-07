@@ -11,7 +11,7 @@ import { useQuestionBankStore } from "@/stores/question-bank-store";
 import type { QuestionBank, QuestionBankQuestion } from "@/types";
 import { ExamPlayer } from "@/components/question-bank/exam-player";
 import { ExamSetupModal } from "@/components/question-bank/exam-setup-modal";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
@@ -116,7 +116,7 @@ export default function QuestionBankQuizPage() {
   if (loading || (startingExam && examQuestions.length === 0)) {
     return (
       <div className="flex justify-center py-20">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Preparing exam" />
       </div>
     );
   }

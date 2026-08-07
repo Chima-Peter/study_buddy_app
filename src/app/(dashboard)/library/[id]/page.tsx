@@ -17,7 +17,7 @@ import { UploadModal } from "@/components/library/upload-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { formatDate } from "@/lib/utils/format";
 import { routes } from "@/config/routes";
 import { useDocumentsStore } from "@/stores/documents-store";
@@ -124,7 +124,7 @@ export default function DocumentDetailPage() {
   if (loading || !doc) {
     return (
       <div className="flex justify-center py-20">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Loading document" />
       </div>
     );
   }
@@ -293,7 +293,7 @@ export default function DocumentDetailPage() {
           >
             {viewLoading && (
               <div className="flex flex-1 items-center justify-center">
-                <Spinner className="h-8 w-8" />
+                <PageLoader label="Loading document preview" />
               </div>
             )}
             {!viewLoading && viewError && (

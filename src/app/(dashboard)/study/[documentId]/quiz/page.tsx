@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getStudyCards } from "@/lib/api/study-cards";
 import { useStudyStore } from "@/stores/study-store";
 import type { StudyCards } from "@/types";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { routes } from "@/config/routes";
 
 function deckFromStore(documentId: string): StudyCards | null {
@@ -52,7 +52,7 @@ export default function QuizIndexRedirect() {
 
   return (
     <div className="flex justify-center py-20">
-      <Spinner className="h-8 w-8" />
+      <PageLoader label="Loading quiz" />
     </div>
   );
 }

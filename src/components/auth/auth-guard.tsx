@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/stores/session-store";
 import { routes } from "@/config/routes";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -20,7 +20,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (!hydrated) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Checking your session" />
       </div>
     );
   }

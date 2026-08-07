@@ -2,7 +2,7 @@
 
 import { DocumentRow } from "./document-row";
 import type { Document } from "@/types";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 
 export function DocumentList({
   documents,
@@ -16,7 +16,7 @@ export function DocumentList({
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Loading documents" />
       </div>
     );
   }

@@ -20,7 +20,7 @@ import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { QuestionPreviewList } from "@/components/question-bank/question-preview-list";
 import { ExamSetupModal } from "@/components/question-bank/exam-setup-modal";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
@@ -156,7 +156,7 @@ export default function QuestionBankDetailPage() {
   if (loading || startingExam) {
     return (
       <div className="flex justify-center py-20">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label={startingExam ? "Preparing exam" : "Loading question bank"} />
       </div>
     );
   }

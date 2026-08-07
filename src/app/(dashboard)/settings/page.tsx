@@ -17,7 +17,7 @@ import { THEME_STORAGE_KEY } from "@/config/constants";
 import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
 import { PageHeader } from "@/components/layout/page-header";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader, Spinner } from "@/components/ui/spinner";
 import {
   Monitor,
   Moon,
@@ -126,7 +126,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Loading settings" />
       </div>
     );
   }

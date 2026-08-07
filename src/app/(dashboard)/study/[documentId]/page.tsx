@@ -8,7 +8,7 @@ import { useStudyStore } from "@/stores/study-store";
 import { ChapterNav } from "@/components/study/chapter-nav";
 import { MiniStudyCards } from "@/components/study/mini-study-cards";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
 import { formatChapterTitle } from "@/lib/utils/format";
@@ -72,7 +72,7 @@ export default function StudyDeckPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Loading study deck" />
       </div>
     );
   }

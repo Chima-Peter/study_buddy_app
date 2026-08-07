@@ -7,7 +7,7 @@ import { getStudyCards } from "@/lib/api/study-cards";
 import { useStudyStore } from "@/stores/study-store";
 import type { QuizQuestion, StudyCards } from "@/types";
 import { QuizPlayer } from "@/components/study/quiz-player";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { formatChapterTitle } from "@/lib/utils/format";
@@ -69,7 +69,7 @@ export default function ChapterQuizPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Loading chapter quiz" />
       </div>
     );
   }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChatLayout } from "@/components/chat/chat-layout";
 import { ChatWindow } from "@/components/chat/chat-window";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { listConversations } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
 import { useChatSocket } from "@/lib/ws/use-chat-socket";
@@ -51,7 +51,7 @@ export default function ChatPage() {
   if (loading) {
     return (
       <div className="flex h-full min-h-[40vh] items-center justify-center">
-        <Spinner className="h-8 w-8" />
+        <PageLoader label="Loading conversations" />
       </div>
     );
   }

@@ -8,7 +8,7 @@ import { useStudyStore } from "@/stores/study-store";
 import { DeckCard } from "@/components/study/deck-card";
 import { CreateDeckModal } from "@/components/study/create-deck-modal";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader, Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import type { Document, StudyCardsStatus } from "@/types";
 import { cn } from "@/lib/utils/cn";
@@ -140,7 +140,7 @@ export default function StudyPage() {
 
       {loading ? (
         <div className="relative flex justify-center py-20">
-          <Spinner className="h-8 w-8" />
+          <PageLoader label="Loading study decks" />
         </div>
       ) : items.length === 0 ? (
         <div className="relative rounded-[1.35rem] border border-dashed border-[#0c2420]/15 bg-white/70 px-8 py-14 text-center backdrop-blur">

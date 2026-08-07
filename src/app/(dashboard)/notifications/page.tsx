@@ -10,7 +10,7 @@ import { useNotificationsStore } from "@/stores/notifications-store";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader, Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
@@ -139,7 +139,7 @@ export default function NotificationsPage() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <Spinner className="h-8 w-8" />
+          <PageLoader label="Loading notifications" />
         </div>
       ) : (
         <NotificationList

@@ -6,7 +6,7 @@ import { ChatLayout } from "@/components/chat/chat-layout";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { getConversation, listConversations } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { useChatSocket } from "@/lib/ws/use-chat-socket";
 
 export default function ConversationPage() {
@@ -70,7 +70,7 @@ export default function ConversationPage() {
     <ChatLayout hasMore={hasMore} loadingMore={loadingMore} onLoadMore={loadMore}>
       {loading ? (
         <div className="flex h-full items-center justify-center">
-          <Spinner className="h-8 w-8" />
+          <PageLoader label="Loading conversation" />
         </div>
       ) : (
         <ChatWindow conversationId={params.conversationId} />

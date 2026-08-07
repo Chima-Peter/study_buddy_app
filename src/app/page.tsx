@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/stores/session-store";
 import { routes } from "@/config/routes";
-import { Spinner } from "@/components/ui/spinner";
+import { PageLoader } from "@/components/ui/spinner";
 import { LandingPage } from "@/components/landing/landing-page";
 
 export default function HomePage() {
@@ -20,7 +20,7 @@ export default function HomePage() {
   if (!hydrated) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-surface-primary">
-        <Spinner className="h-8 w-8 text-primary-700" />
+        <PageLoader label="Loading StudyBuddy" />
       </div>
     );
   }
@@ -28,7 +28,7 @@ export default function HomePage() {
   if (token) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-surface-primary">
-        <Spinner className="h-8 w-8 text-primary-700" />
+        <PageLoader label="Opening your library" />
       </div>
     );
   }
