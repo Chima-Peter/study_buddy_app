@@ -60,7 +60,6 @@ export function MessageInput({
       <div
         className={cn(
           "chat-soft-card flex items-end gap-3 px-4 py-3 sm:px-5 sm:py-3.5",
-          "focus-within:ring-2 focus-within:ring-primary-500/20",
           disabled && "opacity-60",
         )}
       >
@@ -70,7 +69,7 @@ export function MessageInput({
           value={value}
           disabled={disabled}
           placeholder="Ask anything about your materials…"
-          className="max-h-[140px] min-h-[44px] flex-1 resize-none bg-transparent py-2 text-[15px] leading-relaxed outline-none placeholder:text-muted"
+          className="max-h-[140px] min-h-[44px] flex-1 resize-none bg-transparent py-2 text-[15px] leading-relaxed outline-none placeholder:text-muted focus-visible:ring-0 focus-visible:ring-offset-0"
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {

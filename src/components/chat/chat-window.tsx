@@ -92,6 +92,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     setError,
     appendUserMessage,
     prepareSend,
+    startAssistantMessage,
     setSelectedDocumentIds,
     activeConversationId,
     pendingRouteConversationId,
@@ -155,6 +156,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     appendUserMessage(query);
     const id = conversationId ?? activeConversationId ?? undefined;
     prepareSend(id ?? null);
+    startAssistantMessage(id);
     send({
       query,
       conversation_id: id,

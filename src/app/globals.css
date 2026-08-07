@@ -164,6 +164,34 @@
   animation-delay: 0.3s;
 }
 
+@keyframes thinking-spark {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.92) rotate(0deg);
+    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--primary-500) 35%, transparent));
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.12) rotate(18deg);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--primary-500) 70%, transparent));
+  }
+  70% {
+    opacity: 0.85;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+.thinking-spark {
+  display: inline-flex;
+  color: var(--primary-600);
+  animation: thinking-spark 1.4s ease-in-out infinite;
+}
+
+[data-theme="dark"] .thinking-spark {
+  color: var(--primary-400);
+}
+
 /* Landing — uses shared mint/teal tokens with soft atmosphere */
 .landing {
   background:
@@ -442,7 +470,8 @@
 
   .toast-slide-in,
   .toast-slide-in[data-state="closed"],
-  .study-card-sheen {
+  .study-card-sheen,
+  .thinking-spark {
     animation: none;
   }
 }

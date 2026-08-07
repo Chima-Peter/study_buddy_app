@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils/cn";
 import type { UiMessage } from "@/stores/chat-store";
 import { Markdown } from "@/components/ui/markdown";
+import { ThinkingIndicator } from "./thinking-indicator";
 
 export function MessageBubble({ message }: { message: UiMessage }) {
   const isUser = message.role === "user";
@@ -17,30 +18,29 @@ export function MessageBubble({ message }: { message: UiMessage }) {
     );
   }
 
+  const showThinking = message.streaming && !message.content;
+  const showWriting = message.streaming && !!message.content;
+
   return (
     <div className="chat-soft-card space-y-2 px-4 py-4 sm:px-5">
       <div className="flex items-center gap-2">
         <span className="text-xs font-semibold text-[var(--text-primary)]">
           Tutor
         </span>
-        {message.streaming && (
-          <span className="text-xs text-muted">Writing…</span>
+        {showWriting && (
+          <ThinkingIndicator label="Writing" compact className="gap-1.5" />
         )}
       </div>
       <div
         className={cn(
           "text-[15px] leading-relaxed text-[var(--text-primary)]",
-          !message.content && message.streaming && "min-h-[1.25rem]",
+          showThinking && "min-h-[1.25rem]",
         )}
       >
         {message.content ? (
           <Markdown className="chat-markdown">{message.content}</Markdown>
-        ) : message.streaming ? (
-          <span className="inline-flex gap-1" aria-label="Typing">
-            <span className="typing-dot h-1.5 w-1.5 rounded-full bg-primary-600" />
-            <span className="typing-dot h-1.5 w-1.5 rounded-full bg-primary-600" />
-            <span className="typing-dot h-1.5 w-1.5 rounded-full bg-primary-600" />
-          </span>
+        ) : showThinking ? (
+          <ThinkingIndicator label="Thinking" />
         ) : null}
       </div>
     </div>
