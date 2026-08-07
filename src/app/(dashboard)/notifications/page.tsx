@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Bell, CheckCheck } from "lucide-react";
 import {
   listNotifications,
   markNotificationsRead,
@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
-import { routes } from "@/config/routes";
+import { cn } from "@/lib/utils/cn";
 
 async function flushPendingReads() {
   const ids = useNotificationsStore.getState().consumePendingReads();
@@ -25,11 +25,11 @@ async function flushPendingReads() {
 }
 
 export default function NotificationsPage() {
-  const router = useRouter();
-  const { items, hasMore, nextCursor, setPage, queueRead, markRead } =
+  const { items, hasMore, nextCursor, unreadCount, setPage, queueRead, markRead } =
     useNotificationsStore();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,15 +69,6 @@ export default function NotificationsPage() {
     }
   };
 
-  const onClose = async () => {
-    await flushPendingReads();
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-    } else {
-      router.push(routes.library);
-    }
-  };
-
   const loadMore = async () => {
     if (!nextCursor) return;
     setLoadingMore(true);
@@ -89,22 +80,86 @@ export default function NotificationsPage() {
     }
   };
 
+  const visibleItems =
+    filter === "unread" ? items.filter((notification) => !notification.read_at) : items;
+
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
-        title="Notifications"
-        description="Stay updated on documents, study cards, and other alerts"
-        onClose={onClose}
+        title="Inbox"
+        description={
+          unreadCount > 0
+            ? `${unreadCount} unread ${unreadCount === 1 ? "notification" : "notifications"}`
+            : "You're all caught up"
+        }
         actions={
-          <Button variant="secondary" className="w-full sm:w-auto" onClick={onMarkAll}>
-            Mark all as read
-          </Button>
+          unreadCount > 0 ? (
+            <Button
+              variant="secondary"
+              className="w-full sm:w-auto"
+              onClick={onMarkAll}
+            >
+              <CheckCheck className="h-4 w-4" />
+              Mark all as read
+            </Button>
+          ) : null
         }
       />
+
+      <div className="flex items-center justify-between border-b border-border">
+        <div className="flex gap-1" role="tablist" aria-label="Notification filters">
+          {(["all", "unread"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={filter === value}
+              className={cn(
+                "relative min-h-11 px-4 text-sm font-medium capitalize text-[var(--text-secondary)] transition-colors",
+                "hover:text-[var(--text-primary)]",
+                filter === value && "text-primary-700",
+              )}
+              onClick={() => setFilter(value)}
+            >
+              {value}
+              {value === "unread" && unreadCount > 0 && (
+                <span className="ml-2 rounded-full bg-primary-500/15 px-1.5 py-0.5 text-[11px] text-primary-700">
+                  {unreadCount}
+                </span>
+              )}
+              {filter === value && (
+                <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary-700" />
+              )}
+            </button>
+          ))}
+        </div>
+        <Bell className="mr-2 h-4 w-4 text-muted" />
+      </div>
+
       {loading ? (
-        <p className="text-sm text-muted">Loading…</p>
+        <div className="overflow-hidden rounded-xl border border-border bg-surface-secondary">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex animate-pulse items-start gap-3 border-b border-border px-4 py-4 last:border-b-0"
+            >
+              <div className="h-9 w-9 shrink-0 rounded-full bg-surface-tertiary" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-32 rounded bg-surface-tertiary" />
+                <div className="h-3 w-4/5 rounded bg-surface-tertiary" />
+                <div className="h-3 w-20 rounded bg-surface-tertiary" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
-        <NotificationList items={items} onSelect={onSelect} />
+        <NotificationList
+          items={visibleItems}
+          onSelect={onSelect}
+          emptyMessage={
+            filter === "unread" ? "No unread notifications" : "You're all caught up"
+          }
+        />
       )}
       {hasMore && (
         <div className="flex justify-center">
