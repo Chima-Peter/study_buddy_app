@@ -505,24 +505,6 @@ export function ExamResults({
           ))}
         </ol>
       )}
-
-      {/* Bottom Actions */}
-      <div className="mt-8 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center sm:gap-3">
-        <Link href={href} className="w-full sm:w-auto">
-          <Button
-            variant="ghost"
-            className="w-full rounded-full sm:w-auto"
-          >
-            {backLabel}
-          </Button>
-        </Link>
-        <Button
-          className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488] sm:w-auto"
-          onClick={onRetake}
-        >
-          Retake exam
-        </Button>
-      </div>
     </div>
   );
 }
