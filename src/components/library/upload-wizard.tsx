@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { uploadSchema, type UploadInput } from "@/lib/utils/validators";
@@ -10,12 +9,20 @@ import { useDocumentsStore } from "@/stores/documents-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UploadDropzone } from "./upload-dropzone";
-import { routes } from "@/config/routes";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
+import type { Document } from "@/types";
+import { cn } from "@/lib/utils/cn";
 
-export function UploadWizard() {
-  const router = useRouter();
+export function UploadWizard({
+  onSuccess,
+  onCancel,
+  embedded = false,
+}: {
+  onSuccess?: (doc: Document) => void;
+  onCancel?: () => void;
+  embedded?: boolean;
+}) {
   const upsert = useDocumentsStore((s) => s.upsert);
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
@@ -54,7 +61,7 @@ export function UploadWizard() {
         description: "We'll notify you when processing finishes.",
         variant: "success",
       });
-      router.push(routes.libraryDetail(data.document.id));
+      onSuccess?.(data.document);
     } catch (err) {
       setStep("form");
       toast({
@@ -66,9 +73,16 @@ export function UploadWizard() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-xl space-y-5">
+    <form
+      onSubmit={onSubmit}
+      className={cn("space-y-5", !embedded && "mx-auto max-w-xl")}
+    >
       <Input label="Name" error={errors.name?.message} {...register("name")} />
-      <Input label="Category" error={errors.category?.message} {...register("category")} />
+      <Input
+        label="Category"
+        error={errors.category?.message}
+        {...register("category")}
+      />
       <Input label="Description (optional)" {...register("description")} />
       <UploadDropzone
         file={file}
@@ -78,13 +92,29 @@ export function UploadWizard() {
           setFileError(f ? null : "Please select a valid file");
         }}
       />
-      <Button type="submit" className="w-full" disabled={isSubmitting || step !== "form"}>
-        {step === "uploading"
-          ? "Uploading file..."
-          : step === "ingesting"
-            ? "Queuing ingest..."
-            : "Upload & Process"}
-      </Button>
+      <div className={cn("flex gap-2", embedded ? "justify-end" : "")}>
+        {onCancel && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={step !== "form"}
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button
+          type="submit"
+          className={embedded ? undefined : "w-full"}
+          disabled={isSubmitting || step !== "form"}
+        >
+          {step === "uploading"
+            ? "Uploading file..."
+            : step === "ingesting"
+              ? "Queuing ingest..."
+              : "Upload & Process"}
+        </Button>
+      </div>
     </form>
   );
 }

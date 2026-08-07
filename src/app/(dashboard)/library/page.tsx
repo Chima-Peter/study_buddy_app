@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Plus } from "lucide-react";
 import { useDocumentsStore } from "@/stores/documents-store";
 import { listDocuments } from "@/lib/api/documents";
 import { DocumentFilters } from "@/components/library/document-filters";
-import { DocumentGrid } from "@/components/library/document-grid";
+import { DocumentList } from "@/components/library/document-list";
+import { UploadModal } from "@/components/library/upload-modal";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
-import { routes } from "@/config/routes";
-import { Plus } from "lucide-react";
 
 export default function LibraryPage() {
   const { items, hasMore, nextCursor, setPage } = useDocumentsStore();
@@ -18,6 +17,7 @@ export default function LibraryPage() {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,12 +62,10 @@ export default function LibraryPage() {
         title="My Library"
         description="Upload and manage your study materials"
         actions={
-          <Link href={routes.libraryUpload} className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto">
-              <Plus className="h-4 w-4" />
-              Upload
-            </Button>
-          </Link>
+          <Button className="w-full sm:w-auto" onClick={() => setUploadOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Upload
+          </Button>
         }
       />
 
@@ -80,7 +78,11 @@ export default function LibraryPage() {
         onStatusChange={setStatus}
       />
 
-      <DocumentGrid documents={items} loading={loading} />
+      <DocumentList
+        documents={items}
+        loading={loading}
+        onUploadAgain={() => setUploadOpen(true)}
+      />
 
       {hasMore && (
         <div className="flex justify-center">
@@ -89,6 +91,8 @@ export default function LibraryPage() {
           </Button>
         </div>
       )}
+
+      <UploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
     </div>
   );
 }

@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { Download, Pencil } from "lucide-react";
 import {
   deleteDocument,
   getDocument,
   getDownloadUrl,
-  retryIngest,
 } from "@/lib/api/documents";
 import { generateStudyCards } from "@/lib/api/study-cards";
 import type { Document } from "@/types";
 import { StatusBadge } from "@/components/library/status-badge";
+import { DocumentStatusPanel } from "@/components/library/document-status-panel";
+import { DocumentEditForm } from "@/components/library/document-edit-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -29,12 +31,14 @@ export default function DocumentDetailPage() {
   const { toast } = useToast();
   const upsert = useDocumentsStore((s) => s.upsert);
   const remove = useDocumentsStore((s) => s.remove);
-  const storeDoc = useDocumentsStore((s) => s.items.find((d) => d.id === params.id));
+  const storeDoc = useDocumentsStore((s) =>
+    s.items.find((d) => d.id === params.id),
+  );
   const [doc, setDoc] = useState<Document | null>(storeDoc ?? null);
   const [loading, setLoading] = useState(!storeDoc);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [retrying, setRetrying] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,25 +99,6 @@ export default function DocumentDetailPage() {
     }
   };
 
-  const onRetry = async () => {
-    setRetrying(true);
-    try {
-      await retryIngest(doc.id);
-      const updated = await getDocument(doc.id);
-      setDoc(updated);
-      upsert(updated);
-      toast({ title: "Retry queued", variant: "success" });
-    } catch (err) {
-      toast({
-        title: "Retry failed",
-        description: err instanceof ApiError ? err.message : undefined,
-        variant: "error",
-      });
-    } finally {
-      setRetrying(false);
-    }
-  };
-
   const onGenerateCards = async () => {
     setBusy(true);
     try {
@@ -163,75 +148,109 @@ export default function DocumentDetailPage() {
         actions={<StatusBadge status={doc.status} />}
       />
 
+      <DocumentStatusPanel
+        document={doc}
+        onRetried={(updated) => {
+          setDoc(updated);
+          setEditing(false);
+        }}
+      />
+
       <Card>
-        <CardHeader>
+        <CardHeader className="mb-3 flex flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="text-base">Details</CardTitle>
+          {!editing && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setEditing(true)}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </Button>
+          )}
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p>
-            <span className="text-muted">Category:</span> {doc.category}
-          </p>
-          {doc.sections != null && (
-            <p>
-              <span className="text-muted">Sections:</span> {doc.sections}
-            </p>
-          )}
-          {doc.description && (
-            <p>
-              <span className="text-muted">Description:</span> {doc.description}
-            </p>
-          )}
-          {doc.comment && (
-            <p className="rounded-md bg-error/10 p-3 text-error">{doc.comment}</p>
+        <CardContent>
+          {editing ? (
+            <DocumentEditForm
+              document={doc}
+              onCancel={() => setEditing(false)}
+              onSaved={(updated) => {
+                setDoc(updated);
+                upsert(updated);
+                setEditing(false);
+              }}
+            />
+          ) : (
+            <dl className="space-y-3 text-sm">
+              <div>
+                <dt className="text-muted">Category</dt>
+                <dd className="mt-0.5">{doc.category}</dd>
+              </div>
+              {doc.sections != null && (
+                <div>
+                  <dt className="text-muted">Sections</dt>
+                  <dd className="mt-0.5">{doc.sections}</dd>
+                </div>
+              )}
+              {doc.description && (
+                <div>
+                  <dt className="text-muted">Description</dt>
+                  <dd className="mt-0.5 text-[var(--text-secondary)]">
+                    {doc.description}
+                  </dd>
+                </div>
+              )}
+            </dl>
           )}
         </CardContent>
       </Card>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Link href={`${routes.chat}?docs=${doc.id}`}>
-          <Button className="w-full" disabled={!ready}>
-            Start Chat
-          </Button>
-        </Link>
-        <Button
-          className="w-full"
-          variant="secondary"
-          disabled={!ready || busy}
-          onClick={onGenerateCards}
-        >
-          Generate Study Cards
-        </Button>
-        <Button className="w-full" variant="ghost" onClick={onDownload}>
+      {ready && (
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">
+            Study actions
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Link href={`${routes.chat}?docs=${doc.id}`}>
+              <Button className="w-full">Start Chat</Button>
+            </Link>
+            <Button
+              className="w-full"
+              variant="secondary"
+              disabled={busy}
+              onClick={onGenerateCards}
+            >
+              Generate Study Cards
+            </Button>
+            <Link href={routes.studyDeck(doc.id)} className="sm:col-span-2">
+              <Button className="w-full" variant="ghost">
+                Open Study Deck
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
+        <Button variant="ghost" onClick={onDownload}>
+          <Download className="h-4 w-4" />
           Download
         </Button>
-        {doc.status === "failed" && (
-          <Button
-            className="w-full"
-            variant="secondary"
-            disabled={retrying || busy}
-            onClick={onRetry}
-          >
-            {retrying ? (
-              <>
-                <Spinner className="h-4 w-4 border-primary-700 border-t-transparent" />
-                Retrying…
-              </>
-            ) : (
-              "Retry ingest"
-            )}
-          </Button>
-        )}
-        <Link href={routes.studyDeck(doc.id)}>
-          <Button className="w-full" variant="ghost" disabled={!ready}>
-            Open Study Deck
-          </Button>
-        </Link>
+      </div>
+
+      <div className="rounded-lg border border-error/20 p-4">
+        <p className="text-sm font-medium">Danger zone</p>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">
+          Permanently remove this document and related study data.
+        </p>
         <Button
-          className="w-full"
+          className="mt-3"
           variant="danger"
+          size="sm"
           onClick={() => setConfirmDelete(true)}
         >
-          Delete
+          Delete document
         </Button>
       </div>
 

@@ -1,8 +1,13 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { UploadWizard } from "@/components/library/upload-wizard";
 import { PageHeader } from "@/components/layout/page-header";
 import { routes } from "@/config/routes";
 
 export default function UploadPage() {
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -11,7 +16,10 @@ export default function UploadPage() {
         showBack
         backHref={routes.library}
       />
-      <UploadWizard />
+      <UploadWizard
+        onSuccess={() => router.push(routes.library)}
+        onCancel={() => router.push(routes.library)}
+      />
     </div>
   );
 }
