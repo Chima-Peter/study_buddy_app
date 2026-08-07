@@ -17,9 +17,7 @@ import { THEME_STORAGE_KEY } from "@/config/constants";
 import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
 import { PageHeader } from "@/components/layout/page-header";
-import { useLogout } from "@/lib/hooks/use-logout";
 import {
-  LogOut,
   Monitor,
   Moon,
   Palette,
@@ -35,11 +33,9 @@ export default function SettingsPage() {
   const clearSession = useSessionStore((s) => s.clearSession);
   const router = useRouter();
   const { toast } = useToast();
-  const handleLogout = useLogout();
   const [theme, setTheme] = useState<"dark" | "light" | "system">("light");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
 
   const {
     register,
@@ -223,33 +219,6 @@ export default function SettingsPage() {
               </label>
             ))}
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="p-5">
-        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold">Current session</p>
-            <p className="mt-1 text-sm text-[var(--text-secondary)]">
-              Sign out of StudyBuddy on this device.
-            </p>
-          </div>
-          <Button
-            variant="secondary"
-            className="w-full sm:w-auto"
-            disabled={loggingOut}
-            onClick={async () => {
-              setLoggingOut(true);
-              try {
-                await handleLogout();
-              } finally {
-                setLoggingOut(false);
-              }
-            }}
-          >
-            <LogOut className="h-4 w-4" />
-            {loggingOut ? "Logging out…" : "Log out"}
-          </Button>
         </CardContent>
       </Card>
 

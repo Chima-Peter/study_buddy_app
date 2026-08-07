@@ -39,7 +39,7 @@ export function Header() {
         <button
           type="button"
           onClick={() => void handleLogout()}
-          className="hidden min-touch items-center justify-center gap-2 rounded-md px-2 py-2 text-sm text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)] lg:flex"
+          className="flex min-touch items-center justify-center gap-2 rounded-md px-2 py-2 text-sm text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
           aria-label="Log out"
         >
           <LogOut className="h-5 w-5" />
