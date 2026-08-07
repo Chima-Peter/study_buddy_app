@@ -45,7 +45,7 @@ export interface Document {
   comment?: string | null;
   hash?: string | null;
   path?: string | null;
-  sections?: number | null;
+  sections?: string[] | string | number | null;
   created_at: string;
   updated_at: string;
 }

@@ -82,8 +82,19 @@ export function deleteDocument(id: string) {
   return api.delete<null>(`/documents/${id}`);
 }
 
+/** Unwrapped `data` from GET /documents/download */
+export type DownloadUrlResponse = {
+  download_url: string;
+};
+
 export function getDownloadUrl(documentId: string) {
-  return api.get<{ download_url: string } | { url: string }>(
+  return api.get<DownloadUrlResponse>(
     `/documents/download${toQuery({ document_id: documentId })}`,
   );
+}
+
+/** Pick the signed file URL from the download endpoint payload. */
+export function resolveDownloadUrl(data: DownloadUrlResponse): string | null {
+  const url = data.download_url?.trim();
+  return url || null;
 }

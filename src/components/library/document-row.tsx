@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Download,
   FileText,
   MessageSquare,
   BookOpen,
@@ -20,7 +19,7 @@ import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
 import { formatDate } from "@/lib/utils/format";
 import { routes } from "@/config/routes";
-import { deleteDocument, getDownloadUrl } from "@/lib/api/documents";
+import { deleteDocument } from "@/lib/api/documents";
 import { useDocumentsStore } from "@/stores/documents-store";
 import { useRetryIngest } from "@/lib/hooks/use-retry-ingest";
 import { useCancelIngest } from "@/lib/hooks/use-cancel-ingest";
@@ -50,27 +49,6 @@ export function DocumentRow({
   const inPipeline =
     document.status === "pending" || document.status === "processing";
 
-  const onDownload = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      const data = await getDownloadUrl(document.id);
-      const url =
-        "download_url" in data
-          ? data.download_url
-          : "url" in data
-            ? data.url
-            : null;
-      if (url) window.open(url, "_blank");
-    } catch (err) {
-      toast({
-        title: "Download failed",
-        description: err instanceof ApiError ? err.message : undefined,
-        variant: "error",
-      });
-    }
-  };
-
   const onRetry = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -99,8 +77,11 @@ export function DocumentRow({
     <>
       <div
         className={cn(
-          "group flex flex-col gap-3 border-b border-border px-3 py-3.5 transition-colors last:border-b-0",
-          "hover:bg-surface-tertiary/60 sm:flex-row sm:items-center sm:gap-4 sm:px-4",
+          "group flex flex-col gap-3 rounded-xl border border-border bg-surface-secondary px-3 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-4",
+          "shadow-[0_1px_2px_rgba(12,36,32,0.04)]",
+          "transition-[transform,box-shadow,border-color] duration-200 ease-out",
+          "hover:-translate-y-0.5 hover:border-primary-700/25",
+          "hover:shadow-[0_10px_28px_rgba(12,36,32,0.12),0_2px_6px_rgba(12,36,32,0.06)]",
         )}
       >
         <Link
@@ -198,14 +179,6 @@ export function DocumentRow({
               </Link>
             </>
           )}
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={onDownload}
-            aria-label="Download"
-          >
-            <Download className="h-3.5 w-3.5" />
-          </Button>
           <Button
             size="sm"
             variant="ghost"

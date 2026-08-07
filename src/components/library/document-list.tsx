@@ -15,11 +15,11 @@ export function DocumentList({
 }) {
   if (loading && documents.length === 0) {
     return (
-      <div className="overflow-hidden rounded-lg border border-border bg-surface-secondary">
+      <div className="space-y-2.5">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center gap-3 border-b border-border px-4 py-3.5 last:border-b-0"
+            className="flex items-center gap-3 rounded-xl border border-border bg-surface-secondary px-4 py-3.5"
           >
             <Skeleton className="h-9 w-9 shrink-0 rounded-md" />
             <div className="flex-1 space-y-2">
@@ -44,7 +44,7 @@ export function DocumentList({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface-secondary">
+    <div className="space-y-2.5">
       {documents.map((doc) => (
         <DocumentRow
           key={doc.id}
