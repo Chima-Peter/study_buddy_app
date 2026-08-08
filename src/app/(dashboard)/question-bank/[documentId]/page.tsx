@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import {
-  generateQuestionBank,
   getQuestionBank,
   normalizeQuestionBankResult,
+  retryQuestionBank,
 } from "@/lib/api/question-bank";
 import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { QuestionPreviewList } from "@/components/question-bank/question-preview-list";
@@ -129,7 +129,7 @@ export default function QuestionBankDetailPage() {
   const onRetry = async () => {
     setRetrying(true);
     try {
-      await generateQuestionBank(params.documentId);
+      await retryQuestionBank(params.documentId);
       const pending = {
         id: params.documentId,
         document_id: params.documentId,

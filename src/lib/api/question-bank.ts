@@ -49,6 +49,10 @@ export function generateQuestionBank(documentId: string) {
   return api.post<{ document_id: string }>(`/question-bank/${documentId}`);
 }
 
+export function retryQuestionBank(documentId: string) {
+  return api.post<{ document_id: string }>(`/question-bank/${documentId}/retry`);
+}
+
 export async function getQuestionBank(documentId: string) {
   const bank = await api.get<QuestionBank>(`/question-bank/${documentId}`);
   return normalizeBank(bank);

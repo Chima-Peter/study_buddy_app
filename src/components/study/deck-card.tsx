@@ -6,7 +6,7 @@ import type { StudyCards } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { routes } from "@/config/routes";
-import { generateStudyCards } from "@/lib/api/study-cards";
+import { retryStudyCards } from "@/lib/api/study-cards";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
@@ -27,7 +27,7 @@ export function DeckCard({ deck }: { deck: StudyCards }) {
   const retry = async () => {
     setRetrying(true);
     try {
-      await generateStudyCards(deck.document_id);
+      await retryStudyCards(deck.document_id);
       toast({ title: "Regeneration queued", variant: "success" });
     } catch (err) {
       toast({

@@ -3,13 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getStudyCards } from "@/lib/api/study-cards";
+import { getStudyCards, retryStudyCards } from "@/lib/api/study-cards";
 import { useStudyStore } from "@/stores/study-store";
 import { ChapterNav } from "@/components/study/chapter-nav";
 import { MiniStudyCards } from "@/components/study/mini-study-cards";
 import { Button } from "@/components/ui/button";
-import { PageLoader } from "@/components/ui/spinner";
+import { PageLoader, Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
+import { useToast } from "@/components/ui/toast";
+import { ApiError } from "@/lib/api/client";
 import { routes } from "@/config/routes";
 import { formatChapterTitle } from "@/lib/utils/format";
 
@@ -21,11 +23,13 @@ function deckFromStore(documentId: string) {
 
 export default function StudyDeckPage() {
   const params = useParams<{ documentId: string }>();
+  const { toast } = useToast();
   const setCurrent = useStudyStore((s) => s.setCurrent);
   const upsert = useStudyStore((s) => s.upsert);
   const current = useStudyStore((s) => s.current);
   const [loading, setLoading] = useState(() => !deckFromStore(params.documentId));
   const [activeKey, setActiveKey] = useState<string>("");
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +73,33 @@ export default function StudyDeckPage() {
   );
   const activeIndex = chapters.findIndex((c) => c.chapter_key === active?.chapter_key);
 
+  const onRetry = async () => {
+    setRetrying(true);
+    try {
+      await retryStudyCards(params.documentId);
+      const pending = {
+        id: params.documentId,
+        document_id: params.documentId,
+        document_name: current?.document_name ?? "",
+        status: "pending" as const,
+        result: null,
+        created_at: current?.created_at ?? new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      upsert(pending);
+      setCurrent(pending);
+      toast({ title: "Regeneration queued", variant: "success" });
+    } catch (err) {
+      toast({
+        title: "Could not regenerate",
+        description: err instanceof ApiError ? err.message : undefined,
+        variant: "error",
+      });
+    } finally {
+      setRetrying(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -78,15 +109,28 @@ export default function StudyDeckPage() {
   }
 
   if (!current || current.status !== "success" || !active) {
+    const failed = current?.status === "failed";
     return (
       <div className="space-y-4">
         <PageHeader title="Study deck unavailable" showBack backHref={routes.study} />
         <p className="text-[var(--text-secondary)]">
-          Cards may still be generating, or generation failed. Check the Study index.
+          {failed
+            ? "Generation failed. You can retry, or return to the Study index."
+            : "Cards may still be generating, or generation failed. Check the Study index."}
         </p>
-        <Link href={routes.study}>
-          <Button variant="secondary">Back to decks</Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {failed && (
+            <Button onClick={onRetry} disabled={retrying}>
+              {retrying && (
+                <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />
+              )}
+              {retrying ? "Queuing…" : "Retry"}
+            </Button>
+          )}
+          <Link href={routes.study}>
+            <Button variant="secondary">Back to decks</Button>
+          </Link>
+        </div>
       </div>
     );
   }

@@ -8,6 +8,7 @@ import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
 import { useRetryIngest } from "@/lib/hooks/use-retry-ingest";
 import { useCancelIngest } from "@/lib/hooks/use-cancel-ingest";
+import { formatIngestFailureMessage } from "@/lib/utils/format";
 
 export function DocumentStatusPanel({
   document,
@@ -88,7 +89,7 @@ export function DocumentStatusPanel({
         <div>
           <p className="text-sm font-medium text-error">Processing failed</p>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            {document.comment ||
+            {formatIngestFailureMessage(document.comment) ||
               "Something went wrong while ingesting this document."}
           </p>
         </div>

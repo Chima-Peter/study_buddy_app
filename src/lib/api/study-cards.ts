@@ -19,6 +19,10 @@ export function generateStudyCards(documentId: string) {
   return api.post<{ document_id: string }>(`/study-cards/${documentId}`);
 }
 
+export function retryStudyCards(documentId: string) {
+  return api.post<{ document_id: string }>(`/study-cards/${documentId}/retry`);
+}
+
 export function getStudyCards(documentId: string) {
   return api.get<StudyCards>(`/study-cards/${documentId}`);
 }

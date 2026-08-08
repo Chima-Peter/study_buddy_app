@@ -1,6 +1,7 @@
 import { env } from "@/config/env";
 import type { ApiEnvelope } from "@/types";
 import { useSessionStore } from "@/stores/session-store";
+import { disconnectSharedChatSocket } from "@/lib/ws/chat-socket";
 
 export class ApiError extends Error {
   status: number;
@@ -47,54 +48,28 @@ function getErrorMessage(
   return fromMessage || fromError || fallback;
 }
 
+export function applyNewTokenFromHeaders(headers: Headers) {
+  const newToken = headers.get("X-New-Token");
+  if (newToken) {
+    useSessionStore.getState().setToken(newToken);
+  }
+}
+
+function endSession() {
+  disconnectSharedChatSocket();
+  useSessionStore.getState().clearSession();
+}
+
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   skipAuth?: boolean;
-  skipRefresh?: boolean;
 };
-
-let refreshPromise: Promise<string | null> | null = null;
-
-async function refreshAccessToken(expiredToken: string): Promise<string | null> {
-  if (refreshPromise) return refreshPromise;
-
-  refreshPromise = (async () => {
-    try {
-      const res = await fetch(`${env.apiUrl}/authentication/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: expiredToken }),
-      });
-
-      if (!res.ok) {
-        useSessionStore.getState().clearSession();
-        return null;
-      }
-
-      const json = (await res.json()) as ApiEnvelope<{ token: string; user: unknown }>;
-      const newToken = json.data.token;
-      const user = json.data.user as Parameters<
-        ReturnType<typeof useSessionStore.getState>["setSession"]
-      >[1];
-
-      useSessionStore.getState().setSession(newToken, user);
-      return newToken;
-    } catch {
-      useSessionStore.getState().clearSession();
-      return null;
-    } finally {
-      refreshPromise = null;
-    }
-  })();
-
-  return refreshPromise;
-}
 
 export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { body, skipAuth, skipRefresh, headers, ...rest } = options;
+  const { body, skipAuth, headers, ...rest } = options;
   const token = useSessionStore.getState().token;
 
   const requestHeaders: HeadersInit = {
@@ -112,11 +87,10 @@ export async function apiRequest<T>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  if (res.status === 401 && !skipAuth && !skipRefresh && token) {
-    const newToken = await refreshAccessToken(token);
-    if (newToken) {
-      return apiRequest<T>(path, { ...options, skipRefresh: true });
-    }
+  applyNewTokenFromHeaders(res.headers);
+
+  if (res.status === 401 && !skipAuth) {
+    endSession();
     throw new ApiError("Session expired. Please sign in again.", 401);
   }
 

@@ -1,5 +1,6 @@
 import { env } from "@/config/env";
 import type { SseEvent } from "@/types";
+import { applyNewTokenFromHeaders } from "@/lib/api/client";
 
 export type SseHandler = (event: SseEvent, eventId?: string) => void;
 
@@ -8,6 +9,7 @@ export class NotificationStream {
   private lastEventId: string | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private backoffMs = 1000;
+  private shouldReconnect = false;
 
   constructor(
     private getToken: () => string | null,
@@ -16,19 +18,25 @@ export class NotificationStream {
   ) {}
 
   start() {
+    this.shouldReconnect = true;
     void this.connect();
   }
 
   stop() {
+    this.shouldReconnect = false;
     this.abortController?.abort();
     this.abortController = null;
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = null;
     this.onStatus?.(false);
   }
 
   private async connect() {
     const token = this.getToken();
-    if (!token) return;
+    if (!token) {
+      this.shouldReconnect = false;
+      return;
+    }
 
     this.abortController?.abort();
     this.abortController = new AbortController();
@@ -46,6 +54,13 @@ export class NotificationStream {
         headers,
         signal: this.abortController.signal,
       });
+
+      applyNewTokenFromHeaders(res.headers);
+
+      if (res.status === 401 || res.status === 403) {
+        this.stop();
+        return;
+      }
 
       if (!res.ok || !res.body) {
         throw new Error(`SSE failed: ${res.status}`);
@@ -67,6 +82,11 @@ export class NotificationStream {
         for (const part of parts) {
           this.parseEvent(part);
         }
+      }
+
+      if (this.shouldReconnect) {
+        this.onStatus?.(false);
+        this.scheduleReconnect();
       }
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
@@ -101,6 +121,7 @@ export class NotificationStream {
   }
 
   private scheduleReconnect() {
+    if (!this.shouldReconnect) return;
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.reconnectTimer = setTimeout(() => {
       this.backoffMs = Math.min(this.backoffMs * 2, 30000);

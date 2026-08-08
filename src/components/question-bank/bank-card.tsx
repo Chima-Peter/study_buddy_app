@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { routes } from "@/config/routes";
 import {
-  generateQuestionBank,
   getQuestionBank,
+  retryQuestionBank,
 } from "@/lib/api/question-bank";
 import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { useToast } from "@/components/ui/toast";
@@ -52,7 +52,7 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
   const retry = async () => {
     setRetrying(true);
     try {
-      await generateQuestionBank(bank.document_id);
+      await retryQuestionBank(bank.document_id);
       toast({ title: "Regeneration queued", variant: "success" });
     } catch (err) {
       toast({

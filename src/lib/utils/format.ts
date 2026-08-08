@@ -21,6 +21,26 @@ export function formatPercent(correct: number, total: number) {
   return Math.round((correct / total) * 100);
 }
 
+const NO_CHAPTERS_MESSAGE =
+  "This document has no chapters. Check the document and try again.";
+
+/** Map ingest failure comments/codes to user-facing copy. */
+export function formatIngestFailureMessage(comment?: string | null) {
+  const trimmed = comment?.trim();
+  if (!trimmed) return null;
+
+  const normalized = trimmed.toLowerCase().replace(/[_-]+/g, " ");
+  if (
+    normalized.includes("no chapters") ||
+    normalized.includes("no chapter") ||
+    normalized === "nochapters"
+  ) {
+    return NO_CHAPTERS_MESSAGE;
+  }
+
+  return trimmed;
+}
+
 /** Turn keys like `chapter_1` into `Chapter 1`. */
 export function formatChapterTitle(key: string) {
   const trimmed = key.trim();

@@ -18,6 +18,7 @@ import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoader, Spinner } from "@/components/ui/spinner";
+import { disconnectSharedChatSocket } from "@/lib/ws/chat-socket";
 import {
   Monitor,
   Moon,
@@ -109,6 +110,7 @@ export default function SettingsPage() {
     setDeleting(true);
     try {
       await deleteMe();
+      disconnectSharedChatSocket();
       clearSession();
       router.replace(routes.login);
     } catch (err) {

@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
-import { formatDate } from "@/lib/utils/format";
+import { formatDate, formatIngestFailureMessage } from "@/lib/utils/format";
 import { routes } from "@/config/routes";
 import { deleteDocument } from "@/lib/api/documents";
 import { useDocumentsStore } from "@/stores/documents-store";
@@ -48,6 +48,9 @@ export function DocumentRow({
   const cancelled = document.status === "cancelled";
   const inPipeline =
     document.status === "pending" || document.status === "processing";
+  const failureMessage = failed
+    ? formatIngestFailureMessage(document.comment)
+    : null;
 
   const onRetry = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -101,8 +104,8 @@ export function DocumentRow({
                 {document.category}
               </Badge>
             </div>
-            {failed && document.comment && (
-              <p className="line-clamp-1 text-xs text-error">{document.comment}</p>
+            {failureMessage && (
+              <p className="line-clamp-1 text-xs text-error">{failureMessage}</p>
             )}
             {!failed && document.description && (
               <p className="line-clamp-1 text-xs text-[var(--text-secondary)]">

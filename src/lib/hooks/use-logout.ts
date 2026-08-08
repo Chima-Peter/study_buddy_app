@@ -11,12 +11,13 @@ export function useLogout() {
   const clearSession = useSessionStore((s) => s.clearSession);
 
   return async () => {
+    // Tear down live connections before invalidating the session server-side.
+    disconnectSharedChatSocket();
     try {
       await logout();
     } catch {
       // clear locally even if API fails
     }
-    disconnectSharedChatSocket();
     clearSession();
     router.replace(routes.login);
   };
