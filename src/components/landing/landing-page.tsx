@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
-import { ArrowRight, BookOpen, MessageSquareText, Upload } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  ClipboardList,
+  MessageSquareText,
+  Upload,
+} from "lucide-react";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/brand/logo";
 import { ProductVisual } from "./product-visual";
@@ -33,8 +39,13 @@ const steps = [
   },
   {
     icon: BookOpen,
-    title: "Practice to mastery",
-    body: "Generate chapter notes and quizzes from the same materials, then track what sticks.",
+    title: "Study by chapter",
+    body: "Generate chapter notes, mnemonics, and short quizzes from the same materials.",
+  },
+  {
+    icon: ClipboardList,
+    title: "Sit a practice exam",
+    body: "Build a question bank, set a timer, and review score by difficulty when you’re done.",
   },
 ];
 
@@ -49,7 +60,7 @@ const testimonials = [
     name: "Noah",
     place: "Manchester",
     quote:
-      "Upload night → quiz morning. It’s the first study tool that feels built around how I actually revise.",
+      "Upload night → quiz morning. It’s the first study tool that feels built around how I actually revise — timed exams included.",
   },
   {
     name: "Priya",
@@ -62,15 +73,19 @@ const testimonials = [
 const faqs = [
   {
     q: "How does StudyBuddy work?",
-    a: "Upload your course materials, wait for ingest to finish, then chat with an AI tutor grounded in those documents. Generate study cards and quizzes when you’re ready to practice.",
+    a: "Upload your course materials, wait for ingest to finish, then chat with an AI tutor grounded in those documents. Generate study cards for chapter review, or build a question bank and sit a timed practice exam.",
   },
   {
     q: "What can I upload?",
-    a: "Lecture PDFs and study documents. Once processing completes, they’re available for tutor chat and study-card generation.",
+    a: "Lecture PDFs and study documents. Once processing completes, they’re available for tutor chat, study cards, and question-bank exams.",
+  },
+  {
+    q: "What’s the difference between study cards and the question bank?",
+    a: "Study cards organize notes and short quizzes by chapter. The question bank builds a flat MCQ set you can turn into a timed practice exam with score and difficulty breakdown.",
   },
   {
     q: "Is it only for STEM?",
-    a: "No — any subject with readable materials works. The tutor and quizzes follow whatever you upload.",
+    a: "No — any subject with readable materials works. The tutor, study cards, and exams follow whatever you upload.",
   },
 ];
 
@@ -144,8 +159,8 @@ export function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.16 }}
             >
-              Turn your lecture notes into an AI tutor, chapter summaries, and
-              quizzes — grounded in materials you already have.
+              Turn your lecture notes into an AI tutor, chapter study cards, and
+              timed practice exams — grounded in materials you already have.
             </motion.p>
 
             <motion.div
@@ -191,12 +206,12 @@ export function LandingPage() {
               </h2>
               <p className="mt-4 text-base leading-relaxed text-[#9eb8b1] sm:text-lg">
                 StudyBuddy builds a unique path from what you upload — assess
-                gaps through chat, reinforce with quizzes, and move on when
-                you’ve got it.
+                gaps through chat, reinforce with chapter cards, then pressure-test
+                yourself with timed exams.
               </p>
             </motion.div>
 
-            <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+            <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
               {steps.map((step, i) => (
                 <motion.li
                   key={step.title}
@@ -280,8 +295,80 @@ export function LandingPage() {
           </div>
         </section>
 
+        {/* Practice exams */}
+        <section className="relative bg-[#f7fbf9]">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-2">
+            <motion.div
+              className="order-2 lg:order-1"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="overflow-hidden rounded-[2rem] border border-[#0c2420]/08 bg-white p-8 shadow-[0_24px_50px_-28px_rgba(12,36,32,0.35)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0f766e]">
+                  Practice exam
+                </p>
+                <p className="mt-4 font-[family-name:var(--font-landing-display)] text-2xl font-semibold text-[#0c2420]">
+                  18 / 20 correct
+                </p>
+                <div className="mt-6 space-y-3">
+                  {[
+                    { label: "Easy", pct: 100 },
+                    { label: "Medium", pct: 90 },
+                    { label: "Hard", pct: 75 },
+                  ].map((row) => (
+                    <div key={row.label}>
+                      <div className="mb-1.5 flex justify-between text-sm text-[#3d5c56]">
+                        <span>{row.label}</span>
+                        <span className="tabular-nums">{row.pct}%</span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-[#e8f3ef]">
+                        <motion.div
+                          className="h-full rounded-full bg-[#0f766e]"
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${row.pct}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="order-1 lg:order-2"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6 }}
+            >
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0f766e]">
+                New · Question bank
+              </p>
+              <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[#0c2420] sm:text-4xl">
+                Timed exams from your own notes
+              </h2>
+              <p className="mt-4 max-w-md text-base leading-relaxed text-[#3d5c56] sm:text-lg">
+                Generate a full MCQ bank, choose how many questions and whether
+                to race the clock, then review explanations with a difficulty
+                breakdown.
+              </p>
+              <Link
+                href={routes.register}
+                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#0f766e] transition hover:text-[#134e4a]"
+              >
+                Start a practice exam
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Testimonials */}
-        <section className="bg-[#f7fbf9]">
+        <section className="border-t border-[#0c2420]/08 bg-white">
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
             <motion.div
               className="max-w-xl"
@@ -324,7 +411,7 @@ export function LandingPage() {
         </section>
 
         {/* FAQ */}
-        <section className="border-t border-[#0c2420]/08 bg-white">
+        <section className="border-t border-[#0c2420]/08 bg-[#f7fbf9]">
           <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8 sm:py-24">
             <h2 className="text-center font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[#0c2420] sm:text-4xl">
               Frequently asked questions
@@ -393,8 +480,7 @@ export function LandingPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.08 }}
             >
-              Upload tonight. Chat and quiz tomorrow. Make every study session
-              count.
+              Upload tonight. Chat, study, and sit a practice exam tomorrow.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
