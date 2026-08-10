@@ -2,6 +2,8 @@ export const routes = {
   home: "/",
   login: "/login",
   register: "/register",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
   library: "/library",
   libraryUpload: "/library/upload",
   libraryDetail: (id: string) => `/library/${id}`,

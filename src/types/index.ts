@@ -1,7 +1,7 @@
 export interface ApiEnvelope<T> {
-  data: T;
+  data: T | null;
   success: boolean;
-  message: string;
+  message: string | null;
   error: string | null;
 }
 

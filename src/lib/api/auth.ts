@@ -1,6 +1,12 @@
 import { api } from "./client";
 import type { AuthPayload, User } from "@/types";
-import type { LoginInput, RegisterInput, ProfileInput } from "@/lib/utils/validators";
+import type {
+  LoginInput,
+  RegisterInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+  ProfileInput,
+} from "@/lib/utils/validators";
 
 export function register(input: RegisterInput) {
   return api.post<AuthPayload>("/authentication/register", input, { skipAuth: true });
@@ -8,6 +14,14 @@ export function register(input: RegisterInput) {
 
 export function login(input: LoginInput) {
   return api.post<AuthPayload>("/authentication/login", input, { skipAuth: true });
+}
+
+export function forgotPassword(input: ForgotPasswordInput) {
+  return api.post<null>("/authentication/forgot-password", input, { skipAuth: true });
+}
+
+export function resetPassword(input: ResetPasswordInput) {
+  return api.post<null>("/authentication/reset-password", input, { skipAuth: true });
 }
 
 export function logout() {

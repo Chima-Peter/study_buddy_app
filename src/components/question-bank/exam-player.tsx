@@ -79,7 +79,7 @@ export function ExamPlayer({
     () => ((index + (selected != null ? 1 : 0)) / Math.max(questions.length, 1)) * 100,
     [index, selected, questions.length],
   );
-  const answeredCount = answers.reduce((n, a, i) => {
+  const answeredCount = answers.reduce<number>((n, a, i) => {
     if (i === index) return n + (selected != null ? 1 : 0);
     return n + (a != null ? 1 : 0);
   }, 0);

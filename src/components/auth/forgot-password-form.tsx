@@ -5,34 +5,46 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { loginSchema, type LoginInput } from "@/lib/utils/validators";
-import { login } from "@/lib/api/auth";
-import { useSessionStore } from "@/stores/session-store";
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordInput,
+} from "@/lib/utils/validators";
+import { forgotPassword } from "@/lib/api/auth";
 import { routes } from "@/config/routes";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
 
-export function LoginForm() {
+function forgotPasswordErrorMessage(err: unknown): string {
+  if (!(err instanceof ApiError)) return "Could not send reset code";
+  if (err.status === 400) return "No account for that email";
+  return err.message;
+}
+
+type ForgotPasswordFormProps = {
+  initialEmail?: string;
+};
+
+export function ForgotPasswordForm({ initialEmail = "" }: ForgotPasswordFormProps) {
   const router = useRouter();
-  const setSession = useSessionStore((s) => s.setSession);
   const [error, setError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: initialEmail },
   });
 
   const onSubmit = handleSubmit(async (values) => {
     setError(null);
     try {
-      const data = await login(values);
-      setSession(data.token, data.user);
-      router.replace(routes.library);
+      await forgotPassword(values);
+      const params = new URLSearchParams({ email: values.email });
+      router.push(`${routes.resetPassword}?${params.toString()}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed");
+      setError(forgotPasswordErrorMessage(err));
     }
   });
 
@@ -45,33 +57,18 @@ export function LoginForm() {
         error={errors.email?.message}
         {...register("email")}
       />
-      <Input
-        label="Password"
-        type="password"
-        autoComplete="current-password"
-        error={errors.password?.message}
-        {...register("password")}
-      />
-      <p className="text-right text-sm">
-        <Link
-          href={routes.forgotPassword}
-          className="text-primary-700 hover:underline"
-        >
-          Forgot password?
-        </Link>
-      </p>
       {error && (
         <p className="rounded-md bg-error/10 px-3 py-2 text-sm text-error" role="alert">
           {error}
         </p>
       )}
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Signing in..." : "Sign In"}
+        {isSubmitting ? "Sending code..." : "Send reset code"}
       </Button>
       <p className="text-center text-sm text-[var(--text-secondary)]">
-        Don&apos;t have an account?{" "}
-        <Link href={routes.register} className="text-primary-700 hover:underline">
-          Sign up
+        Remembered your password?{" "}
+        <Link href={routes.login} className="text-primary-700 hover:underline">
+          Sign in
         </Link>
       </p>
     </form>
