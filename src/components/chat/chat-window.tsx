@@ -8,7 +8,9 @@ import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
 import { DocumentPicker } from "./document-picker";
 import { useChatSocket } from "@/lib/ws/use-chat-socket";
+import { branchConversation } from "@/lib/api/conversations";
 import { routes } from "@/config/routes";
+import { ApiError } from "@/lib/api/client";
 
 function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
   const prompts = [
@@ -90,6 +92,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     selectedDocumentIds,
     error,
     setError,
+    setMessages,
     appendUserMessage,
     prepareSend,
     startAssistantMessage,
@@ -97,6 +100,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     activeConversationId,
     pendingRouteConversationId,
     setPendingRouteConversationId,
+    upsertConversation,
   } = useChatStore();
   const { send } = useChatSocket();
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -104,6 +108,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   const [promptSelect, setPromptSelect] = useState(false);
   const [prefill, setPrefill] = useState<string | null>(null);
   const [prefillKey, setPrefillKey] = useState(0);
+  const [branching, setBranching] = useState(false);
 
   const viewingId = conversationId ?? activeConversationId;
   const streamingHere =
@@ -169,6 +174,71 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     onSend(query);
   };
 
+  const onRetry = (assistantMessageId: string) => {
+    if (streamingHere || branching) return;
+    const idx = messages.findIndex((m) => m.id === assistantMessageId);
+    if (idx < 0) return;
+    const assistant = messages[idx];
+    if (assistant.role !== "assistant") return;
+    const retries = assistant.retryCount ?? 0;
+    if (retries >= 3) return;
+
+    let userQuery: string | null = null;
+    for (let i = idx - 1; i >= 0; i--) {
+      if (messages[i].role === "user") {
+        userQuery = messages[i].content;
+        break;
+      }
+    }
+    if (!userQuery) return;
+    if (!requireDocuments()) return;
+
+    setError(null);
+    setMessages(messages.slice(0, idx));
+    const id = conversationId ?? activeConversationId ?? undefined;
+    prepareSend(id ?? null);
+    startAssistantMessage(id, retries + 1);
+    send({
+      query: userQuery,
+      conversation_id: id,
+      document_ids: selectedDocumentIds,
+    });
+  };
+
+  const onBranch = async (assistantMessageId: string) => {
+    if (streamingHere || branching) return;
+    const idx = messages.findIndex((m) => m.id === assistantMessageId);
+    if (idx < 0) return;
+    if (messages[idx].role !== "assistant") return;
+
+    const chatCount = messages
+      .slice(0, idx + 1)
+      .filter((m) => m.role === "assistant").length;
+    if (chatCount < 1) return;
+
+    const id = conversationId ?? activeConversationId;
+    if (!id) {
+      setError("Save this chat first by sending a message, then try branching.");
+      return;
+    }
+
+    setBranching(true);
+    setError(null);
+    try {
+      const branched = await branchConversation(id, chatCount);
+      upsertConversation(branched);
+      router.push(routes.chatConversation(branched.id));
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Could not branch into a new chat";
+      setError(message);
+    } finally {
+      setBranching(false);
+    }
+  };
+
   return (
     <div className="chat-soft-surface flex h-full min-h-0 flex-col">
       <div className="flex-1 overflow-y-auto overscroll-contain">
@@ -177,7 +247,13 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
         ) : (
           <div className="mx-auto max-w-2xl space-y-4 px-4 py-5 sm:px-6 sm:py-8">
             {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} />
+              <MessageBubble
+                key={m.id}
+                message={m}
+                onRetry={onRetry}
+                onBranch={onBranch}
+                actionsDisabled={streamingHere || branching}
+              />
             ))}
             {error && (
               <div

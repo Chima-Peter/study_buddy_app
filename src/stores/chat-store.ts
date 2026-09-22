@@ -6,6 +6,8 @@ export interface UiMessage {
   role: "user" | "assistant";
   content: string;
   streaming?: boolean;
+  /** How many times this assistant turn has been retried (max 3). */
+  retryCount?: number;
 }
 
 interface ChatState {
@@ -34,7 +36,7 @@ interface ChatState {
   appendUserMessage: (content: string) => void;
   prepareSend: (conversationId: string | null) => void;
   bindStream: (conversationId: string) => void;
-  startAssistantMessage: (conversationId?: string) => void;
+  startAssistantMessage: (conversationId?: string, retryCount?: number) => void;
   appendStreamChunk: (chunk: string) => void;
   finalizeStream: (conversationId?: string) => void;
   clearStreaming: () => void;
@@ -87,14 +89,20 @@ export const useChatStore = create<ChatState>((set) => ({
     }),
   bindStream: (conversationId) =>
     set({ streamingConversationId: conversationId }),
-  startAssistantMessage: (conversationId) =>
+  startAssistantMessage: (conversationId, retryCount = 0) =>
     set((state) => ({
       isStreaming: true,
       streamingContent: "",
       streamingConversationId: conversationId ?? state.streamingConversationId,
       messages: [
         ...state.messages,
-        { id: `a-${Date.now()}`, role: "assistant", content: "", streaming: true },
+        {
+          id: `a-${Date.now()}`,
+          role: "assistant",
+          content: "",
+          streaming: true,
+          retryCount,
+        },
       ],
     })),
   appendStreamChunk: (chunk) =>
