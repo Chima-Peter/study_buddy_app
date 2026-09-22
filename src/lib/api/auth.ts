@@ -4,6 +4,7 @@ import type {
   LoginInput,
   RegisterInput,
   ForgotPasswordInput,
+  VerifyResetCodeInput,
   ResetPasswordInput,
   ProfileInput,
 } from "@/lib/utils/validators";
@@ -18,6 +19,12 @@ export function login(input: LoginInput) {
 
 export function forgotPassword(input: ForgotPasswordInput) {
   return api.post<null>("/authentication/forgot-password", input, { skipAuth: true });
+}
+
+export function verifyResetCode(input: VerifyResetCodeInput) {
+  return api.post<{ token: string }>("/authentication/verify-reset-code", input, {
+    skipAuth: true,
+  });
 }
 
 export function resetPassword(input: ResetPasswordInput) {
