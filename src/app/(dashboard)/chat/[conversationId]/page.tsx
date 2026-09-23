@@ -34,8 +34,16 @@ export default function ConversationPage() {
         setConversations(list.items, list.next_cursor, list.has_more);
         setActiveConversationId(detail.id);
         const messages = detail.chats.flatMap((c) => [
-          { id: `${c.id}-q`, role: "user" as const, content: c.query },
-          { id: `${c.id}-a`, role: "assistant" as const, content: c.response },
+          {
+            id: c.query_message_id ?? `${c.id}-q`,
+            role: "user" as const,
+            content: c.query,
+          },
+          {
+            id: c.response_message_id ?? `${c.id}-a`,
+            role: "assistant" as const,
+            content: c.response,
+          },
         ]);
         setMessages(messages);
       } finally {

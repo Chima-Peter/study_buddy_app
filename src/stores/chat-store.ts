@@ -38,7 +38,10 @@ interface ChatState {
   bindStream: (conversationId: string) => void;
   startAssistantMessage: (conversationId?: string, retryCount?: number) => void;
   appendStreamChunk: (chunk: string) => void;
-  finalizeStream: (conversationId?: string) => void;
+  finalizeStream: (
+    conversationId?: string,
+    messageIds?: { queryMessageId?: string; responseMessageId?: string },
+  ) => void;
   clearStreaming: () => void;
   setPendingRouteConversationId: (id: string | null) => void;
   setSelectedDocumentIds: (ids: string[]) => void;
@@ -115,13 +118,38 @@ export const useChatStore = create<ChatState>((set) => ({
       }
       return { streamingContent, messages };
     }),
-  finalizeStream: (conversationId) =>
+  finalizeStream: (conversationId, messageIds) =>
     set((state) => {
-      const messages = state.messages.map((m) =>
-        m.streaming ? { ...m, streaming: false } : m,
-      );
+      const messages = [...state.messages];
+      if (messageIds?.queryMessageId || messageIds?.responseMessageId) {
+        for (let i = messages.length - 1; i >= 0; i--) {
+          const message = messages[i];
+          if (
+            messageIds.responseMessageId &&
+            message.role === "assistant" &&
+            message.streaming
+          ) {
+            messages[i] = {
+              ...message,
+              id: messageIds.responseMessageId,
+              streaming: false,
+            };
+            continue;
+          }
+          if (
+            messageIds.queryMessageId &&
+            message.role === "user" &&
+            message.id.startsWith("u-")
+          ) {
+            messages[i] = { ...message, id: messageIds.queryMessageId };
+            break;
+          }
+        }
+      }
       return {
-        messages,
+        messages: messages.map((m) =>
+          m.streaming ? { ...m, streaming: false } : m,
+        ),
         isStreaming: false,
         streamingContent: "",
         streamingConversationId: null,
