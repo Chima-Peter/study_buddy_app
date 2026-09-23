@@ -63,10 +63,7 @@ function handleChatFrame(frame: WsFrame) {
       }
 
       if (frameTargetsActiveChat(conversationId)) {
-        store.finalizeStream(conversationId, {
-          queryMessageId: frame.query_message_id,
-          responseMessageId: frame.response_message_id,
-        });
+        store.finalizeStream(conversationId, frame.chat_id);
         if (
           conversationId &&
           typeof window !== "undefined" &&

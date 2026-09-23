@@ -173,7 +173,6 @@ export interface WsFrame {
   response?: string;
   message?: string;
   conversation_id?: string;
-  query_message_id?: string;
-  response_message_id?: string;
+  chat_id?: string;
   token?: string;
 }

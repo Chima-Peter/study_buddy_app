@@ -38,10 +38,7 @@ interface ChatState {
   bindStream: (conversationId: string) => void;
   startAssistantMessage: (conversationId?: string, retryCount?: number) => void;
   appendStreamChunk: (chunk: string) => void;
-  finalizeStream: (
-    conversationId?: string,
-    messageIds?: { queryMessageId?: string; responseMessageId?: string },
-  ) => void;
+  finalizeStream: (conversationId?: string, chatId?: string) => void;
   clearStreaming: () => void;
   setPendingRouteConversationId: (id: string | null) => void;
   setSelectedDocumentIds: (ids: string[]) => void;
@@ -118,30 +115,22 @@ export const useChatStore = create<ChatState>((set) => ({
       }
       return { streamingContent, messages };
     }),
-  finalizeStream: (conversationId, messageIds) =>
+  finalizeStream: (conversationId, chatId) =>
     set((state) => {
       const messages = [...state.messages];
-      if (messageIds?.queryMessageId || messageIds?.responseMessageId) {
+      if (chatId) {
         for (let i = messages.length - 1; i >= 0; i--) {
           const message = messages[i];
-          if (
-            messageIds.responseMessageId &&
-            message.role === "assistant" &&
-            message.streaming
-          ) {
+          if (message.role === "assistant" && message.streaming) {
             messages[i] = {
               ...message,
-              id: messageIds.responseMessageId,
+              id: `${chatId}-a`,
               streaming: false,
             };
             continue;
           }
-          if (
-            messageIds.queryMessageId &&
-            message.role === "user" &&
-            message.id.startsWith("u-")
-          ) {
-            messages[i] = { ...message, id: messageIds.queryMessageId };
+          if (message.role === "user" && message.id.startsWith("u-")) {
+            messages[i] = { ...message, id: `${chatId}-q` };
             break;
           }
         }
