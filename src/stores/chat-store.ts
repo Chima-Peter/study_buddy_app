@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { ConversationListItem } from "@/types";
+import { MAX_DOCUMENT_IDS } from "@/config/constants";
 
 export interface UiMessage {
   id: string;
@@ -163,7 +164,8 @@ export const useChatStore = create<ChatState>((set) => ({
       streamingConversationId: null,
     }),
   setPendingRouteConversationId: (id) => set({ pendingRouteConversationId: id }),
-  setSelectedDocumentIds: (ids) => set({ selectedDocumentIds: ids }),
+  setSelectedDocumentIds: (ids) =>
+    set({ selectedDocumentIds: ids.slice(0, MAX_DOCUMENT_IDS) }),
   setError: (error) => set({ error }),
   updateTitle: (id, title) =>
     set((state) => ({
