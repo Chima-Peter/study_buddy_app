@@ -167,6 +167,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     prepareSend(id ?? null);
     startAssistantMessage(id);
     send({
+      type: "chat",
       query,
       conversation_id: id,
       document_ids: selectedDocumentIds,
@@ -207,9 +208,11 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     prepareSend(id ?? null);
     startAssistantMessage(id, retries + 1);
     send({
+      type: "retry",
       query: userQuery,
       conversation_id: id,
       document_ids: selectedDocumentIds,
+      response_message_id: assistantMessageId,
     });
   };
 

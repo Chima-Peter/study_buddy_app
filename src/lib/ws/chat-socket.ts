@@ -5,9 +5,12 @@ import { useSessionStore } from "@/stores/session-store";
 type FrameHandler = (frame: WsFrame) => void;
 
 export type ChatSendPayload = {
+  type: "chat" | "edit" | "retry";
   query: string;
   conversation_id?: string;
   document_ids?: string[];
+  query_message_id?: string;
+  response_message_id?: string;
 };
 
 function isAuthClose(code: number, reason: string) {
