@@ -7,6 +7,7 @@ import type { UiMessage } from "@/stores/chat-store";
 import { Markdown } from "@/components/ui/markdown";
 import { Modal } from "@/components/ui/modal";
 import { ThinkingIndicator } from "./thinking-indicator";
+import { useSmoothReveal } from "./use-smooth-reveal";
 
 const USER_PREVIEW_WORDS = 100;
 const MAX_RETRIES = 3;
@@ -287,18 +288,20 @@ function AssistantMessage({
   onBranch?: (messageId: string) => void;
   actionsDisabled?: boolean;
 }) {
-  const showThinking = message.streaming && !message.content;
-  const showWriting = message.streaming && !!message.content;
+  const streaming = Boolean(message.streaming);
+  const revealed = useSmoothReveal(message.content, streaming);
+  const showThinking = streaming && !message.content;
+  const showWriting = streaming && !!revealed;
   const retries = message.retryCount ?? 0;
   const hasContent = Boolean(message.content.trim());
   const canRetry =
     Boolean(onRetry) &&
-    !message.streaming &&
+    !streaming &&
     hasContent &&
     retries < MAX_RETRIES &&
     !actionsDisabled;
   const canBranch =
-    Boolean(onBranch) && !message.streaming && hasContent && !actionsDisabled;
+    Boolean(onBranch) && !streaming && hasContent && !actionsDisabled;
 
   return (
     <div className="space-y-1.5">
@@ -317,14 +320,19 @@ function AssistantMessage({
             showThinking && "min-h-[1.25rem]",
           )}
         >
-          {message.content ? (
+          {streaming && revealed ? (
+            <p className="whitespace-pre-wrap break-words">
+              {revealed}
+              <span className="stream-caret" aria-hidden />
+            </p>
+          ) : message.content && !streaming ? (
             <Markdown className="chat-markdown">{message.content}</Markdown>
           ) : showThinking ? (
             <ThinkingIndicator label="Thinking" />
           ) : null}
         </div>
       </div>
-      {!message.streaming && hasContent && (
+      {!streaming && hasContent && (
         <div className="flex items-center gap-0.5 pl-1">
           <CopyButton text={message.content} />
           <ActionButton

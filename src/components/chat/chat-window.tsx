@@ -122,6 +122,14 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   }, [messages, streamingHere]);
 
   useEffect(() => {
+    if (!streamingHere) return;
+    const id = window.setInterval(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "auto" });
+    }, 80);
+    return () => window.clearInterval(id);
+  }, [streamingHere]);
+
+  useEffect(() => {
     if (!pendingRouteConversationId) return;
     if (conversationId === pendingRouteConversationId) {
       setPendingRouteConversationId(null);
