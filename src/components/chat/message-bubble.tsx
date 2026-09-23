@@ -151,16 +151,24 @@ function UserEditDesktop({
   open,
   initialText,
   onClose,
+  onSave,
+  disabled,
 }: {
   open: boolean;
   initialText: string;
   onClose: () => void;
+  onSave: (text: string) => void;
+  disabled?: boolean;
 }) {
   const [draft, setDraft] = useState(initialText);
 
   useEffect(() => {
     if (open) setDraft(initialText);
   }, [open, initialText]);
+
+  const trimmed = draft.trim();
+  const canSave =
+    !disabled && trimmed.length > 0 && trimmed !== initialText.trim();
 
   return (
     <Modal
@@ -169,15 +177,37 @@ function UserEditDesktop({
         if (!next) onClose();
       }}
       title="Edit message"
-      description="Editing is preview-only for now — closing discards changes."
+      description="Save to regenerate the reply from this point."
     >
       <textarea
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={8}
-        className="w-full resize-y rounded-lg border border-border bg-white px-3 py-2.5 text-sm leading-relaxed text-[var(--text-primary)] outline-none focus:border-primary-600"
+        disabled={disabled}
+        className="w-full resize-y rounded-lg border border-border bg-white px-3 py-2.5 text-sm leading-relaxed text-[var(--text-primary)] outline-none focus:border-primary-600 disabled:opacity-60"
         aria-label="Edit message"
       />
+      <div className="mt-3 flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] hover:bg-black/5"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          disabled={!canSave}
+          onClick={() => {
+            if (!canSave) return;
+            onSave(trimmed);
+            onClose();
+          }}
+          className="rounded-lg bg-primary-700 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+        >
+          Save
+        </button>
+      </div>
     </Modal>
   );
 }
@@ -185,9 +215,13 @@ function UserEditDesktop({
 function UserEditMobile({
   initialText,
   onCancel,
+  onSave,
+  disabled,
 }: {
   initialText: string;
   onCancel: () => void;
+  onSave: (text: string) => void;
+  disabled?: boolean;
 }) {
   const [draft, setDraft] = useState(initialText);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -218,37 +252,74 @@ function UserEditMobile({
     el.style.height = `${Math.min(el.scrollHeight, 220)}px`;
   }, [draft]);
 
+  const trimmed = draft.trim();
+  const canSave =
+    !disabled && trimmed.length > 0 && trimmed !== initialText.trim();
+
   return (
-    <div ref={wrapRef} className="w-full max-w-[min(100%,28rem)]">
+    <div ref={wrapRef} className="w-full max-w-[min(100%,28rem)] space-y-2">
       <textarea
         ref={textareaRef}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={3}
-        className="w-full resize-none rounded-[1.25rem] border border-border bg-white px-4 py-3 text-[15px] leading-relaxed text-[var(--text-primary)] shadow-md outline-none focus:border-primary-600"
+        disabled={disabled}
+        className="w-full resize-none rounded-[1.25rem] border border-border bg-white px-4 py-3 text-[15px] leading-relaxed text-[var(--text-primary)] shadow-md outline-none focus:border-primary-600 disabled:opacity-60"
         aria-label="Edit message"
       />
-      <p className="mt-1.5 px-1 text-right text-xs text-muted">
-        Tap outside to cancel
-      </p>
+      <div className="flex items-center justify-end gap-2 px-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-xs font-medium text-muted"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          disabled={!canSave}
+          onClick={() => {
+            if (!canSave) return;
+            onSave(trimmed);
+          }}
+          className="rounded-full bg-primary-700 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+        >
+          Save
+        </button>
+      </div>
     </div>
   );
 }
 
 function UserMessage({
   message,
+  onEdit,
+  actionsDisabled,
 }: {
   message: UiMessage;
+  onEdit?: (messageId: string, newQuery: string) => void;
+  actionsDisabled?: boolean;
 }) {
   const isDesktop = useIsDesktop();
   const [editing, setEditing] = useState(false);
 
   const closeEdit = () => setEditing(false);
+  const canEdit = Boolean(onEdit) && !actionsDisabled && Boolean(message.continuationKey);
+
+  const handleSave = (text: string) => {
+    onEdit?.(message.id, text);
+    closeEdit();
+  };
 
   if (editing && !isDesktop) {
     return (
       <div className="flex justify-end">
-        <UserEditMobile initialText={message.content} onCancel={closeEdit} />
+        <UserEditMobile
+          initialText={message.content}
+          onCancel={closeEdit}
+          onSave={handleSave}
+          disabled={actionsDisabled}
+        />
       </div>
     );
   }
@@ -264,6 +335,7 @@ function UserMessage({
           label="Edit message"
           icon={<Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />}
           onClick={() => setEditing(true)}
+          disabled={!canEdit}
         />
       </div>
       {isDesktop && (
@@ -271,6 +343,8 @@ function UserMessage({
           open={editing}
           initialText={message.content}
           onClose={closeEdit}
+          onSave={handleSave}
+          disabled={actionsDisabled}
         />
       )}
     </div>
@@ -299,7 +373,8 @@ function AssistantMessage({
     !streaming &&
     hasContent &&
     retries < MAX_RETRIES &&
-    !actionsDisabled;
+    !actionsDisabled &&
+    Boolean(message.continuationKey);
   const canBranch =
     Boolean(onBranch) && !streaming && hasContent && !actionsDisabled;
 
@@ -362,16 +437,24 @@ function AssistantMessage({
 export function MessageBubble({
   message,
   onRetry,
+  onEdit,
   onBranch,
   actionsDisabled,
 }: {
   message: UiMessage;
   onRetry?: (messageId: string) => void;
+  onEdit?: (messageId: string, newQuery: string) => void;
   onBranch?: (messageId: string) => void;
   actionsDisabled?: boolean;
 }) {
   if (message.role === "user") {
-    return <UserMessage message={message} />;
+    return (
+      <UserMessage
+        message={message}
+        onEdit={onEdit}
+        actionsDisabled={actionsDisabled}
+      />
+    );
   }
 
   return (

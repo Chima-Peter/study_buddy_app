@@ -67,8 +67,7 @@ export interface ChatMessage {
   conversation_id: string;
   query: string;
   response: string;
-  query_message_id?: string | null;
-  response_message_id?: string | null;
+  continuation_key?: string | null;
   created_at: string;
 }
 
@@ -174,5 +173,6 @@ export interface WsFrame {
   message?: string;
   conversation_id?: string;
   chat_id?: string;
+  continuation_key?: string;
   token?: string;
 }

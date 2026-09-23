@@ -38,11 +38,13 @@ export default function ConversationPage() {
             id: `${c.id}-q`,
             role: "user" as const,
             content: c.query,
+            continuationKey: c.continuation_key ?? undefined,
           },
           {
             id: `${c.id}-a`,
             role: "assistant" as const,
             content: c.response,
+            continuationKey: c.continuation_key ?? undefined,
           },
         ]);
         setMessages(messages);

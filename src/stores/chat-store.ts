@@ -8,6 +8,8 @@ export interface UiMessage {
   streaming?: boolean;
   /** How many times this assistant turn has been retried (max 3). */
   retryCount?: number;
+  /** Signed key from the server for edit/retry of this turn. */
+  continuationKey?: string;
 }
 
 interface ChatState {
@@ -38,7 +40,11 @@ interface ChatState {
   bindStream: (conversationId: string) => void;
   startAssistantMessage: (conversationId?: string, retryCount?: number) => void;
   appendStreamChunk: (chunk: string) => void;
-  finalizeStream: (conversationId?: string, chatId?: string) => void;
+  finalizeStream: (
+    conversationId?: string,
+    chatId?: string,
+    continuationKey?: string,
+  ) => void;
   clearStreaming: () => void;
   setPendingRouteConversationId: (id: string | null) => void;
   setSelectedDocumentIds: (ids: string[]) => void;
@@ -115,7 +121,7 @@ export const useChatStore = create<ChatState>((set) => ({
       }
       return { streamingContent, messages };
     }),
-  finalizeStream: (conversationId, chatId) =>
+  finalizeStream: (conversationId, chatId, continuationKey) =>
     set((state) => {
       const messages = [...state.messages];
       if (chatId) {
@@ -126,11 +132,16 @@ export const useChatStore = create<ChatState>((set) => ({
               ...message,
               id: `${chatId}-a`,
               streaming: false,
+              continuationKey: continuationKey ?? message.continuationKey,
             };
             continue;
           }
           if (message.role === "user" && message.id.startsWith("u-")) {
-            messages[i] = { ...message, id: `${chatId}-q` };
+            messages[i] = {
+              ...message,
+              id: `${chatId}-q`,
+              continuationKey: continuationKey ?? message.continuationKey,
+            };
             break;
           }
         }

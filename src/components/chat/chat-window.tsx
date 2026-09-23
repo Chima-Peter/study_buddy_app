@@ -192,6 +192,12 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     const retries = assistant.retryCount ?? 0;
     if (retries >= 3) return;
 
+    const continuationKey = assistant.continuationKey;
+    if (!continuationKey) {
+      setError("This message can’t be retried yet. Send a new message first.");
+      return;
+    }
+
     let userQuery: string | null = null;
     for (let i = idx - 1; i >= 0; i--) {
       if (messages[i].role === "user") {
@@ -212,7 +218,41 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
       query: userQuery,
       conversation_id: id,
       document_ids: selectedDocumentIds,
-      response_message_id: assistantMessageId,
+      continuation_key: continuationKey,
+    });
+  };
+
+  const onEdit = (userMessageId: string, newQuery: string) => {
+    if (streamingHere || branching) return;
+    const trimmed = newQuery.trim();
+    if (!trimmed) return;
+
+    const idx = messages.findIndex((m) => m.id === userMessageId);
+    if (idx < 0) return;
+    const userMessage = messages[idx];
+    if (userMessage.role !== "user") return;
+
+    const continuationKey = userMessage.continuationKey;
+    if (!continuationKey) {
+      setError("This message can’t be edited yet. Send a new message first.");
+      return;
+    }
+    if (!requireDocuments()) return;
+
+    setError(null);
+    setMessages([
+      ...messages.slice(0, idx),
+      { ...userMessage, content: trimmed },
+    ]);
+    const id = conversationId ?? activeConversationId ?? undefined;
+    prepareSend(id ?? null);
+    startAssistantMessage(id);
+    send({
+      type: "edit",
+      query: trimmed,
+      conversation_id: id,
+      document_ids: selectedDocumentIds,
+      continuation_key: continuationKey,
     });
   };
 
@@ -262,6 +302,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
                 key={m.id}
                 message={m}
                 onRetry={onRetry}
+                onEdit={onEdit}
                 onBranch={onBranch}
                 actionsDisabled={streamingHere || branching}
               />

@@ -9,8 +9,7 @@ export type ChatSendPayload = {
   query: string;
   conversation_id?: string;
   document_ids?: string[];
-  query_message_id?: string;
-  response_message_id?: string;
+  continuation_key?: string;
 };
 
 function isAuthClose(code: number, reason: string) {
