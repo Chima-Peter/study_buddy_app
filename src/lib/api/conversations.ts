@@ -16,8 +16,8 @@ export function renameConversation(id: string, title: string) {
   return api.patch<ConversationListItem>(`/conversations/${id}`, { title });
 }
 
-export function branchConversation(id: string, chatCount: number) {
-  return api.post<ConversationListItem>(`/conversations/${id}/branch`, {
-    chat_count: chatCount,
+export function branchConversation(continuationKey: string) {
+  return api.post<ConversationListItem>(`/conversations/branch`, {
+    continuation_key: continuationKey,
   });
 }

@@ -260,15 +260,11 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     if (streamingHere || branching) return;
     const idx = messages.findIndex((m) => m.id === assistantMessageId);
     if (idx < 0) return;
-    if (messages[idx].role !== "assistant") return;
+    const assistant = messages[idx];
+    if (assistant.role !== "assistant") return;
 
-    const chatCount = messages
-      .slice(0, idx + 1)
-      .filter((m) => m.role === "assistant").length;
-    if (chatCount < 1) return;
-
-    const id = conversationId ?? activeConversationId;
-    if (!id) {
+    const continuationKey = assistant.continuationKey;
+    if (!continuationKey) {
       setError("Save this chat first by sending a message, then try branching.");
       return;
     }
@@ -276,7 +272,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     setBranching(true);
     setError(null);
     try {
-      const branched = await branchConversation(id, chatCount);
+      const branched = await branchConversation(continuationKey);
       upsertConversation(branched);
       router.push(routes.chatConversation(branched.id));
     } catch (err) {

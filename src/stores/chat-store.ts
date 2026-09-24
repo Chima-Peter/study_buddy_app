@@ -126,21 +126,26 @@ export const useChatStore = create<ChatState>((set) => ({
     set((state) => {
       const messages = [...state.messages];
       if (chatId) {
+        const userId = `${chatId}-q`;
+        const assistantId = `${chatId}-a`;
         for (let i = messages.length - 1; i >= 0; i--) {
           const message = messages[i];
           if (message.role === "assistant" && message.streaming) {
             messages[i] = {
               ...message,
-              id: `${chatId}-a`,
+              id: assistantId,
               streaming: false,
               continuationKey: continuationKey ?? message.continuationKey,
             };
             continue;
           }
-          if (message.role === "user" && message.id.startsWith("u-")) {
+          if (
+            message.role === "user" &&
+            (message.id.startsWith("u-") || message.id === userId)
+          ) {
             messages[i] = {
               ...message,
-              id: `${chatId}-q`,
+              id: userId,
               continuationKey: continuationKey ?? message.continuationKey,
             };
             break;

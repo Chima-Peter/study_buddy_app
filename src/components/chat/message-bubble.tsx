@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, Copy, GitBranch, Pencil, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { UiMessage } from "@/stores/chat-store";
 import { Markdown } from "@/components/ui/markdown";
-import { Modal } from "@/components/ui/modal";
 import { ThinkingIndicator } from "./thinking-indicator";
 import { useSmoothReveal } from "./use-smooth-reveal";
 
 const USER_PREVIEW_WORDS = 100;
 const MAX_RETRIES = 3;
-const DESKTOP_MQ = "(min-width: 640px)";
 
 function countWords(text: string): number {
   const trimmed = text.trim();
@@ -31,20 +29,6 @@ function takeWords(text: string, maxWords: number): string {
     end = i + 1;
   }
   return parts.slice(0, end).join("").trimEnd();
-}
-
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia(DESKTOP_MQ);
-    const sync = () => setIsDesktop(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  return isDesktop;
 }
 
 async function copyText(text: string): Promise<boolean> {
@@ -89,7 +73,7 @@ function ActionButton({
       title={label}
       className={cn(
         "inline-flex items-center justify-center rounded-md p-1.5",
-        "text-[var(--text-secondary)] transition hover:bg-black/[0.04] hover:text-[var(--text-primary)]",
+        "text-[var(--text-secondary)] transition hover:bg-black/[0.06] hover:text-[var(--text-primary)]",
         "disabled:pointer-events-none disabled:opacity-40",
       )}
     >
@@ -147,72 +131,7 @@ function UserMessageBody({ content }: { content: string }) {
   );
 }
 
-function UserEditDesktop({
-  open,
-  initialText,
-  onClose,
-  onSave,
-  disabled,
-}: {
-  open: boolean;
-  initialText: string;
-  onClose: () => void;
-  onSave: (text: string) => void;
-  disabled?: boolean;
-}) {
-  const [draft, setDraft] = useState(initialText);
-
-  useEffect(() => {
-    if (open) setDraft(initialText);
-  }, [open, initialText]);
-
-  const trimmed = draft.trim();
-  const canSave =
-    !disabled && trimmed.length > 0 && trimmed !== initialText.trim();
-
-  return (
-    <Modal
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) onClose();
-      }}
-      title="Edit message"
-      description="Save to regenerate the reply from this point."
-    >
-      <textarea
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        rows={8}
-        disabled={disabled}
-        className="w-full resize-y rounded-lg border border-border bg-white px-3 py-2.5 text-sm leading-relaxed text-[var(--text-primary)] outline-none focus:border-primary-600 disabled:opacity-60"
-        aria-label="Edit message"
-      />
-      <div className="mt-3 flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] hover:bg-black/5"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          disabled={!canSave}
-          onClick={() => {
-            if (!canSave) return;
-            onSave(trimmed);
-            onClose();
-          }}
-          className="rounded-lg bg-primary-700 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
-        >
-          Save
-        </button>
-      </div>
-    </Modal>
-  );
-}
-
-function UserEditMobile({
+function UserEditInline({
   initialText,
   onCancel,
   onSave,
@@ -249,12 +168,17 @@ function UserEditMobile({
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 220)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 280)}px`;
   }, [draft]);
 
   const trimmed = draft.trim();
   const canSave =
     !disabled && trimmed.length > 0 && trimmed !== initialText.trim();
+
+  const save = useCallback(() => {
+    if (!canSave) return;
+    onSave(trimmed);
+  }, [canSave, onSave, trimmed]);
 
   return (
     <div ref={wrapRef} className="w-full max-w-[min(100%,28rem)] space-y-2">
@@ -262,6 +186,17 @@ function UserEditMobile({
         ref={textareaRef}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            onCancel();
+            return;
+          }
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            save();
+          }
+        }}
         rows={3}
         disabled={disabled}
         className="w-full resize-none rounded-[1.25rem] border border-border bg-white px-4 py-3 text-[15px] leading-relaxed text-[var(--text-primary)] shadow-md outline-none focus:border-primary-600 disabled:opacity-60"
@@ -271,18 +206,15 @@ function UserEditMobile({
         <button
           type="button"
           onClick={onCancel}
-          className="text-xs font-medium text-muted"
+          className="rounded-md px-2.5 py-1 text-xs font-medium text-[var(--text-secondary)] transition hover:bg-black/[0.04] hover:text-[var(--text-primary)]"
         >
           Cancel
         </button>
         <button
           type="button"
           disabled={!canSave}
-          onClick={() => {
-            if (!canSave) return;
-            onSave(trimmed);
-          }}
-          className="rounded-full bg-primary-700 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+          onClick={save}
+          className="rounded-full bg-primary-700 px-3.5 py-1 text-xs font-semibold text-white transition hover:bg-primary-800 disabled:opacity-50"
         >
           Save
         </button>
@@ -300,21 +232,21 @@ function UserMessage({
   onEdit?: (messageId: string, newQuery: string) => void;
   actionsDisabled?: boolean;
 }) {
-  const isDesktop = useIsDesktop();
   const [editing, setEditing] = useState(false);
 
-  const closeEdit = () => setEditing(false);
-  const canEdit = Boolean(onEdit) && !actionsDisabled && Boolean(message.continuationKey);
+  const closeEdit = useCallback(() => setEditing(false), []);
+  const canEdit =
+    Boolean(onEdit) && !actionsDisabled && Boolean(message.continuationKey);
 
   const handleSave = (text: string) => {
     onEdit?.(message.id, text);
     closeEdit();
   };
 
-  if (editing && !isDesktop) {
+  if (editing) {
     return (
       <div className="flex justify-end">
-        <UserEditMobile
+        <UserEditInline
           initialText={message.content}
           onCancel={closeEdit}
           onSave={handleSave}
@@ -329,24 +261,16 @@ function UserMessage({
       <div className="max-w-[min(100%,28rem)] rounded-[1.25rem] bg-primary-700 px-4 py-3 text-[15px] leading-relaxed text-white shadow-md">
         <UserMessageBody content={message.content} />
       </div>
-      <div className="flex items-center gap-0.5 pr-1">
+      <div className="flex items-center gap-1 pr-1">
         <CopyButton text={message.content} />
-        <ActionButton
-          label="Edit message"
-          icon={<Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />}
-          onClick={() => setEditing(true)}
-          disabled={!canEdit}
-        />
+        {canEdit && (
+          <ActionButton
+            label="Edit message"
+            icon={<Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />}
+            onClick={() => setEditing(true)}
+          />
+        )}
       </div>
-      {isDesktop && (
-        <UserEditDesktop
-          open={editing}
-          initialText={message.content}
-          onClose={closeEdit}
-          onSave={handleSave}
-          disabled={actionsDisabled}
-        />
-      )}
     </div>
   );
 }
@@ -376,7 +300,11 @@ function AssistantMessage({
     !actionsDisabled &&
     Boolean(message.continuationKey);
   const canBranch =
-    Boolean(onBranch) && !streaming && hasContent && !actionsDisabled;
+    Boolean(onBranch) &&
+    !streaming &&
+    hasContent &&
+    !actionsDisabled &&
+    Boolean(message.continuationKey);
 
   return (
     <div className="space-y-1.5">
@@ -408,26 +336,26 @@ function AssistantMessage({
         </div>
       </div>
       {!streaming && hasContent && (
-        <div className="flex items-center gap-0.5 pl-1">
+        <div className="flex items-center gap-1 pl-1">
           <CopyButton text={message.content} />
-          <ActionButton
-            label={
-              retries >= MAX_RETRIES
-                ? "No retries left"
-                : retries > 0
+          {canRetry && (
+            <ActionButton
+              label={
+                retries > 0
                   ? `Try again (${retries}/${MAX_RETRIES})`
                   : "Try again"
-            }
-            icon={<RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />}
-            onClick={() => onRetry?.(message.id)}
-            disabled={!canRetry}
-          />
-          <ActionButton
-            label="Branch in new chat"
-            icon={<GitBranch className="h-3.5 w-3.5" strokeWidth={1.75} />}
-            onClick={() => onBranch?.(message.id)}
-            disabled={!canBranch}
-          />
+              }
+              icon={<RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />}
+              onClick={() => onRetry?.(message.id)}
+            />
+          )}
+          {canBranch && (
+            <ActionButton
+              label="Branch in new chat"
+              icon={<GitBranch className="h-3.5 w-3.5" strokeWidth={1.75} />}
+              onClick={() => onBranch?.(message.id)}
+            />
+          )}
         </div>
       )}
     </div>
