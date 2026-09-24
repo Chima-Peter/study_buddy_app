@@ -13,6 +13,7 @@ interface StudyState {
     append?: boolean,
   ) => void;
   upsert: (deck: StudyCards) => void;
+  remove: (documentId: string) => void;
   setCurrent: (deck: StudyCards | null) => void;
   reset: () => void;
 }
@@ -42,6 +43,12 @@ export const useStudyStore = create<StudyState>((set) => ({
             : state.current,
       };
     }),
+  remove: (documentId) =>
+    set((state) => ({
+      items: state.items.filter((d) => d.document_id !== documentId),
+      current:
+        state.current?.document_id === documentId ? null : state.current,
+    })),
   setCurrent: (deck) => set({ current: deck }),
   reset: () => set({ items: [], nextCursor: null, hasMore: false, current: null }),
 }));

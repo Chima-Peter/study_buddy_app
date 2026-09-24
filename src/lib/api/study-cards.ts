@@ -26,3 +26,7 @@ export function retryStudyCards(documentId: string) {
 export function getStudyCards(documentId: string) {
   return api.get<StudyCards>(`/study-cards/${documentId}`);
 }
+
+export function deleteStudyCards(documentId: string) {
+  return api.delete<null>(`/study-cards/${documentId}`);
+}

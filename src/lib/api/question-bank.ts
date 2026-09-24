@@ -57,3 +57,7 @@ export async function getQuestionBank(documentId: string) {
   const bank = await api.get<QuestionBank>(`/question-bank/${documentId}`);
   return normalizeBank(bank);
 }
+
+export function deleteQuestionBank(documentId: string) {
+  return api.delete<null>(`/question-bank/${documentId}`);
+}

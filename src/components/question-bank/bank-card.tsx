@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import type { QuestionBank } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
 import { routes } from "@/config/routes";
 import {
+  deleteQuestionBank,
   getQuestionBank,
   retryQuestionBank,
 } from "@/lib/api/question-bank";
@@ -26,11 +29,15 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
   const { toast } = useToast();
   const setCurrent = useQuestionBankStore((s) => s.setCurrent);
   const upsert = useQuestionBankStore((s) => s.upsert);
+  const remove = useQuestionBankStore((s) => s.remove);
   const [opening, setOpening] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const title =
     bank.document_name?.trim() || `Document ${bank.document_id.slice(0, 8)}…`;
+  const canDelete = bank.status === "success" || bank.status === "failed";
 
   const openBank = async () => {
     setOpening(true);
@@ -65,88 +72,135 @@ export function BankCard({ bank }: { bank: QuestionBank }) {
     }
   };
 
+  const onDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteQuestionBank(bank.document_id);
+      remove(bank.document_id);
+      toast({ title: "Quiz deleted", variant: "success" });
+      setConfirmDelete(false);
+    } catch (err) {
+      toast({
+        title: "Delete failed",
+        description: err instanceof ApiError ? err.message : undefined,
+        variant: "error",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
-    <article className="study-flashcard relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute right-0 top-0 h-14 w-14"
-        style={{
-          background:
-            "linear-gradient(225deg, rgba(240,196,25,0.55) 0%, rgba(240,196,25,0.08) 45%, transparent 55%)",
-        }}
-        aria-hidden
-      />
-
-      <div className="flex items-center justify-between gap-3 border-b border-[#0c2420]/08 px-5 pb-3 pt-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#0f766e]">
-          Question bank
-        </p>
-        <span
-          className={cn(
-            "text-[11px] font-semibold uppercase tracking-[0.12em]",
-            bank.status === "success" && "text-[#0f766e]",
-            bank.status === "failed" && "text-[#b91c1c]",
-            bank.status === "pending" && "text-[#b45309]",
-          )}
-        >
-          {statusLabel(bank.status)}
-        </span>
-      </div>
-
-      <div className="relative px-5 pb-2 pt-5">
+    <>
+      <article className="study-flashcard relative overflow-hidden">
         <div
-          className="absolute left-0 top-5 bottom-2 w-1 rounded-r-full bg-[#14b8a6]"
+          className="pointer-events-none absolute right-0 top-0 h-14 w-14"
+          style={{
+            background:
+              "linear-gradient(225deg, rgba(240,196,25,0.55) 0%, rgba(240,196,25,0.08) 45%, transparent 55%)",
+          }}
           aria-hidden
         />
-        <h3 className="line-clamp-2 pl-3 font-[family-name:var(--font-study-display)] text-xl font-semibold leading-tight tracking-tight text-[#0c2420]">
-          {title}
-        </h3>
 
-        {bank.status === "success" && (
-          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
-            {bank.question_count ?? 0} questions
+        <div className="flex items-center justify-between gap-3 border-b border-[#0c2420]/08 px-5 pb-3 pt-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#0f766e]">
+            Question bank
           </p>
-        )}
-        {bank.status === "pending" && (
-          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
-            Generating question bank…
-          </p>
-        )}
-        {bank.status === "failed" && (
-          <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
-            Generation failed — you can retry
-          </p>
-        )}
-      </div>
+          <span
+            className={cn(
+              "text-[11px] font-semibold uppercase tracking-[0.12em]",
+              bank.status === "success" && "text-[#0f766e]",
+              bank.status === "failed" && "text-[#b91c1c]",
+              bank.status === "pending" && "text-[#b45309]",
+            )}
+          >
+            {statusLabel(bank.status)}
+          </span>
+        </div>
 
-      <div className="px-5 pb-5 pt-4">
-        {bank.status === "success" && (
-          <Button
-            size="sm"
-            onClick={openBank}
-            disabled={opening}
-            className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488]"
-          >
-            {opening && (
-              <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />
-            )}
-            {opening ? "Opening…" : "Open"}
+        <div className="relative px-5 pb-2 pt-5">
+          <div
+            className="absolute left-0 top-5 bottom-2 w-1 rounded-r-full bg-[#14b8a6]"
+            aria-hidden
+          />
+          <h3 className="line-clamp-2 pl-3 font-[family-name:var(--font-study-display)] text-xl font-semibold leading-tight tracking-tight text-[#0c2420]">
+            {title}
+          </h3>
+
+          {bank.status === "success" && (
+            <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
+              {bank.question_count ?? 0} questions
+            </p>
+          )}
+          {bank.status === "pending" && (
+            <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
+              Generating question bank…
+            </p>
+          )}
+          {bank.status === "failed" && (
+            <p className="mt-2 pl-3 font-[family-name:var(--font-study-sans)] text-sm text-[#5a7a73]">
+              Generation failed — you can retry
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 px-5 pb-5 pt-4">
+          {bank.status === "success" && (
+            <Button
+              size="sm"
+              onClick={openBank}
+              disabled={opening}
+              className="min-w-0 flex-1 rounded-full bg-[#0f766e] hover:bg-[#0d9488]"
+            >
+              {opening && (
+                <Spinner className="h-3.5 w-3.5 border-white/40 border-t-white" />
+              )}
+              {opening ? "Opening…" : "Open"}
+            </Button>
+          )}
+          {bank.status === "failed" && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={retry}
+              disabled={retrying}
+              className="min-w-0 flex-1 rounded-full border-[#0f766e]/30 text-[#0f766e]"
+            >
+              {retrying && (
+                <Spinner className="h-3.5 w-3.5 border-[#0f766e]/40 border-t-[#0f766e]" />
+              )}
+              {retrying ? "Queuing…" : "Retry"}
+            </Button>
+          )}
+          {canDelete && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="shrink-0 rounded-full text-error hover:bg-error/10 hover:text-error"
+              onClick={() => setConfirmDelete(true)}
+              aria-label="Delete quiz"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      </article>
+
+      <Modal
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete quiz?"
+        description="This permanently removes the question bank for this document. You can generate it again later."
+      >
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+            Cancel
           </Button>
-        )}
-        {bank.status === "failed" && (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={retry}
-            disabled={retrying}
-            className="w-full rounded-full border-[#0f766e]/30 text-[#0f766e]"
-          >
-            {retrying && (
-              <Spinner className="h-3.5 w-3.5 border-[#0f766e]/40 border-t-[#0f766e]" />
-            )}
-            {retrying ? "Queuing…" : "Retry"}
+          <Button variant="danger" disabled={deleting} onClick={onDelete}>
+            {deleting ? "Deleting…" : "Delete"}
           </Button>
-        )}
-      </div>
-    </article>
+        </div>
+      </Modal>
+    </>
   );
 }

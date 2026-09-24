@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { getStudyCards, retryStudyCards } from "@/lib/api/study-cards";
+import { useParams, useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
+import { deleteStudyCards, getStudyCards, retryStudyCards } from "@/lib/api/study-cards";
 import { useStudyStore } from "@/stores/study-store";
 import { ChapterNav } from "@/components/study/chapter-nav";
 import { MiniStudyCards } from "@/components/study/mini-study-cards";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { PageLoader, Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import { useToast } from "@/components/ui/toast";
@@ -23,13 +25,17 @@ function deckFromStore(documentId: string) {
 
 export default function StudyDeckPage() {
   const params = useParams<{ documentId: string }>();
+  const router = useRouter();
   const { toast } = useToast();
   const setCurrent = useStudyStore((s) => s.setCurrent);
   const upsert = useStudyStore((s) => s.upsert);
+  const remove = useStudyStore((s) => s.remove);
   const current = useStudyStore((s) => s.current);
   const [loading, setLoading] = useState(() => !deckFromStore(params.documentId));
   const [activeKey, setActiveKey] = useState<string>("");
   const [retrying, setRetrying] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +106,24 @@ export default function StudyDeckPage() {
     }
   };
 
+  const onDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteStudyCards(params.documentId);
+      remove(params.documentId);
+      toast({ title: "Study deck deleted", variant: "success" });
+      router.push(routes.study);
+    } catch (err) {
+      toast({
+        title: "Delete failed",
+        description: err instanceof ApiError ? err.message : undefined,
+        variant: "error",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -127,10 +151,36 @@ export default function StudyDeckPage() {
               {retrying ? "Queuing…" : "Retry"}
             </Button>
           )}
+          {failed && (
+            <Button
+              variant="ghost"
+              className="text-error hover:bg-error/10 hover:text-error"
+              onClick={() => setConfirmDelete(true)}
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+          )}
           <Link href={routes.study}>
             <Button variant="secondary">Back to decks</Button>
           </Link>
         </div>
+
+        <Modal
+          open={confirmDelete}
+          onOpenChange={setConfirmDelete}
+          title="Delete study deck?"
+          description="This permanently removes the study cards for this document. You can generate them again later."
+        >
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" disabled={deleting} onClick={onDelete}>
+              {deleting ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </Modal>
       </div>
     );
   }
@@ -142,14 +192,25 @@ export default function StudyDeckPage() {
         showBack
         backHref={routes.study}
         actions={
-          (active.quiz?.length ?? 0) > 0 ? (
-            <Link
-              href={routes.studyQuiz(params.documentId, active.chapter_key)}
-              className="w-full sm:w-auto"
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            {(active.quiz?.length ?? 0) > 0 && (
+              <Link
+                href={routes.studyQuiz(params.documentId, active.chapter_key)}
+                className="w-full sm:w-auto"
+              >
+                <Button className="w-full sm:w-auto">Take chapter quiz</Button>
+              </Link>
+            )}
+            <Button
+              variant="ghost"
+              className="text-error hover:bg-error/10 hover:text-error"
+              onClick={() => setConfirmDelete(true)}
+              aria-label="Delete study deck"
             >
-              <Button className="w-full sm:w-auto">Take chapter quiz</Button>
-            </Link>
-          ) : undefined
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+          </div>
         }
       />
 
@@ -199,6 +260,22 @@ export default function StudyDeckPage() {
           </div>
         </div>
       </div>
+
+      <Modal
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete study deck?"
+        description="This permanently removes the study cards for this document. You can generate them again later."
+      >
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" disabled={deleting} onClick={onDelete}>
+            {deleting ? "Deleting…" : "Delete"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

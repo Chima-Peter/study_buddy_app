@@ -13,6 +13,7 @@ interface QuestionBankState {
     append?: boolean,
   ) => void;
   upsert: (bank: QuestionBank) => void;
+  remove: (documentId: string) => void;
   setCurrent: (bank: QuestionBank | null) => void;
   reset: () => void;
 }
@@ -42,6 +43,12 @@ export const useQuestionBankStore = create<QuestionBankState>((set) => ({
             : state.current,
       };
     }),
+  remove: (documentId) =>
+    set((state) => ({
+      items: state.items.filter((b) => b.document_id !== documentId),
+      current:
+        state.current?.document_id === documentId ? null : state.current,
+    })),
   setCurrent: (bank) => set({ current: bank }),
   reset: () => set({ items: [], nextCursor: null, hasMore: false, current: null }),
 }));

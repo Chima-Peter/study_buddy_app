@@ -9,9 +9,11 @@ import {
   ClipboardList,
   Loader2,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import {
+  deleteQuestionBank,
   getQuestionBank,
   normalizeQuestionBankResult,
   retryQuestionBank,
@@ -20,6 +22,7 @@ import { useQuestionBankStore } from "@/stores/question-bank-store";
 import { QuestionPreviewList } from "@/components/question-bank/question-preview-list";
 import { ExamSetupModal } from "@/components/question-bank/exam-setup-modal";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { PageLoader } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/layout/page-header";
 import { useToast } from "@/components/ui/toast";
@@ -77,11 +80,14 @@ export default function QuestionBankDetailPage() {
   const { toast } = useToast();
   const setCurrent = useQuestionBankStore((s) => s.setCurrent);
   const upsert = useQuestionBankStore((s) => s.upsert);
+  const remove = useQuestionBankStore((s) => s.remove);
   const current = useQuestionBankStore((s) => s.current);
   const [loading, setLoading] = useState(
     () => !bankFromStore(params.documentId),
   );
   const [retrying, setRetrying] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [examOpen, setExamOpen] = useState(false);
   const [startingExam, setStartingExam] = useState(false);
 
@@ -150,6 +156,24 @@ export default function QuestionBankDetailPage() {
       });
     } finally {
       setRetrying(false);
+    }
+  };
+
+  const onDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteQuestionBank(params.documentId);
+      remove(params.documentId);
+      toast({ title: "Quiz deleted", variant: "success" });
+      router.push(routes.questionBank);
+    } catch (err) {
+      toast({
+        title: "Delete failed",
+        description: err instanceof ApiError ? err.message : undefined,
+        variant: "error",
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -257,6 +281,16 @@ export default function QuestionBankDetailPage() {
                   {retrying ? "Queuing…" : "Try again"}
                 </Button>
               )}
+              {status === "failed" && (
+                <Button
+                  variant="ghost"
+                  className="rounded-full text-error hover:bg-error/10 hover:text-error"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              )}
               <Link href={routes.questionBank} className="w-full sm:w-auto">
                 <Button
                   variant={status === "failed" ? "secondary" : "primary"}
@@ -273,6 +307,22 @@ export default function QuestionBankDetailPage() {
             </div>
           </div>
         </div>
+
+        <Modal
+          open={confirmDelete}
+          onOpenChange={setConfirmDelete}
+          title="Delete quiz?"
+          description="This permanently removes the question bank for this document. You can generate it again later."
+        >
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" disabled={deleting} onClick={onDelete}>
+              {deleting ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </Modal>
       </div>
     );
   }
@@ -308,14 +358,25 @@ export default function QuestionBankDetailPage() {
           backHref={routes.questionBank}
           className="[&_h1]:font-[family-name:var(--font-study-display)] [&_h1]:tracking-tight [&_h1]:text-[#0c2420]"
           actions={
-            questionCount > 0 ? (
+            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+              {questionCount > 0 && (
+                <Button
+                  className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488] sm:w-auto"
+                  onClick={() => setExamOpen(true)}
+                >
+                  Take quiz
+                </Button>
+              )}
               <Button
-                className="w-full rounded-full bg-[#0f766e] hover:bg-[#0d9488] sm:w-auto"
-                onClick={() => setExamOpen(true)}
+                variant="ghost"
+                className="text-error hover:bg-error/10 hover:text-error"
+                onClick={() => setConfirmDelete(true)}
+                aria-label="Delete quiz"
               >
-                Take quiz
+                <Trash2 className="h-4 w-4" />
+                Delete
               </Button>
-            ) : undefined
+            </div>
           }
         />
 
@@ -336,6 +397,22 @@ export default function QuestionBankDetailPage() {
           );
         }}
       />
+
+      <Modal
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete quiz?"
+        description="This permanently removes the question bank for this document. You can generate it again later."
+      >
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" disabled={deleting} onClick={onDelete}>
+            {deleting ? "Deleting…" : "Delete"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }
