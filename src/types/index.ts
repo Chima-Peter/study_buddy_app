@@ -58,8 +58,16 @@ export interface UploadResponse {
 
 export interface ConversationListItem {
   id: string;
-  title: string;
+  title: string | null;
   status: "active" | "archived";
+}
+
+export interface BranchConversationResult {
+  id: string;
+  title: string | null;
+  status: "active" | "archived";
+  continuation_key: string;
+  chat_id: string;
 }
 
 export interface ChatMessage {
@@ -73,7 +81,7 @@ export interface ChatMessage {
 
 export interface ConversationDetail {
   id: string;
-  title: string;
+  title: string | null;
   status: "active" | "archived";
   chats: ChatMessage[];
 }

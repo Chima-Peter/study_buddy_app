@@ -104,7 +104,7 @@ export function ConversationList({
                         className="h-3.5 w-3.5 shrink-0 opacity-60"
                         strokeWidth={1.75}
                       />
-                      <span className="truncate">{c.title}</span>
+                      <span className="truncate">{c.title || "New Conversation"}</span>
                     </Link>
                     <button
                       type="button"
@@ -116,7 +116,7 @@ export function ConversationList({
                       )}
                       onClick={() => {
                         setEditingId(c.id);
-                        setTitle(c.title);
+                        setTitle(c.title ?? "");
                       }}
                       aria-label="Rename"
                     >

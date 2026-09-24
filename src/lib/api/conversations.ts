@@ -1,5 +1,10 @@
 import { api } from "./client";
-import type { ConversationDetail, ConversationListItem, CursorPage } from "@/types";
+import type {
+  BranchConversationResult,
+  ConversationDetail,
+  ConversationListItem,
+  CursorPage,
+} from "@/types";
 import { DEFAULT_PAGE_LIMIT } from "@/config/constants";
 
 export function listConversations(cursor?: string | null, limit = DEFAULT_PAGE_LIMIT) {
@@ -17,7 +22,7 @@ export function renameConversation(id: string, title: string) {
 }
 
 export function branchConversation(continuationKey: string) {
-  return api.post<ConversationListItem>(`/conversations/branch`, {
+  return api.post<BranchConversationResult>(`/conversations/branch`, {
     continuation_key: continuationKey,
   });
 }

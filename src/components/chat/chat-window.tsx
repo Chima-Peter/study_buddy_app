@@ -97,6 +97,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     prepareSend,
     startAssistantMessage,
     setSelectedDocumentIds,
+    setActiveConversationId,
     activeConversationId,
     pendingRouteConversationId,
     setPendingRouteConversationId,
@@ -269,11 +270,43 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
       return;
     }
 
+    let userContent = "";
+    for (let i = idx - 1; i >= 0; i--) {
+      if (messages[i].role === "user") {
+        userContent = messages[i].content;
+        break;
+      }
+    }
+    if (!userContent) {
+      setError("Could not find the question for this reply.");
+      return;
+    }
+
     setBranching(true);
     setError(null);
     try {
       const branched = await branchConversation(continuationKey);
-      upsertConversation(branched);
+      const title = branched.title?.trim() || "Branch";
+      upsertConversation({
+        id: branched.id,
+        title,
+        status: branched.status,
+      });
+      setActiveConversationId(branched.id);
+      setMessages([
+        {
+          id: `${branched.chat_id}-q`,
+          role: "user",
+          content: userContent,
+          continuationKey: branched.continuation_key,
+        },
+        {
+          id: `${branched.chat_id}-a`,
+          role: "assistant",
+          content: assistant.content,
+          continuationKey: branched.continuation_key,
+        },
+      ]);
       router.push(routes.chatConversation(branched.id));
     } catch (err) {
       const message =
