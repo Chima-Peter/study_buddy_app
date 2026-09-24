@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { History } from "lucide-react";
+import { PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { ConversationList } from "./conversation-list";
 
@@ -39,7 +39,7 @@ export function ChatLayout({
       {open && (
         <button
           type="button"
-          className="absolute inset-0 z-40 bg-black/30 lg:hidden"
+          className="absolute inset-0 z-40 bg-black/20 lg:hidden"
           aria-label="Close conversations"
           onClick={() => setOpen(false)}
         />
@@ -47,16 +47,16 @@ export function ChatLayout({
 
       <aside
         className={cn(
-          "z-50 flex h-full shrink-0 flex-col border-r border-border/70 bg-[#f4f7f6] transition-[width,transform] duration-200 dark:bg-surface-secondary",
-          "absolute inset-y-0 left-0 w-[min(100%,18rem)] max-w-[85vw] lg:static lg:left-auto lg:w-64 lg:max-w-none",
+          "z-50 flex h-full shrink-0 flex-col border-r border-black/[0.06] bg-[#f7f7f8] transition-[width,transform] duration-200 dark:border-white/10 dark:bg-surface-secondary",
+          "absolute inset-y-0 left-0 w-[min(100%,17rem)] max-w-[85vw] lg:static lg:left-auto lg:w-60 lg:max-w-none",
           open
-            ? "translate-x-0 lg:w-64"
+            ? "translate-x-0 lg:w-60"
             : "-translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden lg:border-r-0",
         )}
       >
         <div
           className={cn(
-            "flex h-full w-full flex-col lg:w-64",
+            "flex h-full w-full flex-col lg:w-60",
             !open && "lg:invisible",
           )}
         >
@@ -69,16 +69,16 @@ export function ChatLayout({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-[#eef3f1] dark:bg-surface-primary">
-        <header className="flex h-14 shrink-0 items-center px-4 sm:px-5">
+      <div className="flex min-w-0 flex-1 flex-col bg-white dark:bg-surface-primary">
+        <header className="flex h-12 shrink-0 items-center px-3 sm:px-4">
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--text-secondary)] shadow-sm transition hover:text-[var(--text-primary)]"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-secondary)] transition hover:bg-black/[0.04] hover:text-[var(--text-primary)] dark:hover:bg-white/10"
             aria-label={open ? "Hide history" : "Show history"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            <History className="h-4 w-4" />
+            <PanelLeft className="h-4 w-4" strokeWidth={1.75} />
           </button>
         </header>
         <div className="min-h-0 flex-1">{children}</div>

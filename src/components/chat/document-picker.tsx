@@ -54,11 +54,11 @@ export function DocumentPicker({
     return (
       <div
         className={cn(
-          "chat-soft-card flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-sm",
-          promptSelect && "ring-2 ring-primary-500/35",
+          "flex min-h-10 w-full items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-[#f7f7f8] px-3.5 py-2 text-sm dark:border-white/10 dark:bg-white/5",
+          promptSelect && "ring-2 ring-primary-500/30",
         )}
       >
-        <FileText className="h-4 w-4 shrink-0 text-primary-700" />
+        <FileText className="h-4 w-4 shrink-0 text-[var(--text-secondary)]" />
         <span className="min-w-0 flex-1 text-[var(--text-secondary)]">
           Upload a document to start chatting.{" "}
           <Link
@@ -75,17 +75,17 @@ export function DocumentPicker({
   return (
     <div className="space-y-2">
       {selected.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {selected.map((d) => (
             <span
               key={d.id}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-sm"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-black/[0.06] bg-[#f7f7f8] px-2.5 py-1 text-xs text-[var(--text-secondary)] dark:border-white/10 dark:bg-white/5"
             >
-              <FileText className="h-3.5 w-3.5 shrink-0 text-primary-700" />
+              <FileText className="h-3 w-3 shrink-0 opacity-70" />
               <span className="truncate">{d.name}</span>
               <button
                 type="button"
-                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full hover:bg-surface-tertiary hover:text-[var(--text-primary)]"
+                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full hover:bg-black/[0.06] hover:text-[var(--text-primary)] dark:hover:bg-white/10"
                 onClick={() => toggle(d.id)}
                 aria-label={`Remove ${d.name}`}
               >
@@ -100,19 +100,19 @@ export function DocumentPicker({
         type="button"
         onClick={() => setOpen(!isOpen)}
         className={cn(
-          "chat-soft-card flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-sm",
+          "flex min-h-10 w-full items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-[#f7f7f8] px-3.5 py-2 text-left text-sm transition hover:bg-[#f0f0f1] dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/[0.08]",
           promptSelect &&
             selected.length === 0 &&
-            "ring-2 ring-primary-500/35",
+            "ring-2 ring-primary-500/30",
         )}
       >
-        <FileText className="h-4 w-4 shrink-0 text-primary-700" />
+        <FileText className="h-4 w-4 shrink-0 text-[var(--text-secondary)]" />
         <span className="min-w-0 flex-1 text-[var(--text-secondary)]">
           {selected.length
             ? `${selected.length} of ${MAX_DOCUMENT_IDS} document${selected.length > 1 ? "s" : ""} selected`
             : promptSelect
               ? "Select at least one document to continue"
-              : `Select up to ${MAX_DOCUMENT_IDS} documents to ground answers`}
+              : `Select up to ${MAX_DOCUMENT_IDS} documents`}
         </span>
         <ChevronDown
           className={cn(
@@ -123,7 +123,7 @@ export function DocumentPicker({
       </button>
 
       {isOpen && (
-        <div className="chat-soft-card max-h-44 space-y-0.5 overflow-y-auto overscroll-contain p-2 sm:max-h-52">
+        <div className="max-h-44 space-y-0.5 overflow-y-auto overscroll-contain rounded-2xl border border-black/[0.06] bg-white p-1.5 shadow-sm dark:border-white/10 dark:bg-surface-elevated sm:max-h-52">
           {atLimit && (
             <p className="px-3 py-2 text-xs text-[var(--text-secondary)]">
               Maximum of {MAX_DOCUMENT_IDS} documents. Remove one to add
@@ -137,12 +137,12 @@ export function DocumentPicker({
               <label
                 key={d.id}
                 className={cn(
-                  "flex min-touch cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm",
+                  "flex min-touch cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm",
                   isSelected
-                    ? "bg-primary-500/10 text-primary-800"
+                    ? "bg-black/[0.04] text-[var(--text-primary)] dark:bg-white/10"
                     : disabled
                       ? "cursor-not-allowed opacity-50"
-                      : "hover:bg-white/70",
+                      : "hover:bg-black/[0.03] dark:hover:bg-white/[0.06]",
                 )}
               >
                 <input

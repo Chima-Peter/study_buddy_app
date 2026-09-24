@@ -65,9 +65,7 @@ export interface ConversationListItem {
 export interface BranchConversationResult {
   id: string;
   title: string | null;
-  status: "active" | "archived";
-  continuation_key: string;
-  chat_id: string;
+  chat: ChatMessage;
 }
 
 export interface ChatMessage {
