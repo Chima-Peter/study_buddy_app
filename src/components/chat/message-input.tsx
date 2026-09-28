@@ -12,7 +12,8 @@ export function MessageInput({
   sendBlockedReason,
 }: {
   disabled?: boolean;
-  onSend: (query: string) => void;
+  /** Return true when the message was accepted / sent. */
+  onSend: (query: string) => boolean;
   prefill?: string | null;
   /** Changes when the same prefill text should be re-applied. */
   prefillKey?: number;
@@ -44,8 +45,8 @@ export function MessageInput({
   const submit = () => {
     const trimmed = value.trim();
     if (!trimmed || disabled) return;
-    onSend(trimmed);
-    if (!blocked) setValue("");
+    const sent = onSend(trimmed);
+    if (sent && !blocked) setValue("");
   };
 
   const canSend = value.trim().length > 0 && !disabled;

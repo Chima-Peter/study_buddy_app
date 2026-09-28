@@ -127,8 +127,11 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     if (ids.length > 0) setPromptSelect(false);
   };
 
-  const onSend = (query: string) => {
-    if (!requireDocuments()) return;
+  const onSend = (query: string): boolean => {
+    if (streamingHere || branching || useChatStore.getState().isStreaming) {
+      return false;
+    }
+    if (!requireDocuments()) return false;
     setError(null);
     appendUserMessage(query);
     const id = conversationId ?? activeConversationId ?? undefined;
@@ -140,9 +143,11 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
       conversation_id: id,
       document_ids: selectedDocumentIds,
     });
+    return true;
   };
 
   const onSuggest = (query: string) => {
+    if (streamingHere || branching || useChatStore.getState().isStreaming) return;
     if (!requireDocuments()) {
       setPrefill(query);
       setPrefillKey((k) => k + 1);

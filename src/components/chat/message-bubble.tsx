@@ -266,7 +266,12 @@ function UserMessage({
   const canEdit =
     Boolean(onEdit) && !actionsDisabled && Boolean(message.continuationKey);
 
+  useEffect(() => {
+    if (actionsDisabled) setEditing(false);
+  }, [actionsDisabled]);
+
   const handleSave = (text: string) => {
+    if (actionsDisabled) return;
     onEdit?.(message.id, text);
     closeEdit();
   };

@@ -91,6 +91,7 @@ export const useChatStore = create<ChatState>((set) => ({
     })),
   prepareSend: (conversationId) =>
     set({
+      isStreaming: true,
       streamingConversationId: conversationId,
       error: null,
     }),
