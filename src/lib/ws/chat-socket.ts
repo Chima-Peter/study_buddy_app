@@ -6,11 +6,17 @@ type FrameHandler = (frame: WsFrame) => void;
 
 export type ChatSendPayload = {
   type: "chat" | "edit" | "retry";
+  /** Client-generated id; required by the server for queue/lock correlation. */
+  request_id: string;
   query: string;
   conversation_id?: string;
-  document_ids?: string[];
+  document_id?: string;
   continuation_key?: string;
 };
+
+export function createChatRequestId() {
+  return crypto.randomUUID();
+}
 
 function isAuthClose(code: number, reason: string) {
   if (code === 1008) return true;
@@ -125,7 +131,10 @@ export class ChatSocket {
         }
         this.markSessionReady();
         if (frame.type === "heartbeat") {
-          if (typeof frame.response === "string" && frame.response.toLowerCase() === "ping") {
+          const ping =
+            (typeof frame.message === "string" && frame.message.toLowerCase() === "ping") ||
+            (typeof frame.response === "string" && frame.response.toLowerCase() === "ping");
+          if (ping) {
             ws.send(JSON.stringify({ query: "ping" }));
           }
           return;

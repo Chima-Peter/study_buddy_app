@@ -167,6 +167,7 @@ export interface SseEvent {
 export type WsFrameType =
   | "heartbeat"
   | "token_refresh"
+  | "chat.started"
   | "chat.response"
   | "chat.title"
   | "chat.done"
@@ -180,5 +181,6 @@ export interface WsFrame {
   conversation_id?: string;
   chat_id?: string;
   continuation_key?: string;
+  request_id?: string;
   token?: string;
 }

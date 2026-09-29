@@ -32,11 +32,52 @@ function frameTargetsActiveChat(conversationId: string | undefined): boolean {
   return true;
 }
 
+function ensureAssistantForRequest(
+  conversationId: string | undefined,
+  requestId: string | undefined,
+) {
+  const store = useChatStore.getState();
+  if (requestId) {
+    const exists = store.messages.some(
+      (m) => m.role === "assistant" && m.requestId === requestId && m.streaming,
+    );
+    if (!exists) {
+      store.startAssistantMessage(conversationId, 0, requestId);
+    }
+    return;
+  }
+  if (!store.messages.some((m) => m.role === "assistant" && m.streaming)) {
+    store.startAssistantMessage(conversationId);
+  }
+}
+
 function handleChatFrame(frame: WsFrame) {
   const store = useChatStore.getState();
   const conversationId = frame.conversation_id;
+  const requestId = frame.request_id;
 
   switch (frame.type) {
+    case "chat.started": {
+      if (!conversationId) break;
+      store.bindStream(conversationId);
+      if (!store.activeConversationId) {
+        store.setActiveConversationId(conversationId);
+      }
+      store.upsertConversation({
+        id: conversationId,
+        title:
+          store.conversations.find((c) => c.id === conversationId)?.title ??
+          "New Conversation",
+        status: "active",
+      });
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname === "/chat"
+      ) {
+        store.setPendingRouteConversationId(conversationId);
+      }
+      break;
+    }
     case "chat.response": {
       if (!frameTargetsActiveChat(conversationId)) return;
 
@@ -47,8 +88,8 @@ function handleChatFrame(frame: WsFrame) {
         store.setActiveConversationId(conversationId);
       }
 
-      if (!store.isStreaming) store.startAssistantMessage(conversationId);
-      if (frame.response) store.appendStreamChunk(frame.response);
+      ensureAssistantForRequest(conversationId, requestId);
+      if (frame.response) store.appendStreamChunk(frame.response, requestId);
       break;
     }
     case "chat.done": {
@@ -67,6 +108,7 @@ function handleChatFrame(frame: WsFrame) {
           conversationId,
           frame.chat_id,
           frame.continuation_key,
+          requestId,
         );
         if (
           conversationId &&
@@ -79,7 +121,12 @@ function handleChatFrame(frame: WsFrame) {
         conversationId &&
         conversationId === store.streamingConversationId
       ) {
-        store.clearStreaming();
+        store.finalizeStream(
+          conversationId,
+          frame.chat_id,
+          frame.continuation_key,
+          requestId,
+        );
       }
       break;
     }
@@ -99,12 +146,12 @@ function handleChatFrame(frame: WsFrame) {
     case "error": {
       if (!frameTargetsActiveChat(conversationId)) {
         if (conversationId && conversationId === store.streamingConversationId) {
-          store.clearStreaming();
+          store.finalizeStream(conversationId, undefined, undefined, requestId);
         }
         return;
       }
       store.setError(frame.message ?? "Chat error");
-      store.finalizeStream(conversationId);
+      store.finalizeStream(conversationId, undefined, undefined, requestId);
       break;
     }
     default:

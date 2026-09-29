@@ -7,17 +7,16 @@ import { listDocuments } from "@/lib/api/documents";
 import type { Document } from "@/types";
 import { cn } from "@/lib/utils/cn";
 import { routes } from "@/config/routes";
-import { MAX_DOCUMENT_IDS } from "@/config/constants";
 
 export function DocumentPicker({
-  selectedIds,
+  selectedId,
   onChange,
   open,
   onOpenChange,
   promptSelect,
 }: {
-  selectedIds: string[];
-  onChange: (ids: string[]) => void;
+  selectedId: string | null;
+  onChange: (id: string | null) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   promptSelect?: boolean;
@@ -26,7 +25,6 @@ export function DocumentPicker({
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined;
   const isOpen = isControlled ? open : internalOpen;
-  const atLimit = selectedIds.length >= MAX_DOCUMENT_IDS;
 
   const setOpen = (next: boolean) => {
     if (!isControlled) setInternalOpen(next);
@@ -39,16 +37,7 @@ export function DocumentPicker({
       .catch(() => setDocs([]));
   }, []);
 
-  const toggle = (id: string) => {
-    if (selectedIds.includes(id)) {
-      onChange(selectedIds.filter((x) => x !== id));
-      return;
-    }
-    if (atLimit) return;
-    onChange([...selectedIds, id]);
-  };
-
-  const selected = docs.filter((d) => selectedIds.includes(d.id));
+  const selected = docs.find((d) => d.id === selectedId) ?? null;
 
   if (docs.length === 0) {
     return (
@@ -74,25 +63,20 @@ export function DocumentPicker({
 
   return (
     <div className="space-y-2">
-      {selected.length > 0 && (
+      {selected && (
         <div className="flex flex-wrap gap-1.5">
-          {selected.map((d) => (
-            <span
-              key={d.id}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-black/[0.06] bg-[#f7f7f8] px-2.5 py-1 text-xs text-[var(--text-secondary)] dark:border-white/10 dark:bg-white/5"
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-black/[0.06] bg-[#f7f7f8] px-2.5 py-1 text-xs text-[var(--text-secondary)] dark:border-white/10 dark:bg-white/5">
+            <FileText className="h-3 w-3 shrink-0 opacity-70" />
+            <span className="truncate">{selected.name}</span>
+            <button
+              type="button"
+              className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full hover:bg-black/[0.06] hover:text-[var(--text-primary)] dark:hover:bg-white/10"
+              onClick={() => onChange(null)}
+              aria-label={`Remove ${selected.name}`}
             >
-              <FileText className="h-3 w-3 shrink-0 opacity-70" />
-              <span className="truncate">{d.name}</span>
-              <button
-                type="button"
-                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full hover:bg-black/[0.06] hover:text-[var(--text-primary)] dark:hover:bg-white/10"
-                onClick={() => toggle(d.id)}
-                aria-label={`Remove ${d.name}`}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
+              <X className="h-3 w-3" />
+            </button>
+          </span>
         </div>
       )}
 
@@ -101,18 +85,16 @@ export function DocumentPicker({
         onClick={() => setOpen(!isOpen)}
         className={cn(
           "flex min-h-10 w-full items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-[#f7f7f8] px-3.5 py-2 text-left text-sm transition hover:bg-[#f0f0f1] dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/[0.08]",
-          promptSelect &&
-            selected.length === 0 &&
-            "ring-2 ring-primary-500/30",
+          promptSelect && !selected && "ring-2 ring-primary-500/30",
         )}
       >
         <FileText className="h-4 w-4 shrink-0 text-[var(--text-secondary)]" />
         <span className="min-w-0 flex-1 text-[var(--text-secondary)]">
-          {selected.length
-            ? `${selected.length} of ${MAX_DOCUMENT_IDS} document${selected.length > 1 ? "s" : ""} selected`
+          {selected
+            ? selected.name
             : promptSelect
-              ? "Select at least one document to continue"
-              : `Select up to ${MAX_DOCUMENT_IDS} documents`}
+              ? "Select a document to continue"
+              : "Select a document"}
         </span>
         <ChevronDown
           className={cn(
@@ -124,15 +106,8 @@ export function DocumentPicker({
 
       {isOpen && (
         <div className="max-h-44 space-y-0.5 overflow-y-auto overscroll-contain rounded-2xl border border-black/[0.06] bg-white p-1.5 shadow-sm dark:border-white/10 dark:bg-surface-elevated sm:max-h-52">
-          {atLimit && (
-            <p className="px-3 py-2 text-xs text-[var(--text-secondary)]">
-              Maximum of {MAX_DOCUMENT_IDS} documents. Remove one to add
-              another.
-            </p>
-          )}
           {docs.map((d) => {
-            const isSelected = selectedIds.includes(d.id);
-            const disabled = atLimit && !isSelected;
+            const isSelected = selectedId === d.id;
             return (
               <label
                 key={d.id}
@@ -140,16 +115,17 @@ export function DocumentPicker({
                   "flex min-touch cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm",
                   isSelected
                     ? "bg-black/[0.04] text-[var(--text-primary)] dark:bg-white/10"
-                    : disabled
-                      ? "cursor-not-allowed opacity-50"
-                      : "hover:bg-black/[0.03] dark:hover:bg-white/[0.06]",
+                    : "hover:bg-black/[0.03] dark:hover:bg-white/[0.06]",
                 )}
               >
                 <input
-                  type="checkbox"
+                  type="radio"
+                  name="chat-document"
                   checked={isSelected}
-                  disabled={disabled}
-                  onChange={() => toggle(d.id)}
+                  onChange={() => {
+                    onChange(d.id);
+                    setOpen(false);
+                  }}
                   className="accent-primary-700"
                 />
                 <span className="truncate">{d.name}</span>

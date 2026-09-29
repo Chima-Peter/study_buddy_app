@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import type { ConversationListItem } from "@/types";
-import { MAX_DOCUMENT_IDS } from "@/config/constants";
 
 export interface UiMessage {
   id: string;
@@ -11,6 +10,8 @@ export interface UiMessage {
   retryCount?: number;
   /** Signed key from the server for edit/retry of this turn. */
   continuationKey?: string;
+  /** Client request_id used to correlate WS frames for this turn. */
+  requestId?: string;
 }
 
 interface ChatState {
@@ -25,7 +26,7 @@ interface ChatState {
   messages: UiMessage[];
   streamingContent: string;
   isStreaming: boolean;
-  selectedDocumentIds: string[];
+  selectedDocumentId: string | null;
   error: string | null;
   setConversations: (
     items: ConversationListItem[],
@@ -36,22 +37,54 @@ interface ChatState {
   upsertConversation: (item: ConversationListItem) => void;
   setActiveConversationId: (id: string | null) => void;
   setMessages: (messages: UiMessage[]) => void;
-  appendUserMessage: (content: string) => void;
+  appendUserMessage: (content: string, requestId?: string) => void;
   prepareSend: (conversationId: string | null) => void;
   bindStream: (conversationId: string) => void;
-  startAssistantMessage: (conversationId?: string, retryCount?: number) => void;
-  appendStreamChunk: (chunk: string) => void;
+  startAssistantMessage: (
+    conversationId?: string,
+    retryCount?: number,
+    requestId?: string,
+  ) => void;
+  appendStreamChunk: (chunk: string, requestId?: string) => void;
   finalizeStream: (
     conversationId?: string,
     chatId?: string,
     continuationKey?: string,
+    requestId?: string,
   ) => void;
   clearStreaming: () => void;
   setPendingRouteConversationId: (id: string | null) => void;
-  setSelectedDocumentIds: (ids: string[]) => void;
+  setSelectedDocumentId: (id: string | null) => void;
   setError: (error: string | null) => void;
   updateTitle: (id: string, title: string) => void;
   resetActive: () => void;
+}
+
+function findStreamingAssistantIndex(
+  messages: UiMessage[],
+  requestId?: string,
+): number {
+  if (requestId) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const message = messages[i];
+      if (
+        message.role === "assistant" &&
+        message.streaming &&
+        message.requestId === requestId
+      ) {
+        return i;
+      }
+    }
+  }
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message.role === "assistant" && message.streaming) return i;
+  }
+  return -1;
+}
+
+function hasStreamingMessages(messages: UiMessage[]) {
+  return messages.some((m) => m.streaming);
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -64,7 +97,7 @@ export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   streamingContent: "",
   isStreaming: false,
-  selectedDocumentIds: [],
+  selectedDocumentId: null,
   error: null,
   setConversations: (items, nextCursor, hasMore, append = false) =>
     set((state) => ({
@@ -82,11 +115,16 @@ export const useChatStore = create<ChatState>((set) => ({
     }),
   setActiveConversationId: (id) => set({ activeConversationId: id }),
   setMessages: (messages) => set({ messages }),
-  appendUserMessage: (content) =>
+  appendUserMessage: (content, requestId) =>
     set((state) => ({
       messages: [
         ...state.messages,
-        { id: `u-${Date.now()}`, role: "user", content },
+        {
+          id: `u-${Date.now()}-${requestId ?? "local"}`,
+          role: "user",
+          content,
+          requestId,
+        },
       ],
     })),
   prepareSend: (conversationId) =>
@@ -97,7 +135,7 @@ export const useChatStore = create<ChatState>((set) => ({
     }),
   bindStream: (conversationId) =>
     set({ streamingConversationId: conversationId }),
-  startAssistantMessage: (conversationId, retryCount = 0) =>
+  startAssistantMessage: (conversationId, retryCount = 0, requestId) =>
     set((state) => ({
       isStreaming: true,
       streamingContent: "",
@@ -105,28 +143,66 @@ export const useChatStore = create<ChatState>((set) => ({
       messages: [
         ...state.messages,
         {
-          id: `a-${Date.now()}`,
+          id: `a-${Date.now()}-${requestId ?? "local"}`,
           role: "assistant",
           content: "",
           streaming: true,
           retryCount,
+          requestId,
         },
       ],
     })),
-  appendStreamChunk: (chunk) =>
+  appendStreamChunk: (chunk, requestId) =>
     set((state) => {
-      const streamingContent = state.streamingContent + chunk;
       const messages = [...state.messages];
-      const last = messages[messages.length - 1];
-      if (last?.role === "assistant" && last.streaming) {
-        messages[messages.length - 1] = { ...last, content: streamingContent };
-      }
-      return { streamingContent, messages };
+      const idx = findStreamingAssistantIndex(messages, requestId);
+      if (idx < 0) return state;
+      const message = messages[idx];
+      const content = message.content + chunk;
+      messages[idx] = { ...message, content };
+      return {
+        messages,
+        streamingContent: content,
+        isStreaming: true,
+      };
     }),
-  finalizeStream: (conversationId, chatId, continuationKey) =>
+  finalizeStream: (conversationId, chatId, continuationKey, requestId) =>
     set((state) => {
       const messages = [...state.messages];
-      if (chatId) {
+      const assistantIdx = findStreamingAssistantIndex(messages, requestId);
+
+      if (assistantIdx >= 0) {
+        const assistant = messages[assistantIdx];
+        const resolvedRequestId = requestId ?? assistant.requestId;
+        messages[assistantIdx] = {
+          ...assistant,
+          id: chatId ? `${chatId}-a` : assistant.id,
+          streaming: false,
+          continuationKey: continuationKey ?? assistant.continuationKey,
+          requestId: resolvedRequestId,
+        };
+
+        for (let i = assistantIdx - 1; i >= 0; i--) {
+          const message = messages[i];
+          if (message.role !== "user") continue;
+          const matchesRequest =
+            resolvedRequestId && message.requestId === resolvedRequestId;
+          const matchesTemp =
+            !resolvedRequestId &&
+            (message.id.startsWith("u-") ||
+              (chatId != null && message.id === `${chatId}-q`));
+          if (matchesRequest || matchesTemp) {
+            messages[i] = {
+              ...message,
+              id: chatId ? `${chatId}-q` : message.id,
+              continuationKey: continuationKey ?? message.continuationKey,
+              requestId: resolvedRequestId ?? message.requestId,
+            };
+            break;
+          }
+        }
+      } else if (chatId) {
+        // Fallback: older single-stream finalize path
         const userId = `${chatId}-q`;
         const assistantId = `${chatId}-a`;
         for (let i = messages.length - 1; i >= 0; i--) {
@@ -153,25 +229,29 @@ export const useChatStore = create<ChatState>((set) => ({
           }
         }
       }
+
+      const stillStreaming = hasStreamingMessages(messages);
       return {
-        messages: messages.map((m) =>
-          m.streaming ? { ...m, streaming: false } : m,
-        ),
-        isStreaming: false,
-        streamingContent: "",
-        streamingConversationId: null,
+        messages,
+        isStreaming: stillStreaming,
+        streamingContent: stillStreaming ? state.streamingContent : "",
+        streamingConversationId: stillStreaming
+          ? (conversationId ?? state.streamingConversationId)
+          : null,
         activeConversationId: conversationId ?? state.activeConversationId,
       };
     }),
   clearStreaming: () =>
-    set({
+    set((state) => ({
       isStreaming: false,
       streamingContent: "",
       streamingConversationId: null,
-    }),
+      messages: state.messages.map((m) =>
+        m.streaming ? { ...m, streaming: false } : m,
+      ),
+    })),
   setPendingRouteConversationId: (id) => set({ pendingRouteConversationId: id }),
-  setSelectedDocumentIds: (ids) =>
-    set({ selectedDocumentIds: ids.slice(0, MAX_DOCUMENT_IDS) }),
+  setSelectedDocumentId: (id) => set({ selectedDocumentId: id }),
   setError: (error) => set({ error }),
   updateTitle: (id, title) =>
     set((state) => ({

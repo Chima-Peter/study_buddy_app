@@ -11,7 +11,7 @@ import { useChatSocket } from "@/lib/ws/use-chat-socket";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
-  const { setConversations, nextCursor, hasMore, setSelectedDocumentIds, resetActive } =
+  const { setConversations, nextCursor, hasMore, setSelectedDocumentId, resetActive } =
     useChatStore();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -22,7 +22,10 @@ export default function ChatPage() {
     let cancelled = false;
     resetActive();
     const docs = searchParams.get("docs");
-    if (docs) setSelectedDocumentIds(docs.split(",").filter(Boolean));
+    if (docs) {
+      const first = docs.split(",").map((s) => s.trim()).find(Boolean);
+      if (first) setSelectedDocumentId(first);
+    }
     setLoading(true);
     listConversations()
       .then((data) => {
@@ -35,7 +38,7 @@ export default function ChatPage() {
     return () => {
       cancelled = true;
     };
-  }, [searchParams, setConversations, setSelectedDocumentIds, resetActive]);
+  }, [searchParams, setConversations, setSelectedDocumentId, resetActive]);
 
   const loadMore = async () => {
     if (!nextCursor) return;

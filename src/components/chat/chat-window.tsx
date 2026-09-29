@@ -7,6 +7,7 @@ import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
 import { DocumentPicker } from "./document-picker";
 import { useChatSocket } from "@/lib/ws/use-chat-socket";
+import { createChatRequestId } from "@/lib/ws/chat-socket";
 import { branchConversation } from "@/lib/api/conversations";
 import { routes } from "@/config/routes";
 import { ApiError } from "@/lib/api/client";
@@ -55,14 +56,14 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     messages,
     isStreaming,
     streamingConversationId,
-    selectedDocumentIds,
+    selectedDocumentId,
     error,
     setError,
     setMessages,
     appendUserMessage,
     prepareSend,
     startAssistantMessage,
-    setSelectedDocumentIds,
+    setSelectedDocumentId,
     setActiveConversationId,
     activeConversationId,
     pendingRouteConversationId,
@@ -81,9 +82,13 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   const streamingHere =
     isStreaming &&
     (!streamingConversationId || streamingConversationId === viewingId);
-  const hasDocuments = selectedDocumentIds.length > 0;
-  const docsRequiredMessage = "Select at least one document to send a message";
+  const hasDocument = Boolean(selectedDocumentId);
+  const docsRequiredMessage = "Select a document to send a message";
   const branching = Boolean(branchingId);
+  // New chats have no id until chat.started — block extra sends until then.
+  const canQueueWhileStreaming = Boolean(viewingId);
+  const inputDisabled =
+    branching || (streamingHere && !canQueueWhileStreaming);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -115,40 +120,42 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     setPendingRouteConversationId,
   ]);
 
-  const requireDocuments = () => {
-    if (hasDocuments) return true;
+  const requireDocument = () => {
+    if (hasDocument) return true;
     setPickerOpen(true);
     setPromptSelect(true);
     return false;
   };
 
-  const onDocumentsChange = (ids: string[]) => {
-    setSelectedDocumentIds(ids);
-    if (ids.length > 0) setPromptSelect(false);
+  const onDocumentChange = (id: string | null) => {
+    setSelectedDocumentId(id);
+    if (id) setPromptSelect(false);
   };
 
   const onSend = (query: string): boolean => {
-    if (streamingHere || branching || useChatStore.getState().isStreaming) {
-      return false;
-    }
-    if (!requireDocuments()) return false;
+    if (branching) return false;
+    if (streamingHere && !canQueueWhileStreaming) return false;
+    if (!requireDocument()) return false;
     setError(null);
-    appendUserMessage(query);
+    const requestId = createChatRequestId();
+    appendUserMessage(query, requestId);
     const id = conversationId ?? activeConversationId ?? undefined;
     prepareSend(id ?? null);
-    startAssistantMessage(id);
+    startAssistantMessage(id, 0, requestId);
     send({
       type: "chat",
+      request_id: requestId,
       query,
       conversation_id: id,
-      document_ids: selectedDocumentIds,
+      document_id: selectedDocumentId!,
     });
     return true;
   };
 
   const onSuggest = (query: string) => {
-    if (streamingHere || branching || useChatStore.getState().isStreaming) return;
-    if (!requireDocuments()) {
+    if (branching) return;
+    if (streamingHere && !canQueueWhileStreaming) return;
+    if (!requireDocument()) {
       setPrefill(query);
       setPrefillKey((k) => k + 1);
       return;
@@ -179,18 +186,20 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
       }
     }
     if (!userQuery) return;
-    if (!requireDocuments()) return;
+    if (!requireDocument()) return;
 
+    const requestId = createChatRequestId();
     setError(null);
     setMessages(messages.slice(0, idx));
     const id = conversationId ?? activeConversationId ?? undefined;
     prepareSend(id ?? null);
-    startAssistantMessage(id, retries + 1);
+    startAssistantMessage(id, retries + 1, requestId);
     send({
       type: "retry",
+      request_id: requestId,
       query: userQuery,
       conversation_id: id,
-      document_ids: selectedDocumentIds,
+      document_id: selectedDocumentId!,
       continuation_key: continuationKey,
     });
   };
@@ -210,21 +219,23 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
       setError("This message can’t be edited yet. Send a new message first.");
       return;
     }
-    if (!requireDocuments()) return;
+    if (!requireDocument()) return;
 
+    const requestId = createChatRequestId();
     setError(null);
     setMessages([
       ...messages.slice(0, idx),
-      { ...userMessage, content: trimmed },
+      { ...userMessage, content: trimmed, requestId },
     ]);
     const id = conversationId ?? activeConversationId ?? undefined;
     prepareSend(id ?? null);
-    startAssistantMessage(id);
+    startAssistantMessage(id, 0, requestId);
     send({
       type: "edit",
+      request_id: requestId,
       query: trimmed,
       conversation_id: id,
-      document_ids: selectedDocumentIds,
+      document_id: selectedDocumentId!,
       continuation_key: continuationKey,
     });
   };
@@ -329,18 +340,18 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
       <div className="shrink-0 bg-gradient-to-t from-white via-white to-transparent px-4 pb-4 pt-2 dark:from-surface-primary dark:via-surface-primary sm:px-6 sm:pb-5">
         <div className="mx-auto max-w-3xl space-y-2.5">
           <DocumentPicker
-            selectedIds={selectedDocumentIds}
-            onChange={onDocumentsChange}
+            selectedId={selectedDocumentId}
+            onChange={onDocumentChange}
             open={pickerOpen}
             onOpenChange={setPickerOpen}
             promptSelect={promptSelect}
           />
           <MessageInput
-            disabled={streamingHere || branching}
+            disabled={inputDisabled}
             onSend={onSend}
             prefill={prefill}
             prefillKey={prefillKey}
-            sendBlockedReason={hasDocuments ? null : docsRequiredMessage}
+            sendBlockedReason={hasDocument ? null : docsRequiredMessage}
           />
         </div>
       </div>
