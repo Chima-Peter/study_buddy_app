@@ -64,7 +64,7 @@ export function ingestDocument(id: string) {
 }
 
 export function retryIngest(id: string) {
-  return api.post<{ document_id?: string }>(`/documents/${id}/ingest/retry`);
+  return api.post<Document>(`/documents/${id}/ingest/retry`);
 }
 
 export function cancelIngest(id: string) {

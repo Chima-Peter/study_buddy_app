@@ -120,7 +120,7 @@ export function DocumentRow({
           className="flex flex-wrap items-center gap-1.5 sm:shrink-0 sm:justify-end"
           onClick={(e) => e.stopPropagation()}
         >
-          {failed && (
+          {(failed || cancelled) && (
             <Button
               size="sm"
               variant="secondary"
@@ -155,7 +155,7 @@ export function DocumentRow({
           {cancelled && (
             <Button
               size="sm"
-              variant="secondary"
+              variant="ghost"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

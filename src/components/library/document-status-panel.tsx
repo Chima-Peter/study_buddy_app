@@ -119,14 +119,32 @@ export function DocumentStatusPanel({
         <div>
           <p className="text-sm font-medium">Processing cancelled</p>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            This document wasn&apos;t fully processed. Upload the file again to
-            start a new ingest.
+            This document wasn&apos;t fully processed. Retry with the existing
+            file, or upload a new one.
           </p>
         </div>
-        <Button size="sm" variant="secondary" onClick={onUploadAgain}>
-          <Upload className="h-3.5 w-3.5" />
-          Upload again
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={retrying}
+            onClick={async () => {
+              const updated = await retry(document.id);
+              if (updated) onRetried?.(updated);
+            }}
+          >
+            {retrying ? (
+              <Spinner className="h-3.5 w-3.5 border-primary-700 border-t-transparent" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
+            Retry ingest
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onUploadAgain}>
+            <Upload className="h-3.5 w-3.5" />
+            Upload again
+          </Button>
+        </div>
       </div>
     );
   }

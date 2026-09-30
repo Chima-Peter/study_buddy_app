@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { getDocument, retryIngest } from "@/lib/api/documents";
+import { retryIngest } from "@/lib/api/documents";
 import { useDocumentsStore } from "@/stores/documents-store";
 import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
@@ -16,8 +16,7 @@ export function useRetryIngest() {
     async (documentId: string): Promise<Document | null> => {
       setRetryingId(documentId);
       try {
-        await retryIngest(documentId);
-        const updated = await getDocument(documentId);
+        const updated = await retryIngest(documentId);
         upsert(updated);
         toast({ title: "Retry queued", variant: "success" });
         return updated;
