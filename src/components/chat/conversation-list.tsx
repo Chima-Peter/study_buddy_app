@@ -23,9 +23,14 @@ export function ConversationList({
 }) {
   const pathname = usePathname();
   const conversations = useChatStore((s) => s.conversations);
+  const messages = useChatStore((s) => s.messages);
   const updateTitle = useChatStore((s) => s.updateTitle);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
+
+  // Keep the empty draft open until the user sends — don't stack another /chat.
+  const alreadyOnEmptyChat =
+    pathname === routes.chat || messages.length === 0;
 
   const saveRename = async (id: string) => {
     const next = title.trim();
@@ -46,8 +51,12 @@ export function ConversationList({
       <div className="px-2 pt-3 pb-2">
         <Link
           href={routes.chat}
-          onClick={onCollapse}
+          onClick={(e) => {
+            if (alreadyOnEmptyChat) e.preventDefault();
+            onCollapse?.();
+          }}
           className="flex h-10 w-full items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-[var(--text-primary)] transition hover:bg-black/[0.04] dark:hover:bg-white/10"
+          aria-current={pathname === routes.chat ? "page" : undefined}
         >
           <SquarePen className="h-4 w-4 shrink-0 opacity-70" strokeWidth={1.75} />
           New chat

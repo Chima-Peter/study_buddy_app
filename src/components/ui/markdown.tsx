@@ -3,6 +3,7 @@
 import type { Components } from "react-markdown";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ExternalLink, MonitorPlay } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /** Restore row breaks for GFM tables jammed onto a single line. */
@@ -24,6 +25,24 @@ function fixCollapsedTables(text: string): string {
     .join("\n\n");
 }
 
+/** Turn bare http(s) URLs into markdown links when not already linked. */
+function linkifyBareUrls(text: string): string {
+  return text.replace(
+    /(^|[\s])((https?:\/\/[^\s<>"'`\]}]+))/g,
+    (_full, prefix: string, url: string) => {
+      let href = url;
+      let trailing = "";
+      const punct = href.match(/[.,;:!?)]+$/);
+      if (punct) {
+        trailing = punct[0];
+        href = href.slice(0, -trailing.length);
+      }
+      if (!href) return `${prefix}${url}`;
+      return `${prefix}[${href}](${href})${trailing}`;
+    },
+  );
+}
+
 /** Repair common markdown issues from API/LLM content. */
 function normalizeMarkdown(source: string): string {
   const text = source
@@ -32,7 +51,7 @@ function normalizeMarkdown(source: string): string {
     .replace(/\\n/g, "\n")
     .replace(/\\t/g, "\t");
 
-  return fixCollapsedTables(text);
+  return linkifyBareUrls(fixCollapsedTables(text));
 }
 
 function urlTransform(url: string): string {
@@ -41,18 +60,62 @@ function urlTransform(url: string): string {
   return defaultUrlTransform(url);
 }
 
+function linkHost(href: string | undefined): string | null {
+  if (!href) return null;
+  try {
+    return new URL(href).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+function isYoutubeHost(host: string | null): boolean {
+  if (!host) return false;
+  return host === "youtu.be" || host.endsWith("youtube.com");
+}
+
 const components: Components = {
   a({ href, children, ...props }) {
-    const external = href?.startsWith("http");
+    const external = Boolean(href?.startsWith("http"));
+    if (!external) {
+      return (
+        <a href={href} {...props}>
+          {children}
+        </a>
+      );
+    }
+
+    const host = linkHost(href);
+    const youtube = isYoutubeHost(host);
+    const label =
+      typeof children === "string" && children.trim() === href
+        ? host ?? children
+        : children;
+
     return (
       <a
         href={href}
         {...props}
-        {...(external
-          ? { target: "_blank", rel: "noopener noreferrer" }
-          : undefined)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="chat-resource-link"
+        title={href}
       >
-        {children}
+        <span className="chat-resource-link__icon" aria-hidden>
+          {youtube ? (
+            <MonitorPlay className="h-3.5 w-3.5" strokeWidth={2} />
+          ) : (
+            <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
+          )}
+        </span>
+        <span className="chat-resource-link__body">
+          <span className="chat-resource-link__label">{label}</span>
+          {host && (
+            <span className="chat-resource-link__host">
+              {youtube ? "YouTube" : host}
+            </span>
+          )}
+        </span>
       </a>
     );
   },

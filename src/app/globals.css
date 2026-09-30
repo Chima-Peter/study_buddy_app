@@ -604,6 +604,101 @@
   color: var(--primary-600);
 }
 
+/* Chat resource links (articles / YouTube) */
+.chat-resource-link,
+.markdown-body a.chat-resource-link {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.2rem 0;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  background: rgba(240, 253, 250, 0.9);
+  color: var(--text-primary);
+  text-decoration: none;
+  vertical-align: top;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.chat-resource-link:hover,
+.markdown-body a.chat-resource-link:hover {
+  border-color: rgba(15, 118, 110, 0.35);
+  background: #ecfdf8;
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.08);
+}
+
+.chat-resource-link__icon,
+.markdown-body a.chat-resource-link .chat-resource-link__icon {
+  display: inline-flex;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  color: var(--primary-700);
+}
+
+.chat-resource-link__body,
+.markdown-body a.chat-resource-link .chat-resource-link__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.chat-resource-link__label,
+.markdown-body a.chat-resource-link .chat-resource-link__label {
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.chat-resource-link__host,
+.markdown-body a.chat-resource-link .chat-resource-link__host {
+  font-size: 0.75em;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--primary-700);
+  word-break: break-all;
+}
+
+.markdown-body li > a.chat-resource-link,
+.markdown-body li > p > a.chat-resource-link:only-child {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.chat-markdown p:has(> a.chat-resource-link) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+[data-theme="dark"] .chat-resource-link,
+[data-theme="dark"] .markdown-body a.chat-resource-link {
+  border-color: rgba(45, 212, 191, 0.22);
+  background: rgba(15, 118, 110, 0.16);
+}
+
+[data-theme="dark"] .chat-resource-link:hover,
+[data-theme="dark"] .markdown-body a.chat-resource-link:hover {
+  border-color: rgba(45, 212, 191, 0.4);
+  background: rgba(15, 118, 110, 0.24);
+  box-shadow: none;
+}
+
+[data-theme="dark"] .chat-resource-link__host,
+[data-theme="dark"] .markdown-body a.chat-resource-link .chat-resource-link__host {
+  color: #5eead4;
+}
+
 .markdown-body strong {
   font-weight: 600;
   color: var(--text-primary);
