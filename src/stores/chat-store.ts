@@ -14,6 +14,13 @@ export interface UiMessage {
   requestId?: string;
 }
 
+export interface QueuedMessage {
+  id: string;
+  content: string;
+  conversationId: string;
+  documentId: string;
+}
+
 interface ChatState {
   conversations: ConversationListItem[];
   nextCursor: string | null;
@@ -24,6 +31,8 @@ interface ChatState {
   /** After creating a chat on /chat, navigate to /chat/[id]. */
   pendingRouteConversationId: string | null;
   messages: UiMessage[];
+  /** Follow-ups waiting for the in-flight turn to finish (chat.done). */
+  messageQueue: QueuedMessage[];
   streamingContent: string;
   isStreaming: boolean;
   selectedDocumentId: string | null;
@@ -63,6 +72,10 @@ interface ChatState {
   setSelectedDocumentId: (id: string | null) => void;
   setError: (error: string | null) => void;
   updateTitle: (id: string, title: string) => void;
+  enqueueMessage: (item: Omit<QueuedMessage, "id"> & { id?: string }) => string;
+  /** Take the next queued item for a conversation, if any. */
+  shiftQueuedMessage: (conversationId: string) => QueuedMessage | null;
+  clearMessageQueue: (conversationId?: string) => void;
   resetActive: () => void;
 }
 
@@ -101,6 +114,7 @@ export const useChatStore = create<ChatState>((set) => ({
   streamingConversationId: null,
   pendingRouteConversationId: null,
   messages: [],
+  messageQueue: [],
   streamingContent: "",
   isStreaming: false,
   selectedDocumentId: null,
@@ -255,11 +269,10 @@ export const useChatStore = create<ChatState>((set) => ({
 
       if (assistantIdx >= 0) {
         const assistant = messages[assistantIdx];
+        // Drop any partial stream; show only the error response.
         messages[assistantIdx] = {
           ...assistant,
-          content: assistant.content.trim()
-            ? `${assistant.content.trim()}\n\n⚠️ ${note}`
-            : `⚠️ ${note}`,
+          content: note,
           streaming: false,
         };
       }
@@ -267,7 +280,7 @@ export const useChatStore = create<ChatState>((set) => ({
       const stillStreaming = hasStreamingMessages(messages);
       return {
         messages,
-        error: note,
+        error: null,
         isStreaming: stillStreaming,
         streamingContent: stillStreaming ? state.streamingContent : "",
         streamingConversationId: stillStreaming
@@ -293,11 +306,49 @@ export const useChatStore = create<ChatState>((set) => ({
         c.id === id ? { ...c, title } : c,
       ),
     })),
+  enqueueMessage: (item) => {
+    const id = item.id ?? `q-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    set((state) => ({
+      messageQueue: [
+        ...state.messageQueue,
+        {
+          id,
+          content: item.content,
+          conversationId: item.conversationId,
+          documentId: item.documentId,
+        },
+      ],
+    }));
+    return id;
+  },
+  shiftQueuedMessage: (conversationId) => {
+    let shifted: QueuedMessage | null = null;
+    set((state) => {
+      const idx = state.messageQueue.findIndex(
+        (item) => item.conversationId === conversationId,
+      );
+      if (idx < 0) return state;
+      shifted = state.messageQueue[idx];
+      return {
+        messageQueue: state.messageQueue.filter((_, i) => i !== idx),
+      };
+    });
+    return shifted;
+  },
+  clearMessageQueue: (conversationId) =>
+    set((state) => ({
+      messageQueue: conversationId
+        ? state.messageQueue.filter(
+            (item) => item.conversationId !== conversationId,
+          )
+        : [],
+    })),
   resetActive: () =>
     set({
       activeConversationId: null,
       pendingRouteConversationId: null,
       messages: [],
+      messageQueue: [],
       streamingContent: "",
       isStreaming: false,
       streamingConversationId: null,

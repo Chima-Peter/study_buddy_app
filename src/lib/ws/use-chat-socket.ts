@@ -145,7 +145,11 @@ function handleChatFrame(frame: WsFrame) {
     case "chat.error":
     case "error": {
       // Application error for this turn only — do not close the WebSocket.
-      const message = frame.message ?? "Something went wrong. Please try again.";
+      // Prefer `response` (agent) then `message` (service/router).
+      const message =
+        frame.response?.trim() ||
+        frame.message?.trim() ||
+        "Something went wrong. Please try again.";
       const targetConversation =
         conversationId ?? store.streamingConversationId ?? undefined;
 

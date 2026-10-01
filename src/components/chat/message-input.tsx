@@ -9,6 +9,7 @@ export function MessageInput({
   onSend,
   prefill,
   prefillKey,
+  placeholder,
   sendBlockedReason,
 }: {
   disabled?: boolean;
@@ -17,6 +18,7 @@ export function MessageInput({
   prefill?: string | null;
   /** Changes when the same prefill text should be re-applied. */
   prefillKey?: number;
+  placeholder?: string;
   /** Shown when the user has typed but cannot send yet. */
   sendBlockedReason?: string | null;
 }) {
@@ -69,7 +71,7 @@ export function MessageInput({
           rows={1}
           value={value}
           disabled={disabled}
-          placeholder="Ask anything…"
+          placeholder={placeholder ?? "Ask anything…"}
           className="max-h-[200px] min-h-[44px] flex-1 resize-none bg-transparent px-2 py-2.5 text-[15px] leading-relaxed outline-none placeholder:text-muted focus-visible:ring-0 focus-visible:ring-offset-0"
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
