@@ -68,7 +68,7 @@ function ReferenceText({ value }: { value: string }) {
       href={trimmed}
       target="_blank"
       rel="noopener noreferrer"
-      className="break-all text-[#0f766e] underline decoration-[#0f766e]/35 underline-offset-2 hover:decoration-[#0f766e]"
+      className="break-all text-brand underline decoration-brand/35 underline-offset-2 hover:decoration-brand"
     >
       {value}
     </a>
@@ -213,27 +213,27 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
                 aria-hidden
               />
 
-              <div className="flex items-center justify-between gap-3 border-b border-[#0c2420]/08 px-5 pb-3 pt-4 lg:px-8 lg:pb-4 lg:pt-6">
+              <div className="flex items-center justify-between gap-3 border-b border-border px-5 pb-3 pt-4 lg:px-8 lg:pb-4 lg:pt-6">
                 <div className="min-w-0">
                   <p
                     className={cn(
                       "truncate text-[11px] font-semibold uppercase tracking-[0.16em] lg:text-xs",
-                      isMnemonic ? "text-[#b45309]" : "text-[#0f766e]",
+                      isMnemonic ? "text-warning" : "text-brand",
                     )}
                   >
                     {formatChapterTitle(chapter.chapter_key)}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-[#5a7a73] lg:text-sm">
+                  <p className="mt-0.5 text-[11px] text-muted lg:text-sm">
                     {cardKindLabel(card.kind)}
                     <span className="lg:hidden"> · swipe</span>
                     <span className="hidden lg:inline"> · ← → keys</span>
                   </p>
                 </div>
                 <div className="flex shrink-0 items-baseline gap-0.5 font-[family-name:var(--font-study-display)]">
-                  <span className="text-2xl font-semibold leading-none text-[#0c2420] lg:text-3xl">
+                  <span className="text-2xl font-semibold leading-none text-[var(--text-primary)] lg:text-3xl">
                     {safeIndex + 1}
                   </span>
-                  <span className="text-sm text-[#5a7a73] lg:text-base">/{cards.length}</span>
+                  <span className="text-sm text-muted lg:text-base">/{cards.length}</span>
                 </div>
               </div>
 
@@ -245,7 +245,7 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
                   )}
                   aria-hidden
                 />
-                <h2 className="pl-3 font-[family-name:var(--font-study-display)] text-[1.55rem] font-semibold leading-[1.2] tracking-tight text-[#0c2420] lg:pl-4 lg:text-[2rem]">
+                <h2 className="pl-3 font-[family-name:var(--font-study-display)] text-[1.55rem] font-semibold leading-[1.2] tracking-tight text-[var(--text-primary)] lg:pl-4 lg:text-[2rem]">
                   {card.title}
                 </h2>
               </div>
@@ -257,21 +257,21 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
                 )}
               >
                 {isMnemonic ? (
-                  <p className="font-[family-name:var(--font-study-display)] text-[1.2rem] font-medium leading-snug tracking-tight text-[#0c2420] lg:text-[1.45rem] lg:leading-snug">
+                  <p className="font-[family-name:var(--font-study-display)] text-[1.2rem] font-medium leading-snug tracking-tight text-[var(--text-primary)] lg:text-[1.45rem] lg:leading-snug">
                     {body}
                   </p>
                 ) : (
-                  <Markdown className="study-flashcard-md font-[family-name:var(--font-study-sans)] text-[15px] text-[#0c2420] lg:text-base">
+                  <Markdown className="study-flashcard-md font-[family-name:var(--font-study-sans)] text-[15px] text-[var(--text-primary)] lg:text-base">
                     {body}
                   </Markdown>
                 )}
 
                 {refs.length > 0 && (
                   <div className="study-flashcard-refs">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#0f766e] lg:text-[11px]">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand lg:text-[11px]">
                       References
                     </p>
-                    <ul className="text-[13px] text-[#3d5c56] lg:text-sm">
+                    <ul className="text-[13px] text-[var(--text-secondary)] lg:text-sm">
                       {refs.map((r) => (
                         <li key={r} className="flex gap-2">
                           <span className="mt-[calc((var(--study-line)-4px)/2)] h-1 w-1 shrink-0 rounded-full bg-[#14b8a6]" />
@@ -312,8 +312,8 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
           onClick={() => go(safeIndex - 1)}
           aria-label="Previous card"
           className={cn(
-            "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#0c2420]/12 bg-white text-[#0c2420] transition-all lg:h-14 lg:w-14",
-            "hover:border-[#0f766e] hover:text-[#0f766e] active:scale-95",
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-panel text-[var(--text-primary)] transition-all lg:h-14 lg:w-14",
+            "hover:border-brand hover:text-brand active:scale-95",
             "disabled:pointer-events-none disabled:opacity-30",
           )}
         >
@@ -340,12 +340,12 @@ export function MiniStudyCards({ chapter }: { chapter: StudyChapter }) {
                       )
                     : c.kind === "mnemonic"
                       ? "w-2.5 bg-[#b45309]/30 hover:bg-[#b45309]"
-                      : "w-2.5 bg-[#0c2420]/15 hover:bg-[#14b8a6]",
+                      : "w-2.5 bg-[var(--text-primary)]/15 hover:bg-primary-500",
                 )}
               />
             ))}
           </div>
-          <p className="text-[11px] text-[#5a7a73] lg:text-sm">
+          <p className="text-[11px] text-muted lg:text-sm">
             {safeIndex + 1} of {cards.length}
           </p>
         </div>

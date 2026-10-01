@@ -255,7 +255,7 @@ export default function DocumentDetailPage() {
                   {sectionItems.length > 0 && (
                     <div>
                       <div className="mb-2.5 flex items-center gap-2">
-                        <Layers className="h-3.5 w-3.5 text-primary-700" />
+                        <Layers className="h-3.5 w-3.5 text-brand" />
                         <p className="text-xs font-medium text-muted">
                           Sections
                         </p>
@@ -314,7 +314,7 @@ export default function DocumentDetailPage() {
                 <iframe
                   title={doc.name}
                   src={fileUrl}
-                  className="min-h-[28rem] w-full flex-1 rounded-lg border border-border bg-white"
+                  className="min-h-[28rem] w-full flex-1 rounded-lg border border-border bg-panel"
                 />
               </div>
             )}
@@ -322,7 +322,7 @@ export default function DocumentDetailPage() {
         )}
 
         <TabsContent value="settings" className="mt-4 space-y-4">
-          <div className="rounded-lg border border-border bg-white p-5">
+          <div className="rounded-lg border border-border bg-panel p-5">
             <h2 className="text-sm font-semibold text-[var(--text-primary)]">
               Delete document
             </h2>

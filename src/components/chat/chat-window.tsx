@@ -38,7 +38,7 @@ function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
               key={prompt}
               type="button"
               onClick={() => onSuggest(prompt)}
-              className="rounded-full border border-black/[0.08] bg-white px-3.5 py-2 text-left text-sm text-[var(--text-secondary)] transition hover:bg-black/[0.03] hover:text-[var(--text-primary)] dark:border-white/10 dark:bg-transparent dark:hover:bg-white/5"
+              className="rounded-full border border-black/[0.08] bg-panel px-3.5 py-2 text-left text-sm text-[var(--text-secondary)] transition hover:bg-black/[0.03] hover:text-[var(--text-primary)] dark:border-white/10 dark:bg-transparent dark:hover:bg-white/5"
             >
               {prompt}
             </button>
@@ -297,7 +297,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     <div className="relative flex h-full min-h-0 flex-col">
       {branching && (
         <div
-          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/70 backdrop-blur-[2px] dark:bg-surface-primary/70"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-panel/80 backdrop-blur-[2px] dark:bg-surface-primary/70"
           role="status"
           aria-live="polite"
           aria-label="Creating branched chat"

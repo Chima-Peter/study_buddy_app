@@ -91,7 +91,7 @@ export function DocumentRow({
           href={routes.libraryDetail(document.id)}
           className="flex min-w-0 flex-1 items-start gap-3"
         >
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary-500/15 text-primary-700">
+          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary-500/15 text-brand">
             <FileText className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1 space-y-1">

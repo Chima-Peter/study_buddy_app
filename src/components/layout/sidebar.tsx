@@ -53,7 +53,7 @@ export function Sidebar() {
                 "hover:-translate-y-0.5 hover:border-primary-700/25",
                 "hover:shadow-[0_10px_28px_rgba(12,36,32,0.12),0_2px_6px_rgba(12,36,32,0.06)]",
                 active
-                  ? "bg-primary-500/15 text-primary-700"
+                  ? "bg-primary-500/15 text-brand"
                   : "text-[var(--text-secondary)] hover:bg-surface-tertiary hover:text-[var(--text-primary)]",
               )}
             >

@@ -222,7 +222,7 @@ export default function QuestionBankDetailPage() {
               }
               router.push(routes.questionBank);
             }}
-            className="mb-2 flex min-touch items-center gap-1.5 rounded-md px-1 py-2 text-sm text-[#5a7a73] hover:bg-white/60 hover:text-[#0c2420]"
+            className="mb-2 flex min-touch items-center gap-1.5 rounded-md px-1 py-2 text-sm text-muted hover:bg-panel/70 hover:text-[var(--text-primary)]"
             aria-label="Go back"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -234,10 +234,10 @@ export default function QuestionBankDetailPage() {
               className={cn(
                 "mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border shadow-sm",
                 copy.accent === "failed"
-                  ? "border-[#fecaca] bg-[#fef2f2] text-[#b91c1c]"
+                  ? "border-error/30 bg-error/10 text-error"
                   : copy.accent === "pending"
-                    ? "border-[#fde68a] bg-[#fffbeb] text-[#b45309]"
-                    : "border-[#99f6e4]/80 bg-white/80 text-[#0f766e]",
+                    ? "border-warning/30 bg-warning/10 text-warning"
+                    : "border-primary-400/30 bg-panel/80 text-brand",
               )}
             >
               <Icon
@@ -252,19 +252,19 @@ export default function QuestionBankDetailPage() {
             <p
               className={cn(
                 "text-[11px] font-semibold uppercase tracking-[0.18em]",
-                copy.accent === "failed" && "text-[#b91c1c]",
-                copy.accent === "pending" && "text-[#b45309]",
-                copy.accent === "missing" && "text-[#0f766e]",
+                copy.accent === "failed" && "text-error",
+                copy.accent === "pending" && "text-warning",
+                copy.accent === "missing" && "text-brand",
               )}
             >
               {copy.eyebrow}
             </p>
 
-            <h1 className="mt-3 font-[family-name:var(--font-study-display)] text-3xl font-semibold tracking-tight text-[#0c2420] sm:text-4xl">
+            <h1 className="mt-3 font-[family-name:var(--font-study-display)] text-3xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">
               {copy.title}
             </h1>
 
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-[#5a7a73] sm:text-base">
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted sm:text-base">
               {copy.body}
             </p>
 
@@ -298,7 +298,7 @@ export default function QuestionBankDetailPage() {
                     "w-full rounded-full sm:w-auto",
                     status !== "failed" && "bg-[#0f766e] hover:bg-[#0d9488]",
                     status === "failed" &&
-                      "border-[#0f766e]/30 text-[#0f766e]",
+                      "border-brand/30 text-brand",
                   )}
                 >
                   Back to Quizzes
@@ -356,7 +356,7 @@ export default function QuestionBankDetailPage() {
           }
           showBack
           backHref={routes.questionBank}
-          className="[&_h1]:font-[family-name:var(--font-study-display)] [&_h1]:tracking-tight [&_h1]:text-[#0c2420]"
+          className="[&_h1]:font-[family-name:var(--font-study-display)] [&_h1]:tracking-tight [&_h1]:text-[var(--text-primary)]"
           actions={
             <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
               {questionCount > 0 && (

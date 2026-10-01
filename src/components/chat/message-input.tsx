@@ -60,7 +60,7 @@ export function MessageInput({
       )}
       <div
         className={cn(
-          "flex items-end gap-2 rounded-[1.75rem] border border-black/[0.08] bg-white px-3 py-2 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.06)] dark:border-white/10 dark:bg-surface-elevated",
+          "flex items-end gap-2 rounded-[1.75rem] border border-black/[0.08] bg-panel px-3 py-2 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.06)] dark:border-white/10 dark:bg-surface-elevated",
           disabled && "opacity-60",
         )}
       >

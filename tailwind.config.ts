@@ -64,7 +64,12 @@ const config: Config = {
           tertiary: "var(--bg-tertiary)",
           elevated: "var(--bg-elevated)",
         },
+        panel: {
+          DEFAULT: "var(--panel-soft)",
+          mint: "var(--panel-mint)",
+        },
         muted: "var(--text-muted)",
+        brand: "var(--brand-text)",
         border: {
           DEFAULT: "var(--border-default)",
           strong: "var(--border-strong)",

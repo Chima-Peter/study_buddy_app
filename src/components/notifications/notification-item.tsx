@@ -51,7 +51,7 @@ function getNotificationStyle(notification: Notification) {
   return {
     title: notification.title,
     icon: Info,
-    iconClass: "bg-primary-500/10 text-primary-700",
+    iconClass: "bg-primary-500/10 text-brand",
   };
 }
 
@@ -94,7 +94,7 @@ export function NotificationItem({
             {style.title}
           </span>
           {unread && (
-            <span className="rounded-full bg-primary-500/15 px-2 py-0.5 text-[11px] font-medium text-primary-700">
+            <span className="rounded-full bg-primary-500/15 px-2 py-0.5 text-[11px] font-medium text-brand">
               New
             </span>
           )}

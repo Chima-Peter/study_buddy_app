@@ -19,8 +19,8 @@ export function QuizOption({
 }) {
   const letter = String.fromCharCode(65 + index);
   let styles = "border-border bg-surface-tertiary";
-  if (revealed && correct) styles = "border-success bg-success/15 text-success-dark";
-  else if (revealed && selected && !correct) styles = "border-error bg-error/15 text-error-dark";
+  if (revealed && correct) styles = "border-success bg-success/15 text-success dark:text-emerald-400";
+  else if (revealed && selected && !correct) styles = "border-error bg-error/15 text-error";
   else if (selected) styles = "border-primary-500 bg-primary-500/15";
 
   return (

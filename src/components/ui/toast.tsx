@@ -30,17 +30,17 @@ const VARIANT_STYLES: Record<
 > = {
   default: {
     root: "border-border bg-surface-elevated",
-    iconWrap: "bg-primary-500/10 text-primary-700",
+    iconWrap: "bg-primary-500/10 text-brand",
     Icon: Info,
   },
   success: {
     root: "border-success/30 bg-surface-elevated",
-    iconWrap: "bg-success/10 text-success-dark",
+    iconWrap: "bg-success/10 text-success dark:text-emerald-400",
     Icon: CheckCircle2,
   },
   error: {
     root: "border-error/30 bg-surface-elevated",
-    iconWrap: "bg-error/10 text-error-dark",
+    iconWrap: "bg-error/10 text-error",
     Icon: CircleAlert,
   },
 };

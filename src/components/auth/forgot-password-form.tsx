@@ -67,7 +67,7 @@ export function ForgotPasswordForm({ initialEmail = "" }: ForgotPasswordFormProp
       </Button>
       <p className="text-center text-sm text-[var(--text-secondary)]">
         Remembered your password?{" "}
-        <Link href={routes.login} className="text-primary-700 hover:underline">
+        <Link href={routes.login} className="text-brand hover:underline">
           Sign in
         </Link>
       </p>

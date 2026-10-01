@@ -47,7 +47,7 @@ export function ChatLayout({
 
       <aside
         className={cn(
-          "z-50 flex h-full shrink-0 flex-col border-r border-black/[0.06] bg-[#f7f7f8] transition-[width,transform] duration-200 dark:border-white/10 dark:bg-surface-secondary",
+          "z-50 flex h-full shrink-0 flex-col border-r border-black/[0.06] bg-surface-tertiary transition-[width,transform] duration-200 dark:border-white/10 dark:bg-surface-secondary",
           "absolute inset-y-0 left-0 w-[min(100%,17rem)] max-w-[85vw] lg:static lg:left-auto lg:w-60 lg:max-w-none",
           open
             ? "translate-x-0 lg:w-60"
@@ -69,7 +69,7 @@ export function ChatLayout({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-white dark:bg-surface-primary">
+      <div className="flex min-w-0 flex-1 flex-col bg-panel dark:bg-surface-primary">
         <header className="flex h-12 shrink-0 items-center px-3 sm:px-4">
           <button
             type="button"

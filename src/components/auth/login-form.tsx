@@ -55,7 +55,7 @@ export function LoginForm() {
       <p className="text-right text-sm">
         <Link
           href={routes.forgotPassword}
-          className="text-primary-700 hover:underline"
+          className="text-brand hover:underline"
         >
           Forgot password?
         </Link>
@@ -70,7 +70,7 @@ export function LoginForm() {
       </Button>
       <p className="text-center text-sm text-[var(--text-secondary)]">
         Don&apos;t have an account?{" "}
-        <Link href={routes.register} className="text-primary-700 hover:underline">
+        <Link href={routes.register} className="text-brand hover:underline">
           Sign up
         </Link>
       </p>

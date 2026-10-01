@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils/cn";
 
 const variants = {
   default: "bg-surface-tertiary text-[var(--text-secondary)]",
-  primary: "bg-primary-500/15 text-primary-700",
-  success: "bg-success/15 text-success",
+  primary: "bg-primary-500/15 text-brand",
+  success: "bg-success/15 text-success dark:text-success",
   warning: "bg-warning/15 text-warning",
   error: "bg-error/15 text-error",
   outline: "border border-border text-[var(--text-secondary)]",

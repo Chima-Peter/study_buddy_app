@@ -119,13 +119,13 @@ export function CreateBankModal({
                       taken
                         ? "cursor-not-allowed opacity-45"
                         : "hover:bg-surface-tertiary",
-                      selected && !taken && "bg-[#0f766e]/10 ring-1 ring-[#0f766e]/35",
+                      selected && !taken && "bg-primary-500/15 ring-1 ring-[#0f766e]/35",
                     )}
                   >
                     <FileText
                       className={cn(
                         "h-4 w-4 shrink-0",
-                        selected ? "text-[#0f766e]" : "text-muted",
+                        selected ? "text-brand" : "text-muted",
                       )}
                     />
                     <span className="min-w-0 flex-1 truncate font-medium text-[var(--text-primary)]">

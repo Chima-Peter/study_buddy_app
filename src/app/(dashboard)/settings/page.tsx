@@ -143,7 +143,7 @@ export default function SettingsPage() {
       <Card className="overflow-hidden p-0">
         <CardHeader className="mb-0 border-b border-border bg-surface-tertiary/40 p-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-500/15 text-primary-700">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-500/15 text-brand">
               <UserRound className="h-5 w-5" />
             </span>
             <div>
@@ -204,7 +204,7 @@ export default function SettingsPage() {
       <Card className="p-5">
         <CardHeader className="mb-4">
           <div className="flex items-center gap-2">
-            <Palette className="h-4 w-4 text-primary-700" />
+            <Palette className="h-4 w-4 text-brand" />
             <CardTitle className="text-base">Appearance</CardTitle>
           </div>
           <p className="text-sm text-[var(--text-secondary)]">
@@ -225,7 +225,7 @@ export default function SettingsPage() {
                 className={cn(
                   "flex min-h-16 cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors",
                   theme === value
-                    ? "border-primary-500 bg-primary-500/10 text-primary-700"
+                    ? "border-primary-500 bg-primary-500/10 text-brand"
                     : "border-border hover:bg-surface-tertiary",
                 )}
               >

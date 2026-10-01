@@ -11,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Link href={routes.home} className="inline-flex flex-col items-center gap-3">
             <LogoMark className="h-12 w-12 rounded-xl" title="StudyBuddy" />
             <span className="text-2xl font-bold tracking-tight">
-              Study<span className="text-primary-700">Buddy</span>
+              Study<span className="text-brand">Buddy</span>
             </span>
           </Link>
         </div>

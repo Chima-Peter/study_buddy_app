@@ -43,7 +43,7 @@ export function DocumentPicker({
     return (
       <div
         className={cn(
-          "flex min-h-10 w-full items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-[#f7f7f8] px-3.5 py-2 text-sm dark:border-white/10 dark:bg-white/5",
+          "flex min-h-10 w-full items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-surface-tertiary px-3.5 py-2 text-sm dark:border-white/10 dark:bg-white/5",
           promptSelect && "ring-2 ring-primary-500/30",
         )}
       >
@@ -52,7 +52,7 @@ export function DocumentPicker({
           Upload a document to start chatting.{" "}
           <Link
             href={routes.libraryUpload}
-            className="font-medium text-primary-800 underline-offset-2 hover:underline"
+            className="font-medium text-brand underline-offset-2 hover:underline"
           >
             Go to library
           </Link>
@@ -65,7 +65,7 @@ export function DocumentPicker({
     <div className="space-y-2">
       {selected && (
         <div className="flex flex-wrap gap-1.5">
-          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-black/[0.06] bg-[#f7f7f8] px-2.5 py-1 text-xs text-[var(--text-secondary)] dark:border-white/10 dark:bg-white/5">
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-black/[0.06] bg-surface-tertiary px-2.5 py-1 text-xs text-[var(--text-secondary)] dark:border-white/10 dark:bg-white/5">
             <FileText className="h-3 w-3 shrink-0 opacity-70" />
             <span className="truncate">{selected.name}</span>
             <button
@@ -84,7 +84,7 @@ export function DocumentPicker({
         type="button"
         onClick={() => setOpen(!isOpen)}
         className={cn(
-          "flex min-h-10 w-full items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-[#f7f7f8] px-3.5 py-2 text-left text-sm transition hover:bg-[#f0f0f1] dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/[0.08]",
+          "flex min-h-10 w-full items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-surface-tertiary px-3.5 py-2 text-left text-sm transition hover:bg-surface-tertiary dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/[0.08]",
           promptSelect && !selected && "ring-2 ring-primary-500/30",
         )}
       >
@@ -105,7 +105,7 @@ export function DocumentPicker({
       </button>
 
       {isOpen && (
-        <div className="max-h-44 space-y-0.5 overflow-y-auto overscroll-contain rounded-2xl border border-black/[0.06] bg-white p-1.5 shadow-sm dark:border-white/10 dark:bg-surface-elevated sm:max-h-52">
+        <div className="max-h-44 space-y-0.5 overflow-y-auto overscroll-contain rounded-2xl border border-black/[0.06] bg-panel p-1.5 shadow-sm dark:border-white/10 dark:bg-surface-elevated sm:max-h-52">
           {docs.map((d) => {
             const isSelected = selectedId === d.id;
             return (

@@ -47,7 +47,7 @@ export function Header() {
         </button>
         <Link
           href={routes.settings}
-          className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary-500/20 text-sm font-semibold text-primary-700 lg:pointer-events-none"
+          className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary-500/20 text-sm font-semibold text-brand lg:pointer-events-none"
           aria-label="Profile"
         >
           {(user?.name?.[0] ?? "S").toUpperCase()}

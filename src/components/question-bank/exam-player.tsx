@@ -152,7 +152,7 @@ export function ExamPlayer({
                 "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-semibold tabular-nums",
                 timerUrgent
                   ? "border-error/40 bg-error/10 text-error"
-                  : "border-[#0f766e]/25 bg-[#0f766e]/10 text-[#0f766e]",
+                  : "border-brand/30 bg-primary-500/15 text-brand",
               )}
               aria-live="polite"
               aria-label={`Time remaining ${formatClock(secondsLeft)}`}
@@ -173,7 +173,7 @@ export function ExamPlayer({
       <div className="mt-4 space-y-4 sm:mt-6 sm:space-y-6">
         <div className="rounded-2xl border border-border bg-surface-secondary p-4 sm:rounded-lg sm:p-6">
           {question.difficulty?.trim() && (
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0f766e]">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
               {question.difficulty.trim()}
             </p>
           )}

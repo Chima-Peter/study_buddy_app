@@ -86,7 +86,7 @@ export function ConversationList({
                     type="text"
                     value={title}
                     autoFocus
-                    className="m-1 w-[calc(100%-0.5rem)] rounded-md border border-border bg-white px-2.5 py-1.5 text-sm outline-none focus:border-primary-600 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-surface-elevated"
+                    className="m-1 w-[calc(100%-0.5rem)] rounded-md border border-border bg-panel px-2.5 py-1.5 text-sm outline-none focus:border-primary-600 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-surface-elevated"
                     onChange={(e) => setTitle(e.target.value)}
                     onBlur={() => saveRename(c.id)}
                     onKeyDown={(e) => {

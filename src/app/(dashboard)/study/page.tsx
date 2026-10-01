@@ -117,7 +117,7 @@ export default function StudyPage() {
           actions={
             <>
               <select
-                className="h-11 w-full rounded-full border border-[#0c2420]/12 bg-white/80 px-4 text-sm text-[#0c2420] shadow-sm backdrop-blur sm:w-auto"
+                className="h-11 w-full rounded-full border border-border bg-panel/80 px-4 text-sm text-[var(--text-primary)] shadow-sm backdrop-blur sm:w-auto"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as "" | StudyCardsStatus)}
               >
@@ -143,11 +143,11 @@ export default function StudyPage() {
           <PageLoader label="Loading study decks" />
         </div>
       ) : items.length === 0 ? (
-        <div className="relative rounded-[1.35rem] border border-dashed border-[#0c2420]/15 bg-white/70 px-8 py-14 text-center backdrop-blur">
-          <p className="font-[family-name:var(--font-study-display)] text-lg font-semibold text-[#0c2420]">
+        <div className="relative rounded-[1.35rem] border border-dashed border-border bg-panel/80 px-8 py-14 text-center backdrop-blur">
+          <p className="font-[family-name:var(--font-study-display)] text-lg font-semibold text-[var(--text-primary)]">
             No study decks yet
           </p>
-          <p className="mt-2 text-sm text-[#5a7a73]">
+          <p className="mt-2 text-sm text-muted">
             Generate cards from a completed document in your library
           </p>
           <Button
@@ -172,10 +172,10 @@ export default function StudyPage() {
             variant="secondary"
             onClick={loadMore}
             disabled={loadingMore}
-            className="rounded-full border-[#0f766e]/25 text-[#0f766e]"
+            className="rounded-full border-brand/30 text-brand"
           >
             {loadingMore && (
-              <Spinner className="h-3.5 w-3.5 border-[#0f766e]/40 border-t-[#0f766e]" />
+              <Spinner className="h-3.5 w-3.5 border-brand/40 border-t-[#0f766e]" />
             )}
             {loadingMore ? "Loading…" : "Load more"}
           </Button>

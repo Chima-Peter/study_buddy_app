@@ -88,7 +88,7 @@ export function ResetPasswordForm({ initialEmail = "" }: ResetPasswordFormProps)
             <p>{error}</p>
             <Link
               href={resendHref}
-              className="inline-block font-medium text-primary-700 hover:underline"
+              className="inline-block font-medium text-brand hover:underline"
             >
               Resend reset code
             </Link>
@@ -102,7 +102,7 @@ export function ResetPasswordForm({ initialEmail = "" }: ResetPasswordFormProps)
           {passwordForm.formState.isSubmitting ? "Resetting..." : "Reset password"}
         </Button>
         <p className="text-center text-sm text-[var(--text-secondary)]">
-          <Link href={routes.login} className="text-primary-700 hover:underline">
+          <Link href={routes.login} className="text-brand hover:underline">
             Back to sign in
           </Link>
         </p>
@@ -136,7 +136,7 @@ export function ResetPasswordForm({ initialEmail = "" }: ResetPasswordFormProps)
           <p>{error}</p>
           <Link
             href={resendHref}
-            className="inline-block font-medium text-primary-700 hover:underline"
+            className="inline-block font-medium text-brand hover:underline"
           >
             Resend reset code
           </Link>
@@ -150,7 +150,7 @@ export function ResetPasswordForm({ initialEmail = "" }: ResetPasswordFormProps)
         {codeForm.formState.isSubmitting ? "Verifying..." : "Verify code"}
       </Button>
       <p className="text-center text-sm text-[var(--text-secondary)]">
-        <Link href={routes.login} className="text-primary-700 hover:underline">
+        <Link href={routes.login} className="text-brand hover:underline">
           Back to sign in
         </Link>
       </p>

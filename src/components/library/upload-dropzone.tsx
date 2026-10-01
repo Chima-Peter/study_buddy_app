@@ -70,7 +70,7 @@ export function UploadDropzone({
             : "border-border bg-surface-tertiary",
         )}
       >
-        <Upload className="mb-3 h-8 w-8 text-primary-700" />
+        <Upload className="mb-3 h-8 w-8 text-brand" />
         <p className="text-sm font-medium">
           {file ? file.name : "Tap to choose a PDF"}
         </p>

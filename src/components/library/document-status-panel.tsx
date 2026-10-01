@@ -31,7 +31,7 @@ export function DocumentStatusPanel({
     return (
       <>
         <div className="flex flex-col gap-3 rounded-lg border border-primary-500/30 bg-primary-500/10 p-4 sm:flex-row sm:items-start">
-          <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-primary-700" />
+          <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-brand" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium">
               {document.status === "pending"

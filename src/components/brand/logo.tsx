@@ -63,7 +63,7 @@ export function Logo({
   markClassName,
   wordmarkClassName,
   showWordmark = true,
-  accentClassName = "text-primary-700",
+  accentClassName = "text-brand",
 }: LogoProps) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>

@@ -54,7 +54,7 @@ function ScoreRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-[#0f766e]/10"
+          className="text-brand/10"
         />
         <circle
           cx={size / 2}
@@ -68,7 +68,7 @@ function ScoreRing({
           strokeLinecap="round"
           className={cn(
             "transition-[stroke-dashoffset] duration-700 ease-out",
-            passed ? "text-[#0f766e]" : "text-[#f59e0b]",
+            passed ? "text-brand" : "text-[#f59e0b]",
           )}
         />
       </svg>
@@ -76,7 +76,7 @@ function ScoreRing({
         <span
           className={cn(
             "font-[family-name:var(--font-study-display)] text-3xl font-bold tracking-tight",
-            passed ? "text-[#0f766e]" : "text-[#f59e0b]",
+            passed ? "text-brand" : "text-[#f59e0b]",
           )}
         >
           {percent}%
@@ -124,15 +124,15 @@ function DifficultyBreakdown({
         return (
           <div
             key={label}
-            className="rounded-xl border border-[#0c2420]/08 bg-white/60 p-3 text-center sm:p-4"
+            className="rounded-xl border border-border bg-panel/70 p-3 text-center sm:p-4"
           >
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-[#5a7a73]">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
               {label}
             </p>
-            <p className="mt-1 font-[family-name:var(--font-study-display)] text-lg font-bold text-[#0c2420] sm:text-xl">
+            <p className="mt-1 font-[family-name:var(--font-study-display)] text-lg font-bold text-[var(--text-primary)] sm:text-xl">
               {correct}/{total}
             </p>
-            <div className="mx-auto mt-2 h-1.5 w-full max-w-[60px] overflow-hidden rounded-full bg-[#0f766e]/10">
+            <div className="mx-auto mt-2 h-1.5 w-full max-w-[60px] overflow-hidden rounded-full bg-primary-500/15">
               <div
                 className="h-full rounded-full bg-[#0f766e] transition-all duration-500"
                 style={{ width: `${pct}%` }}
@@ -170,9 +170,9 @@ function QuestionReview({
   return (
     <li
       className={cn(
-        "group overflow-hidden rounded-2xl border bg-white transition-shadow sm:rounded-xl",
+        "group overflow-hidden rounded-2xl border bg-panel transition-shadow sm:rounded-xl",
         correct
-          ? "border-[#0f766e]/20 hover:shadow-[0_4px_20px_rgba(15,118,110,0.08)]"
+          ? "border-brand/20 hover:shadow-[0_4px_20px_rgba(15,118,110,0.08)]"
           : "border-[#f87171]/25 hover:shadow-[0_4px_20px_rgba(248,113,113,0.08)]",
       )}
     >
@@ -181,12 +181,12 @@ function QuestionReview({
           <div
             className={cn(
               "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8",
-              correct ? "bg-[#0f766e]/10" : "bg-[#f87171]/10",
+              correct ? "bg-primary-500/15" : "bg-[#f87171]/10",
             )}
           >
             {correct ? (
               <Check
-                className="h-4 w-4 text-[#0f766e] sm:h-[18px] sm:w-[18px]"
+                className="h-4 w-4 text-brand sm:h-[18px] sm:w-[18px]"
                 strokeWidth={2.5}
               />
             ) : (
@@ -199,7 +199,7 @@ function QuestionReview({
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-md bg-[#0f766e]/8 px-2 py-0.5 text-[11px] font-semibold text-[#0f766e]">
+              <span className="inline-flex items-center rounded-md bg-primary-500/10 px-2 py-0.5 text-[11px] font-semibold text-brand">
                 Q{index + 1}
               </span>
               {question.difficulty?.trim() && (
@@ -207,14 +207,14 @@ function QuestionReview({
                   className={cn(
                     "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium",
                     question.difficulty.toLowerCase() === "easy" &&
-                      "bg-emerald-500/10 text-emerald-700",
+                      "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
                     question.difficulty.toLowerCase() === "medium" &&
-                      "bg-amber-500/10 text-amber-700",
+                      "bg-amber-500/10 text-amber-700 dark:text-amber-400",
                     question.difficulty.toLowerCase() === "hard" &&
-                      "bg-rose-500/10 text-rose-700",
+                      "bg-rose-500/10 text-rose-700 dark:text-rose-400",
                     !["easy", "medium", "hard"].includes(
                       question.difficulty.toLowerCase(),
-                    ) && "bg-slate-500/10 text-slate-600",
+                    ) && "bg-surface-tertiary text-muted",
                   )}
                 >
                   {question.difficulty.trim()}
@@ -222,7 +222,7 @@ function QuestionReview({
               )}
             </div>
 
-            <p className="mt-2 font-[family-name:var(--font-study-display)] text-[15px] font-semibold leading-snug tracking-tight text-[#0c2420] sm:text-base">
+            <p className="mt-2 font-[family-name:var(--font-study-display)] text-[15px] font-semibold leading-snug tracking-tight text-[var(--text-primary)] sm:text-base">
               {question.question}
             </p>
 
@@ -237,7 +237,7 @@ function QuestionReview({
                     key={opt + i}
                     className={cn(
                       "flex items-start gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors sm:text-[15px]",
-                      isCorrect && "bg-[#0f766e]/8",
+                      isCorrect && "bg-primary-500/10",
                       isWrong && "bg-[#f87171]/8",
                       !isCorrect && !isSelected && "bg-transparent",
                     )}
@@ -251,7 +251,7 @@ function QuestionReview({
                           "bg-[#dc2626] text-white",
                         !isCorrect &&
                           !isSelected &&
-                          "border border-[#0c2420]/15 text-[#5a7a73]",
+                          "border border-border text-muted",
                       )}
                     >
                       {isCorrect ? (
@@ -265,9 +265,9 @@ function QuestionReview({
                     <span
                       className={cn(
                         "flex-1 leading-snug",
-                        isCorrect && "font-medium text-[#0f766e]",
-                        isWrong && "text-[#b91c1c]",
-                        !isCorrect && !isSelected && "text-[#3d5a54]",
+                        isCorrect && "font-medium text-brand",
+                        isWrong && "text-error",
+                        !isCorrect && !isSelected && "text-[var(--text-secondary)]",
                       )}
                     >
                       {opt}
@@ -283,7 +283,7 @@ function QuestionReview({
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#0c2420]/08 bg-[#f7fffc] py-2 text-sm font-medium text-[#0f766e] transition-colors hover:bg-[#0f766e]/8"
+            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-panel-mint py-2 text-sm font-medium text-brand transition-colors hover:bg-primary-500/10"
           >
             {expanded ? "Hide details" : "Show explanation"}
             <ChevronDown
@@ -297,26 +297,26 @@ function QuestionReview({
       </div>
 
       {expanded && hasDetails && (
-        <div className="border-t border-[#0c2420]/08 bg-[#f7fffc]/60 px-4 py-4 sm:px-5">
+        <div className="border-t border-border bg-panel-mint/60 px-4 py-4 sm:px-5">
           {explanation && (
             <div>
-              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#0f766e]">
+              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-brand">
                 <BookOpen className="h-3.5 w-3.5" />
                 Explanation
               </div>
-              <p className="text-sm leading-relaxed text-[#3d5a54]">
+              <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                 {explanation}
               </p>
             </div>
           )}
 
           {hasReferences && (
-            <div className={cn(explanation && "mt-4 border-t border-[#0c2420]/08 pt-4")}>
-              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#0f766e]">
+            <div className={cn(explanation && "mt-4 border-t border-border pt-4")}>
+              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-brand">
                 <ExternalLink className="h-3.5 w-3.5" />
                 References
               </div>
-              <ul className="space-y-1.5 text-sm text-[#3d5a54]">
+              <ul className="space-y-1.5 text-sm text-[var(--text-secondary)]">
                 {[...internal, ...external].map((ref, i) => {
                   const url = /^https?:\/\//i.test(ref.trim())
                     ? ref.trim()
@@ -329,7 +329,7 @@ function QuestionReview({
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#0f766e] underline-offset-2 hover:underline"
+                          className="text-brand underline-offset-2 hover:underline"
                         >
                           {ref}
                         </a>
@@ -400,28 +400,28 @@ export function ExamResults({
       )}
     >
       {/* Score Summary Card */}
-      <div className="mb-6 overflow-hidden rounded-2xl border border-[#0c2420]/08 bg-gradient-to-b from-white to-[#f7fffc] p-5 shadow-sm sm:mb-8 sm:rounded-xl sm:p-6">
+      <div className="mb-6 overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-[var(--panel-soft)] to-[var(--panel-mint)] p-5 shadow-sm sm:mb-8 sm:rounded-xl sm:p-6">
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:gap-8">
           <ScoreRing percent={percent} />
 
           <div className="flex-1 text-center sm:text-left">
             <div className="flex items-center justify-center gap-2 sm:justify-start">
               {passed ? (
-                <Target className="h-5 w-5 text-[#0f766e]" />
+                <Target className="h-5 w-5 text-brand" />
               ) : (
                 <TrendingUp className="h-5 w-5 text-[#f59e0b]" />
               )}
-              <h1 className="font-[family-name:var(--font-study-display)] text-xl font-semibold tracking-tight text-[#0c2420] sm:text-2xl">
+              <h1 className="font-[family-name:var(--font-study-display)] text-xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-2xl">
                 {passed ? "Great work!" : "Keep practicing"}
               </h1>
             </div>
-            <p className="mt-1.5 text-sm text-[#5a7a73] sm:text-base">
+            <p className="mt-1.5 text-sm text-muted sm:text-base">
               You got{" "}
-              <span className="font-semibold text-[#0f766e]">
+              <span className="font-semibold text-brand">
                 {correctCount}
               </span>{" "}
               out of{" "}
-              <span className="font-semibold text-[#0c2420]">{total}</span>{" "}
+              <span className="font-semibold text-[var(--text-primary)]">{total}</span>{" "}
               questions correct
             </p>
 
@@ -430,7 +430,7 @@ export function ExamResults({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="rounded-full text-[#5a7a73]"
+                  className="rounded-full text-muted"
                 >
                   {backLabel}
                 </Button>
@@ -447,13 +447,13 @@ export function ExamResults({
         </div>
 
         {/* Difficulty breakdown */}
-        <div className="mt-5 border-t border-[#0c2420]/08 pt-5">
+        <div className="mt-5 border-t border-border pt-5">
           <DifficultyBreakdown questions={questions} answers={answers} />
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="mb-4 flex items-center gap-1 rounded-xl border border-[#0c2420]/08 bg-[#f7fffc] p-1 sm:mb-5">
+      <div className="mb-4 flex items-center gap-1 rounded-xl border border-border bg-panel-mint p-1 sm:mb-5">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -462,8 +462,8 @@ export function ExamResults({
             className={cn(
               "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               filter === tab.id
-                ? "bg-white text-[#0c2420] shadow-sm"
-                : "text-[#5a7a73] hover:text-[#0c2420]",
+                ? "bg-panel text-[var(--text-primary)] shadow-sm"
+                : "text-muted hover:text-[var(--text-primary)]",
             )}
           >
             {tab.label}
@@ -471,8 +471,8 @@ export function ExamResults({
               className={cn(
                 "rounded-md px-1.5 py-0.5 text-xs tabular-nums",
                 filter === tab.id
-                  ? "bg-[#0f766e]/10 text-[#0f766e]"
-                  : "bg-[#0c2420]/5 text-[#5a7a73]",
+                  ? "bg-primary-500/15 text-brand"
+                  : "bg-[#0c2420]/5 text-muted",
               )}
             >
               {tab.count}
@@ -483,8 +483,8 @@ export function ExamResults({
 
       {/* Question List */}
       {filteredQuestions.length === 0 ? (
-        <div className="rounded-xl border border-[#0c2420]/08 bg-white p-8 text-center">
-          <p className="text-sm text-[#5a7a73]">
+        <div className="rounded-xl border border-border bg-panel p-8 text-center">
+          <p className="text-sm text-muted">
             {filter === "incorrect"
               ? "No incorrect answers — great job!"
               : filter === "correct"

@@ -118,13 +118,13 @@ export default function NotificationsPage() {
               className={cn(
                 "relative min-h-11 px-4 text-sm font-medium capitalize text-[var(--text-secondary)] transition-colors",
                 "hover:text-[var(--text-primary)]",
-                filter === value && "text-primary-700",
+                filter === value && "text-brand",
               )}
               onClick={() => setFilter(value)}
             >
               {value}
               {value === "unread" && unreadCount > 0 && (
-                <span className="ml-2 rounded-full bg-primary-500/15 px-1.5 py-0.5 text-[11px] text-primary-700">
+                <span className="ml-2 rounded-full bg-primary-500/15 px-1.5 py-0.5 text-[11px] text-brand">
                   {unreadCount}
                 </span>
               )}

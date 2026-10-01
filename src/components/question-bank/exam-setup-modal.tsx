@@ -146,7 +146,7 @@ export function ExamSetupModal({
                   className={cn(
                     "min-h-11 rounded-full border text-sm font-medium transition-colors",
                     count === n
-                      ? "border-[#0f766e] bg-[#0f766e]/10 text-[#0f766e]"
+                      ? "border-brand bg-primary-500/15 text-brand"
                       : "border-border text-[var(--text-secondary)] active:bg-surface-tertiary",
                     starting && "opacity-50",
                   )}
@@ -179,7 +179,7 @@ export function ExamSetupModal({
             >
               <span
                 className={cn(
-                  "absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+                  "absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-panel shadow transition-transform",
                   timerEnabled && "translate-x-5",
                 )}
               />
@@ -207,7 +207,7 @@ export function ExamSetupModal({
                     className={cn(
                       "min-h-11 rounded-full border text-sm font-medium transition-colors",
                       timerMinutes === n
-                        ? "border-[#0f766e] bg-[#0f766e]/10 text-[#0f766e]"
+                        ? "border-brand bg-primary-500/15 text-brand"
                         : "border-border text-[var(--text-secondary)] active:bg-surface-tertiary",
                       starting && "opacity-50",
                     )}

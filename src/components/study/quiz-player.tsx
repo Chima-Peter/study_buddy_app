@@ -122,7 +122,7 @@ export function QuizPlayer({
 
       <div className="rounded-lg border border-border bg-surface-secondary p-4 sm:p-6">
         {difficulty && (
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-700">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
             {difficulty}
           </p>
         )}
@@ -145,7 +145,7 @@ export function QuizPlayer({
 
       {revealed && explanation && (
         <div className="rounded-lg border border-primary-700/15 bg-primary-500/10 px-4 py-3 text-sm leading-relaxed text-[var(--text-primary)]">
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-700">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
             Explanation
           </p>
           <p>{explanation}</p>

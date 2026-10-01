@@ -97,7 +97,7 @@ export function LandingPage() {
       className={cn(
         display.variable,
         sans.variable,
-        "landing min-h-dvh overflow-x-hidden font-[family-name:var(--font-landing-sans)] text-[#0c2420]",
+        "landing min-h-dvh overflow-x-hidden font-[family-name:var(--font-landing-sans)] text-[var(--text-primary)]",
       )}
     >
       <div className="landing-atmosphere" aria-hidden />
@@ -108,14 +108,14 @@ export function LandingPage() {
             <Logo
               className="gap-2.5"
               markClassName="h-8 w-8 rounded-lg sm:h-9 sm:w-9"
-              wordmarkClassName="font-[family-name:var(--font-landing-display)] text-xl font-bold tracking-tight text-[#0c2420] sm:text-2xl"
-              accentClassName="text-[#0f766e]"
+              wordmarkClassName="font-[family-name:var(--font-landing-display)] text-xl font-bold tracking-tight text-[var(--text-primary)] sm:text-2xl"
+              accentClassName="text-brand"
             />
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href={routes.login}
-              className="rounded-full px-4 py-2 text-sm font-semibold text-[#0c2420]/80 transition hover:text-[#0c2420]"
+              className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--text-primary)]/80 transition hover:text-[var(--text-primary)]"
             >
               Log in
             </Link>
@@ -135,17 +135,17 @@ export function LandingPage() {
         <section className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pb-20 pt-6 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28 lg:pt-10">
           <div>
             <motion.h1
-              className="font-[family-name:var(--font-landing-display)] text-5xl font-bold tracking-tight text-[#0c2420] sm:text-6xl lg:text-7xl lg:leading-[0.95]"
+              className="font-[family-name:var(--font-landing-display)] text-5xl font-bold tracking-tight text-[var(--text-primary)] sm:text-6xl lg:text-7xl lg:leading-[0.95]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
               Study
-              <span className="text-[#0f766e]">Buddy</span>
+              <span className="text-brand">Buddy</span>
             </motion.h1>
 
             <motion.p
-              className="mt-6 max-w-lg font-[family-name:var(--font-landing-display)] text-2xl font-medium leading-snug tracking-tight text-[#0c2420] sm:text-3xl"
+              className="mt-6 max-w-lg font-[family-name:var(--font-landing-display)] text-2xl font-medium leading-snug tracking-tight text-[var(--text-primary)] sm:text-3xl"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -154,7 +154,7 @@ export function LandingPage() {
             </motion.p>
 
             <motion.p
-              className="mt-4 max-w-md text-base leading-relaxed text-[#3d5c56] sm:text-lg"
+              className="mt-4 max-w-md text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.16 }}
@@ -178,7 +178,7 @@ export function LandingPage() {
               </Link>
               <Link
                 href={routes.login}
-                className="inline-flex items-center gap-2 rounded-full border border-[#0c2420]/15 bg-white/50 px-6 py-3.5 text-sm font-semibold text-[#0c2420] backdrop-blur-sm transition hover:border-[#0c2420]/30 hover:bg-white/80"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-panel/60 px-6 py-3.5 text-sm font-semibold text-[var(--text-primary)] backdrop-blur-sm transition hover:border-border-strong hover:bg-panel/90"
               >
                 Log in
               </Link>
@@ -189,7 +189,7 @@ export function LandingPage() {
         </section>
 
         {/* How it works */}
-        <section className="relative border-t border-[#0c2420]/08 bg-[#0c2420] text-[#e8f5f1]">
+        <section className="relative border-t border-border bg-[#0c2420] text-[#e8f5f1]">
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
             <motion.div
               className="max-w-2xl"
@@ -240,7 +240,7 @@ export function LandingPage() {
         </section>
 
         {/* Single product story */}
-        <section className="relative overflow-hidden bg-[#e8f3ef]">
+        <section className="relative overflow-hidden bg-primary-500/15">
           <div className="landing-mesh" aria-hidden />
           <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-2">
             <motion.div
@@ -249,20 +249,20 @@ export function LandingPage() {
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0f766e]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
                 Grounded answers
               </p>
-              <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[#0c2420] sm:text-4xl">
+              <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">
                 A tutor that studied your syllabus — not the whole internet
               </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-[#3d5c56] sm:text-lg">
+              <p className="mt-4 max-w-md text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
                 Every reply is anchored in your uploaded materials, so
                 explanations match how your lecturer taught it — page references
                 included.
               </p>
               <Link
                 href={routes.register}
-                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#0f766e] transition hover:text-[#134e4a]"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand transition hover:text-primary-800 dark:hover:text-primary-300"
               >
                 Try the tutor
                 <ArrowRight className="h-4 w-4" />
@@ -296,7 +296,7 @@ export function LandingPage() {
         </section>
 
         {/* Practice exams */}
-        <section className="relative bg-[#f7fbf9]">
+        <section className="relative bg-surface-tertiary">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-2">
             <motion.div
               className="order-2 lg:order-1"
@@ -305,11 +305,11 @@ export function LandingPage() {
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.6 }}
             >
-              <div className="overflow-hidden rounded-[2rem] border border-[#0c2420]/08 bg-white p-8 shadow-[0_24px_50px_-28px_rgba(12,36,32,0.35)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0f766e]">
+              <div className="overflow-hidden rounded-[2rem] border border-border bg-panel p-8 shadow-[0_24px_50px_-28px_rgba(12,36,32,0.35)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
                   Practice exam
                 </p>
-                <p className="mt-4 font-[family-name:var(--font-landing-display)] text-2xl font-semibold text-[#0c2420]">
+                <p className="mt-4 font-[family-name:var(--font-landing-display)] text-2xl font-semibold text-[var(--text-primary)]">
                   18 / 20 correct
                 </p>
                 <div className="mt-6 space-y-3">
@@ -319,11 +319,11 @@ export function LandingPage() {
                     { label: "Hard", pct: 75 },
                   ].map((row) => (
                     <div key={row.label}>
-                      <div className="mb-1.5 flex justify-between text-sm text-[#3d5c56]">
+                      <div className="mb-1.5 flex justify-between text-sm text-[var(--text-secondary)]">
                         <span>{row.label}</span>
                         <span className="tabular-nums">{row.pct}%</span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-[#e8f3ef]">
+                      <div className="h-2 overflow-hidden rounded-full bg-primary-500/15">
                         <motion.div
                           className="h-full rounded-full bg-[#0f766e]"
                           initial={{ width: 0 }}
@@ -345,20 +345,20 @@ export function LandingPage() {
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0f766e]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
                 New · Question bank
               </p>
-              <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[#0c2420] sm:text-4xl">
+              <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">
                 Timed exams from your own notes
               </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-[#3d5c56] sm:text-lg">
+              <p className="mt-4 max-w-md text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
                 Generate a full MCQ bank, choose how many questions and whether
                 to race the clock, then review explanations with a difficulty
                 breakdown.
               </p>
               <Link
                 href={routes.register}
-                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#0f766e] transition hover:text-[#134e4a]"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand transition hover:text-primary-800 dark:hover:text-primary-300"
               >
                 Start a practice exam
                 <ArrowRight className="h-4 w-4" />
@@ -368,7 +368,7 @@ export function LandingPage() {
         </section>
 
         {/* Testimonials */}
-        <section className="border-t border-[#0c2420]/08 bg-white">
+        <section className="border-t border-border bg-panel">
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
             <motion.div
               className="max-w-xl"
@@ -377,10 +377,10 @@ export function LandingPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0f766e]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
                 What students say
               </p>
-              <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[#0c2420] sm:text-4xl">
+              <h2 className="mt-3 font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">
                 Built for how real people revise
               </h2>
             </motion.div>
@@ -389,20 +389,20 @@ export function LandingPage() {
               {testimonials.map((t, i) => (
                 <motion.blockquote
                   key={t.name}
-                  className="border-t-2 border-[#0f766e]/30 pt-6"
+                  className="border-t-2 border-brand/30 pt-6"
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.08 }}
                 >
-                  <p className="text-[15px] leading-relaxed text-[#3d5c56]">
+                  <p className="text-[15px] leading-relaxed text-[var(--text-secondary)]">
                     “{t.quote}”
                   </p>
                   <footer className="mt-5">
-                    <cite className="not-italic font-semibold text-[#0c2420]">
+                    <cite className="not-italic font-semibold text-[var(--text-primary)]">
                       {t.name}
                     </cite>
-                    <p className="text-sm text-[#5a7a73]">{t.place}</p>
+                    <p className="text-sm text-muted">{t.place}</p>
                   </footer>
                 </motion.blockquote>
               ))}
@@ -411,12 +411,12 @@ export function LandingPage() {
         </section>
 
         {/* FAQ */}
-        <section className="border-t border-[#0c2420]/08 bg-[#f7fbf9]">
+        <section className="border-t border-border bg-surface-tertiary">
           <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8 sm:py-24">
-            <h2 className="text-center font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[#0c2420] sm:text-4xl">
+            <h2 className="text-center font-[family-name:var(--font-landing-display)] text-3xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">
               Frequently asked questions
             </h2>
-            <p className="mt-3 text-center text-[#5a7a73]">
+            <p className="mt-3 text-center text-muted">
               Everything you need to know about StudyBuddy.
             </p>
 
@@ -431,10 +431,10 @@ export function LandingPage() {
                       onClick={() => setOpenFaq(open ? null : i)}
                       aria-expanded={open}
                     >
-                      <span className="font-semibold text-[#0c2420]">{faq.q}</span>
+                      <span className="font-semibold text-[var(--text-primary)]">{faq.q}</span>
                       <span
                         className={cn(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e8f3ef] text-lg text-[#0f766e] transition",
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-500/15 text-lg text-brand transition",
                           open && "rotate-45 bg-[#0c2420] text-[#e8f5f1]",
                         )}
                       >
@@ -448,7 +448,7 @@ export function LandingPage() {
                       )}
                     >
                       <div className="overflow-hidden">
-                        <p className="pb-5 pr-12 text-sm leading-relaxed text-[#3d5c56]">
+                        <p className="pb-5 pr-12 text-sm leading-relaxed text-[var(--text-secondary)]">
                           {faq.a}
                         </p>
                       </div>
@@ -516,7 +516,7 @@ export function LandingPage() {
               Register
             </Link>
           </div>
-          <p className="text-xs text-[#5a7a73]">
+          <p className="text-xs text-muted">
             © {new Date().getFullYear()} StudyBuddy. All rights reserved.
           </p>
         </div>
