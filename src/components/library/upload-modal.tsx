@@ -20,7 +20,7 @@ export function UploadModal({
       open={open}
       onOpenChange={onOpenChange}
       title={initialDocument ? "Upload document again" : "Upload document"}
-      description="Files are uploaded securely, then processed for chat and study cards"
+      description="Upload a PDF securely, then we process it for chat and study cards"
       className="sm:w-[min(100%-2rem,36rem)]"
     >
       <UploadWizard

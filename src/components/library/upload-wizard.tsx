@@ -46,7 +46,7 @@ export function UploadWizard({
 
   const onSubmit = handleSubmit(async (values) => {
     if (!file) {
-      setFileError("Please select a file");
+      setFileError("Please select a PDF");
       return;
     }
     setFileError(null);
@@ -95,7 +95,7 @@ export function UploadWizard({
         error={fileError}
         onFile={(f) => {
           setFile(f);
-          setFileError(f ? null : "Please select a valid file");
+          setFileError(null);
         }}
       />
       <div className={cn("flex gap-2", embedded ? "justify-end" : "")}>

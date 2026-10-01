@@ -12,7 +12,7 @@ export default function UploadPage() {
     <div className="space-y-6">
       <PageHeader
         title="Upload document"
-        description="Files are uploaded securely, then processed for chat and study cards"
+        description="Upload a PDF securely, then we process it for chat and study cards"
         showBack
         backHref={routes.library}
       />

@@ -30,7 +30,7 @@ const steps = [
   {
     icon: Upload,
     title: "Upload your materials",
-    body: "Drop lecture PDFs, notes, or past papers. StudyBuddy ingests them into a searchable knowledge base.",
+    body: "Drop lecture PDFs. StudyBuddy ingests them into a searchable knowledge base.",
   },
   {
     icon: MessageSquareText,

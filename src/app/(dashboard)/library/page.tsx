@@ -68,7 +68,7 @@ export default function LibraryPage() {
     <div className="space-y-6">
       <PageHeader
         title="My Library"
-        description="Upload and manage your study materials"
+        description="Upload and manage your study PDFs"
         actions={
           <Button className="w-full sm:w-auto" onClick={() => openUpload()}>
             <Plus className="h-4 w-4" />

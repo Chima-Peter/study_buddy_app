@@ -26,7 +26,7 @@ export function DocumentList({
       <div className="rounded-lg border border-dashed border-border p-12 text-center">
         <p className="text-lg font-medium">No documents yet</p>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">
-          Upload lecture materials to get started
+          Upload a PDF to get started
         </p>
       </div>
     );
