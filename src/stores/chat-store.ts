@@ -52,6 +52,12 @@ interface ChatState {
     continuationKey?: string,
     requestId?: string,
   ) => void;
+  /** End the in-flight assistant turn after an error; keep the WS open. */
+  failStream: (
+    message: string,
+    conversationId?: string,
+    requestId?: string,
+  ) => void;
   clearStreaming: () => void;
   setPendingRouteConversationId: (id: string | null) => void;
   setSelectedDocumentId: (id: string | null) => void;
@@ -239,6 +245,34 @@ export const useChatStore = create<ChatState>((set) => ({
           ? (conversationId ?? state.streamingConversationId)
           : null,
         activeConversationId: conversationId ?? state.activeConversationId,
+      };
+    }),
+  failStream: (message, conversationId, requestId) =>
+    set((state) => {
+      const messages = [...state.messages];
+      const assistantIdx = findStreamingAssistantIndex(messages, requestId);
+      const note = message.trim() || "Something went wrong. Please try again.";
+
+      if (assistantIdx >= 0) {
+        const assistant = messages[assistantIdx];
+        messages[assistantIdx] = {
+          ...assistant,
+          content: assistant.content.trim()
+            ? `${assistant.content.trim()}\n\n⚠️ ${note}`
+            : `⚠️ ${note}`,
+          streaming: false,
+        };
+      }
+
+      const stillStreaming = hasStreamingMessages(messages);
+      return {
+        messages,
+        error: note,
+        isStreaming: stillStreaming,
+        streamingContent: stillStreaming ? state.streamingContent : "",
+        streamingConversationId: stillStreaming
+          ? (conversationId ?? state.streamingConversationId)
+          : null,
       };
     }),
   clearStreaming: () =>

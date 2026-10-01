@@ -144,14 +144,22 @@ function handleChatFrame(frame: WsFrame) {
     }
     case "chat.error":
     case "error": {
-      if (!frameTargetsActiveChat(conversationId)) {
-        if (conversationId && conversationId === store.streamingConversationId) {
-          store.finalizeStream(conversationId, undefined, undefined, requestId);
-        }
-        return;
+      // Application error for this turn only — do not close the WebSocket.
+      const message = frame.message ?? "Something went wrong. Please try again.";
+      const targetConversation =
+        conversationId ?? store.streamingConversationId ?? undefined;
+
+      if (
+        frameTargetsActiveChat(conversationId) ||
+        (!conversationId && store.streamingConversationId)
+      ) {
+        store.failStream(message, targetConversation, requestId);
+      } else if (
+        targetConversation &&
+        targetConversation === store.streamingConversationId
+      ) {
+        store.failStream(message, targetConversation, requestId);
       }
-      store.setError(frame.message ?? "Chat error");
-      store.finalizeStream(conversationId, undefined, undefined, requestId);
       break;
     }
     default:
