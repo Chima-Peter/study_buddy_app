@@ -2,37 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ChatLayout } from "@/components/chat/chat-layout";
 import { ChatWindow } from "@/components/chat/chat-window";
-import { getConversation, listConversations } from "@/lib/api/conversations";
+import { getConversation } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
 import { PageLoader } from "@/components/ui/spinner";
-import { useChatSocket } from "@/lib/ws/use-chat-socket";
 
 export default function ConversationPage() {
   const params = useParams<{ conversationId: string }>();
-  const {
-    setConversations,
-    setMessages,
-    setActiveConversationId,
-    nextCursor,
-    hasMore,
-  } = useChatStore();
+  const { setMessages, setActiveConversationId, upsertConversation } =
+    useChatStore();
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const [list, detail] = await Promise.all([
-          listConversations(),
-          getConversation(params.conversationId),
-        ]);
+        const detail = await getConversation(params.conversationId);
         if (cancelled) return;
-        setConversations(list.items, list.next_cursor, list.has_more);
         setActiveConversationId(detail.id);
+        upsertConversation({
+          id: detail.id,
+          title: detail.title?.trim() || "New Conversation",
+          status: "active",
+        });
         const messages = detail.chats.flatMap((c) => [
           {
             id: `${c.id}-q`,
@@ -57,34 +50,18 @@ export default function ConversationPage() {
     };
   }, [
     params.conversationId,
-    setConversations,
     setMessages,
     setActiveConversationId,
+    upsertConversation,
   ]);
 
-  // Keep the single shared socket alive for this conversation view
-  useChatSocket();
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <PageLoader label="Loading conversation" />
+      </div>
+    );
+  }
 
-  const loadMore = async () => {
-    if (!nextCursor) return;
-    setLoadingMore(true);
-    try {
-      const data = await listConversations(nextCursor);
-      setConversations(data.items, data.next_cursor, data.has_more, true);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
-  return (
-    <ChatLayout hasMore={hasMore} loadingMore={loadingMore} onLoadMore={loadMore}>
-      {loading ? (
-        <div className="flex h-full items-center justify-center">
-          <PageLoader label="Loading conversation" />
-        </div>
-      ) : (
-        <ChatWindow conversationId={params.conversationId} />
-      )}
-    </ChatLayout>
-  );
+  return <ChatWindow conversationId={params.conversationId} />;
 }

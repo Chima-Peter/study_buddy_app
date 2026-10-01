@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowDown } from "lucide-react";
 import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
 import { MessageQueue } from "./message-queue";
@@ -14,6 +15,8 @@ import { ApiError } from "@/lib/api/client";
 import { useToast } from "@/components/ui/toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useChatStore } from "@/stores/chat-store";
+
+const NEAR_BOTTOM_PX = 80;
 
 function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
   const prompts = [
@@ -72,7 +75,6 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     setPendingRouteConversationId,
     upsertConversation,
     enqueueMessage,
-    shiftQueuedMessage,
   } = useChatStore();
   const { send } = useChatSocket();
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -82,6 +84,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   const [prefill, setPrefill] = useState<string | null>(null);
   const [prefillKey, setPrefillKey] = useState(0);
   const [branchingId, setBranchingId] = useState<string | null>(null);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   const viewingId = conversationId ?? activeConversationId;
   const streamingHere =
@@ -117,17 +120,51 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   };
 
   useEffect(() => {
+    // Jump to the latest message when opening / switching conversations.
+    const frame = requestAnimationFrame(() => {
+      const el = scrollContainerRef.current;
+      if (!el) return;
+      el.scrollTop = el.scrollHeight;
+      setShowScrollToBottom(false);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [viewingId]);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    const updateScrollAffordance = () => {
+      const distanceFromBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight;
+      setShowScrollToBottom(distanceFromBottom > NEAR_BOTTOM_PX);
+    };
+
+    updateScrollAffordance();
+    el.addEventListener("scroll", updateScrollAffordance, { passive: true });
+    return () => el.removeEventListener("scroll", updateScrollAffordance);
+  }, [viewingId, messages.length]);
+
+  useEffect(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
     const distanceFromBottom =
       el.scrollHeight - el.scrollTop - el.clientHeight;
     // Only stick to bottom if the user hasn't scrolled up.
-    if (distanceFromBottom < 80) {
+    if (distanceFromBottom < NEAR_BOTTOM_PX) {
       bottomRef.current?.scrollIntoView({
         behavior: streamingHere ? "auto" : "smooth",
       });
+      setShowScrollToBottom(false);
     }
   }, [messages, streamingHere]);
+
+  const scrollToBottom = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    setShowScrollToBottom(false);
+  };
 
   useEffect(() => {
     if (!pendingRouteConversationId) return;
@@ -146,17 +183,6 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     router,
     setPendingRouteConversationId,
   ]);
-
-  // After chat.done (or stream failure), send the next queued follow-up.
-  useEffect(() => {
-    if (streamingHere || branching || !viewingId) return;
-    // Guard against Strict Mode double-invoke / stale closures.
-    if (useChatStore.getState().isStreaming) return;
-    const next = shiftQueuedMessage(viewingId);
-    if (!next) return;
-    dispatchSend(next.content, viewingId, next.documentId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- flush only when streaming ends
-  }, [streamingHere, branching, viewingId]);
 
   const requireDocument = () => {
     if (hasDocument) return true;
@@ -178,18 +204,51 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
 
     const id = conversationId ?? activeConversationId ?? undefined;
 
-    // While a turn is in flight, hold follow-ups until chat.done.
+    // While a turn is in flight, enqueue on the server (Redis) and locally.
     if (streamingHere && id) {
+      const requestId = createChatRequestId();
+      const documentId = selectedDocumentId!;
       enqueueMessage({
+        id: requestId,
         content: query,
         conversationId: id,
-        documentId: selectedDocumentId!,
+        documentId,
+      });
+      send({
+        type: "chat",
+        request_id: requestId,
+        query,
+        conversation_id: id,
+        document_id: documentId,
       });
       return true;
     }
 
     dispatchSend(query, id, selectedDocumentId!);
     return true;
+  };
+
+  const onQueueEdit = (queuedId: string, content: string) => {
+    const item = messageQueue.find((q) => q.id === queuedId);
+    if (!item || !viewingId) return;
+    // Wait for queue.edit.success to update local state.
+    send({
+      type: "queue.edit",
+      request_id: queuedId,
+      conversation_id: viewingId,
+      query: content,
+      document_id: item.documentId,
+    });
+  };
+
+  const onQueueDelete = (queuedId: string) => {
+    if (!viewingId) return;
+    // Wait for queue.delete.success to remove from local state.
+    send({
+      type: "queue.delete",
+      request_id: queuedId,
+      conversation_id: viewingId,
+    });
   };
 
   const onSuggest = (query: string) => {
@@ -348,42 +407,59 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
           </p>
         </div>
       )}
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto overscroll-contain"
-      >
-        {messages.length === 0 ? (
-          <EmptyState onSuggest={onSuggest} />
-        ) : (
-          <div className="mx-auto max-w-3xl space-y-6 px-4 py-4 sm:px-6 sm:py-6">
-            {messages.map((m) => (
-              <MessageBubble
-                key={m.id}
-                message={m}
-                onRetry={onRetry}
-                onEdit={onEdit}
-                onBranch={onBranch}
-                actionsDisabled={streamingHere || branching}
-                branching={branchingId === m.id}
-              />
-            ))}
-            {error && (
-              <div
-                className="rounded-2xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error"
-                role="alert"
-              >
-                {error}
-              </div>
-            )}
-            <div ref={bottomRef} />
-          </div>
+      <div className="relative min-h-0 flex-1">
+        <div
+          ref={scrollContainerRef}
+          className="h-full overflow-y-auto overscroll-contain"
+        >
+          {messages.length === 0 ? (
+            <EmptyState onSuggest={onSuggest} />
+          ) : (
+            <div className="mx-auto max-w-3xl space-y-6 px-4 py-4 sm:px-6 sm:py-6">
+              {messages.map((m) => (
+                <MessageBubble
+                  key={m.id}
+                  message={m}
+                  onRetry={onRetry}
+                  onEdit={onEdit}
+                  onBranch={onBranch}
+                  actionsDisabled={streamingHere || branching}
+                  branching={branchingId === m.id}
+                />
+              ))}
+              {error && (
+                <div
+                  className="rounded-2xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error"
+                  role="alert"
+                >
+                  {error}
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+          )}
+        </div>
+
+        {showScrollToBottom && messages.length > 0 && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            aria-label="Scroll to latest message"
+            className="absolute bottom-3 left-1/2 z-10 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border border-black/[0.08] bg-panel text-[var(--text-primary)] shadow-md dark:border-white/10 dark:bg-surface-elevated"
+          >
+            <ArrowDown className="h-4 w-4" strokeWidth={2} />
+          </button>
         )}
       </div>
 
       <div className="shrink-0 bg-gradient-to-t from-white via-white to-transparent px-4 pb-4 pt-2 dark:from-surface-primary dark:via-surface-primary sm:px-6 sm:pb-5">
         <div className="mx-auto max-w-3xl space-y-2.5">
           {conversationQueue.length > 0 && (
-            <MessageQueue items={conversationQueue} />
+            <MessageQueue
+              items={conversationQueue}
+              onEdit={onQueueEdit}
+              onDelete={onQueueDelete}
+            />
           )}
           <DocumentPicker
             selectedId={selectedDocumentId}

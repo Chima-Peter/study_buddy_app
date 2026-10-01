@@ -75,6 +75,14 @@ interface ChatState {
   enqueueMessage: (item: Omit<QueuedMessage, "id"> & { id?: string }) => string;
   /** Take the next queued item for a conversation, if any. */
   shiftQueuedMessage: (conversationId: string) => QueuedMessage | null;
+  updateQueuedMessage: (
+    id: string,
+    content: string,
+    documentId?: string,
+  ) => void;
+  removeQueuedMessage: (id: string) => QueuedMessage | null;
+  /** Promote a server-started queued turn into the transcript. */
+  promoteQueuedMessage: (requestId: string) => QueuedMessage | null;
   clearMessageQueue: (conversationId?: string) => void;
   resetActive: () => void;
 }
@@ -334,6 +342,42 @@ export const useChatStore = create<ChatState>((set) => ({
       };
     });
     return shifted;
+  },
+  updateQueuedMessage: (id, content, documentId) =>
+    set((state) => ({
+      messageQueue: state.messageQueue.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              content,
+              ...(documentId !== undefined ? { documentId } : {}),
+            }
+          : item,
+      ),
+    })),
+  removeQueuedMessage: (id) => {
+    let removed: QueuedMessage | null = null;
+    set((state) => {
+      const idx = state.messageQueue.findIndex((item) => item.id === id);
+      if (idx < 0) return state;
+      removed = state.messageQueue[idx];
+      return {
+        messageQueue: state.messageQueue.filter((_, i) => i !== idx),
+      };
+    });
+    return removed;
+  },
+  promoteQueuedMessage: (requestId) => {
+    let promoted: QueuedMessage | null = null;
+    set((state) => {
+      const idx = state.messageQueue.findIndex((item) => item.id === requestId);
+      if (idx < 0) return state;
+      promoted = state.messageQueue[idx];
+      return {
+        messageQueue: state.messageQueue.filter((_, i) => i !== idx),
+      };
+    });
+    return promoted;
   },
   clearMessageQueue: (conversationId) =>
     set((state) => ({

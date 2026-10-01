@@ -32,6 +32,27 @@ function frameTargetsActiveChat(conversationId: string | undefined): boolean {
   return true;
 }
 
+/** When Redis completion starts a queued turn, move it into the transcript. */
+function promoteQueuedTurn(
+  conversationId: string | undefined,
+  requestId: string | undefined,
+) {
+  if (!requestId) return;
+  const queued = useChatStore.getState().promoteQueuedMessage(requestId);
+  if (!queued) return;
+
+  const store = useChatStore.getState();
+  const targetId = conversationId ?? queued.conversationId;
+  if (!frameTargetsActiveChat(targetId)) return;
+
+  const hasUser = store.messages.some(
+    (m) => m.role === "user" && m.requestId === requestId,
+  );
+  if (!hasUser) {
+    store.appendUserMessage(queued.content, requestId);
+  }
+}
+
 function ensureAssistantForRequest(
   conversationId: string | undefined,
   requestId: string | undefined,
@@ -79,6 +100,8 @@ function handleChatFrame(frame: WsFrame) {
       break;
     }
     case "chat.response": {
+      promoteQueuedTurn(conversationId, requestId);
+
       if (!frameTargetsActiveChat(conversationId)) return;
 
       if (conversationId && !store.streamingConversationId) {
@@ -93,6 +116,8 @@ function handleChatFrame(frame: WsFrame) {
       break;
     }
     case "chat.done": {
+      promoteQueuedTurn(conversationId, requestId);
+
       if (conversationId) {
         store.upsertConversation({
           id: conversationId,
@@ -144,6 +169,8 @@ function handleChatFrame(frame: WsFrame) {
     }
     case "chat.error":
     case "error": {
+      promoteQueuedTurn(conversationId, requestId);
+
       // Application error for this turn only — do not close the WebSocket.
       // Prefer `response` (agent) then `message` (service/router).
       const message =
@@ -164,6 +191,36 @@ function handleChatFrame(frame: WsFrame) {
       ) {
         store.failStream(message, targetConversation, requestId);
       }
+      break;
+    }
+    case "queue.delete.success": {
+      // Server removed the Redis item — drop the local mirror.
+      if (requestId) store.removeQueuedMessage(requestId);
+      break;
+    }
+    case "queue.delete.error": {
+      // Leave the item in the local queue so the user can retry, or so
+      // promoteQueuedTurn can pick it up if it already started processing.
+      store.setError(
+        frame.message?.trim() || "Could not remove queued message",
+      );
+      break;
+    }
+    case "queue.edit.success": {
+      // Apply the full server-confirmed payload.
+      if (requestId && typeof frame.query === "string") {
+        store.updateQueuedMessage(
+          requestId,
+          frame.query,
+          frame.document_id,
+        );
+      }
+      break;
+    }
+    case "queue.edit.error": {
+      store.setError(
+        frame.message?.trim() || "Could not update queued message",
+      );
       break;
     }
     default:

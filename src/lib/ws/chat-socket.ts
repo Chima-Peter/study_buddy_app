@@ -4,15 +4,28 @@ import { useSessionStore } from "@/stores/session-store";
 
 type FrameHandler = (frame: WsFrame) => void;
 
-export type ChatSendPayload = {
-  type: "chat" | "edit" | "retry";
-  /** Client-generated id; required by the server for queue/lock correlation. */
-  request_id: string;
-  query: string;
-  conversation_id?: string;
-  document_id?: string;
-  continuation_key?: string;
-};
+export type ChatSendPayload =
+  | {
+      type: "chat" | "edit" | "retry";
+      /** Client-generated id; required by the server for queue/lock correlation. */
+      request_id: string;
+      query: string;
+      conversation_id?: string;
+      document_id?: string;
+      continuation_key?: string;
+    }
+  | {
+      type: "queue.delete";
+      request_id: string;
+      conversation_id: string;
+    }
+  | {
+      type: "queue.edit";
+      request_id: string;
+      conversation_id: string;
+      query: string;
+      document_id: string;
+    };
 
 export function createChatRequestId() {
   return crypto.randomUUID();

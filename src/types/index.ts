@@ -172,6 +172,10 @@ export type WsFrameType =
   | "chat.title"
   | "chat.done"
   | "chat.error"
+  | "queue.delete.success"
+  | "queue.delete.error"
+  | "queue.edit.success"
+  | "queue.edit.error"
   | "error";
 
 export interface WsFrame {
@@ -183,4 +187,6 @@ export interface WsFrame {
   continuation_key?: string;
   request_id?: string;
   token?: string;
+  query?: string;
+  document_id?: string;
 }

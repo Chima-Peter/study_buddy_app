@@ -28,11 +28,18 @@ export function ChatLayout({
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  // On mobile, close the drawer after navigating to a conversation.
   useEffect(() => {
     if (window.matchMedia("(max-width: 1023px)").matches) {
       setOpen(false);
     }
   }, [pathname]);
+
+  const collapseIfMobile = () => {
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      setOpen(false);
+    }
+  };
 
   return (
     <div className="relative -m-4 flex h-[calc(100%+2rem)] overflow-hidden lg:-m-6 lg:h-[calc(100%+3rem)]">
@@ -64,7 +71,7 @@ export function ChatLayout({
             hasMore={hasMore}
             loadingMore={loadingMore}
             onLoadMore={onLoadMore}
-            onCollapse={() => setOpen(false)}
+            onCollapse={collapseIfMobile}
           />
         </div>
       </aside>
