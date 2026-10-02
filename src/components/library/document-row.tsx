@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import type { Document } from "@/types";
 import { StatusBadge } from "./status-badge";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
@@ -100,17 +99,9 @@ export function DocumentRow({
                 {document.name}
               </h3>
               <StatusBadge status={document.status} />
-              <Badge variant="outline" className="font-normal">
-                {document.category}
-              </Badge>
             </div>
             {failureMessage && (
               <p className="line-clamp-1 text-xs text-error">{failureMessage}</p>
-            )}
-            {!failed && document.description && (
-              <p className="line-clamp-1 text-xs text-[var(--text-secondary)]">
-                {document.description}
-              </p>
             )}
             <p className="text-xs text-muted">{formatDate(document.created_at)}</p>
           </div>

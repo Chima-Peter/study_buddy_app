@@ -48,8 +48,6 @@ export const profileSchema = z.object({
 
 export const uploadSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
-  category: z.string().min(3, "Category must be at least 3 characters"),
-  description: z.string().optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

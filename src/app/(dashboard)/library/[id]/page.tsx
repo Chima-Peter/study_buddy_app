@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ExternalLink, FileText, FolderOpen, Layers, Pencil } from "lucide-react";
+import { ExternalLink, FileText, Layers, Pencil } from "lucide-react";
 import {
   deleteDocument,
   getDocument,
@@ -231,27 +231,12 @@ export default function DocumentDetailPage() {
                 />
               ) : (
                 <div className="space-y-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted">
-                      <FolderOpen className="h-3.5 w-3.5" />
-                      Category
-                    </span>
-                    <Badge variant="primary" className="capitalize">
-                      {doc.category}
-                    </Badge>
+                  <div>
+                    <p className="text-xs font-medium text-muted">Name</p>
+                    <p className="mt-1 text-sm text-[var(--text-primary)]">
+                      {doc.name}
+                    </p>
                   </div>
-
-                  {doc.description && (
-                    <div className="rounded-lg border border-primary-700/10 bg-primary-700/[0.03] px-4 py-3">
-                      <p className="text-xs font-medium text-muted">
-                        Description
-                      </p>
-                      <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
-                        {doc.description}
-                      </p>
-                    </div>
-                  )}
-
                   {sectionItems.length > 0 && (
                     <div>
                       <div className="mb-2.5 flex items-center gap-2">

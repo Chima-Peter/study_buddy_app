@@ -15,7 +15,6 @@ import type { Document } from "@/types";
 export default function LibraryPage() {
   const { items, hasMore, nextCursor, setPage } = useDocumentsStore();
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -34,7 +33,6 @@ export default function LibraryPage() {
       try {
         const data = await listDocuments({
           name: name || undefined,
-          category: category || undefined,
           status: status || undefined,
         });
         if (!cancelled) setPage(data.items, data.next_cursor, data.has_more);
@@ -46,7 +44,7 @@ export default function LibraryPage() {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [name, category, status, setPage]);
+  }, [name, status, setPage]);
 
   const loadMore = async () => {
     if (!nextCursor) return;
@@ -55,7 +53,6 @@ export default function LibraryPage() {
       const data = await listDocuments({
         cursor: nextCursor,
         name: name || undefined,
-        category: category || undefined,
         status: status || undefined,
       });
       setPage(data.items, data.next_cursor, data.has_more, true);
@@ -79,10 +76,8 @@ export default function LibraryPage() {
 
       <DocumentFilters
         name={name}
-        category={category}
         status={status}
         onNameChange={setName}
-        onCategoryChange={setCategory}
         onStatusChange={setStatus}
       />
 

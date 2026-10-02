@@ -6,7 +6,6 @@ export interface DocumentFilters {
   limit?: number;
   cursor?: string | null;
   status?: string;
-  category?: string;
   name?: string;
 }
 
@@ -27,7 +26,6 @@ export function listDocuments(filters: DocumentFilters = {}) {
       limit: filters.limit ?? DEFAULT_PAGE_LIMIT,
       cursor: filters.cursor,
       status: filters.status,
-      category: filters.category,
       name: filters.name,
     })}`,
   );
@@ -39,8 +37,6 @@ export function getDocument(id: string) {
 
 export function createUpload(body: {
   name: string;
-  category: string;
-  description?: string;
   file_name: string;
 }) {
   return api.post<UploadResponse>("/documents/upload", body);
@@ -73,7 +69,7 @@ export function cancelIngest(id: string) {
 
 export function updateDocument(
   id: string,
-  body: Partial<Pick<Document, "name" | "description" | "category">>,
+  body: Partial<Pick<Document, "name">>,
 ) {
   return api.patch<Document>(`/documents/${id}`, body);
 }

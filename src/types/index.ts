@@ -39,8 +39,6 @@ export type DocumentStatus =
 export interface Document {
   id: string;
   name: string;
-  description?: string | null;
-  category: string;
   status: DocumentStatus;
   comment?: string | null;
   hash?: string | null;

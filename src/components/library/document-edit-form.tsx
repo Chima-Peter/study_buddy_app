@@ -13,8 +13,6 @@ import { ApiError } from "@/lib/api/client";
 
 const editSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
-  category: z.string().min(3, "Category must be at least 3 characters"),
-  description: z.string().optional(),
 });
 
 type EditInput = z.infer<typeof editSchema>;
@@ -38,16 +36,12 @@ export function DocumentEditForm({
     resolver: zodResolver(editSchema),
     defaultValues: {
       name: document.name,
-      category: document.category,
-      description: document.description ?? "",
     },
   });
 
   useEffect(() => {
     reset({
       name: document.name,
-      category: document.category,
-      description: document.description ?? "",
     });
   }, [document, reset]);
 
@@ -55,8 +49,6 @@ export function DocumentEditForm({
     try {
       const updated = await updateDocument(document.id, {
         name: values.name,
-        category: values.category,
-        description: values.description || undefined,
       });
       onSaved(updated);
       toast({ title: "Document updated", variant: "success" });
@@ -72,12 +64,6 @@ export function DocumentEditForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <Input label="Name" error={errors.name?.message} {...register("name")} />
-      <Input
-        label="Category"
-        error={errors.category?.message}
-        {...register("category")}
-      />
-      <Input label="Description (optional)" {...register("description")} />
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={onCancel}>
           Cancel

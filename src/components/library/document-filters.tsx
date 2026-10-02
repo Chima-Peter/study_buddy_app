@@ -13,17 +13,13 @@ const statuses: { value: string; label: string }[] = [
 
 export function DocumentFilters({
   name,
-  category,
   status,
   onNameChange,
-  onCategoryChange,
   onStatusChange,
 }: {
   name: string;
-  category: string;
   status: string;
   onNameChange: (v: string) => void;
-  onCategoryChange: (v: string) => void;
   onStatusChange: (v: string) => void;
 }) {
   return (
@@ -34,14 +30,6 @@ export function DocumentFilters({
           placeholder="Search documents..."
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-        />
-      </div>
-      <div className="w-full sm:max-w-[160px]">
-        <Input
-          label="Category"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => onCategoryChange(e.target.value)}
         />
       </div>
       <div className="w-full space-y-1.5 sm:max-w-[160px]">

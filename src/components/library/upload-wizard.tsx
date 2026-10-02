@@ -23,7 +23,7 @@ export function UploadWizard({
   onSuccess?: (doc: Document) => void;
   onCancel?: () => void;
   embedded?: boolean;
-  initialDocument?: Pick<Document, "name" | "category" | "description">;
+  initialDocument?: Pick<Document, "name">;
 }) {
   const upsert = useDocumentsStore((s) => s.upsert);
   const { toast } = useToast();
@@ -39,8 +39,6 @@ export function UploadWizard({
     resolver: zodResolver(uploadSchema),
     defaultValues: {
       name: initialDocument?.name ?? "",
-      category: initialDocument?.category ?? "",
-      description: initialDocument?.description ?? "",
     },
   });
 
@@ -54,8 +52,6 @@ export function UploadWizard({
       setStep("uploading");
       const data = await createUpload({
         name: values.name,
-        category: values.category,
-        description: values.description,
         file_name: file.name,
       });
       await putFileToSignedUrl(data.upload_url, file);
@@ -84,12 +80,6 @@ export function UploadWizard({
       className={cn("space-y-5", !embedded && "mx-auto max-w-xl")}
     >
       <Input label="Name" error={errors.name?.message} {...register("name")} />
-      <Input
-        label="Category"
-        error={errors.category?.message}
-        {...register("category")}
-      />
-      <Input label="Description (optional)" {...register("description")} />
       <UploadDropzone
         file={file}
         error={fileError}
