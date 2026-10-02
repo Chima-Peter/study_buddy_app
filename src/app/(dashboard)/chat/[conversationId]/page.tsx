@@ -1,16 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { getConversation } from "@/lib/api/conversations";
 import { useChatStore } from "@/stores/chat-store";
 import { PageLoader } from "@/components/ui/spinner";
+import { routes } from "@/config/routes";
 
 export default function ConversationPage() {
   const params = useParams<{ conversationId: string }>();
-  const { setMessages, setActiveConversationId, upsertConversation } =
-    useChatStore();
+  const router = useRouter();
+  const {
+    setMessages,
+    setActiveConversationId,
+    upsertConversation,
+    removeConversation,
+  } = useChatStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,7 +26,27 @@ export default function ConversationPage() {
       try {
         const detail = await getConversation(params.conversationId);
         if (cancelled) return;
+
+        if (detail.chats.length === 0) {
+          const state = useChatStore.getState();
+          // Keep the page open for the in-flight first turn; otherwise drop
+          // empty drafts so they don't linger in the sidebar / URL.
+          const keepOpen =
+            state.activeConversationId === detail.id ||
+            state.streamingConversationId === detail.id ||
+            state.pendingRouteConversationId === detail.id ||
+            (state.isStreaming && state.messages.length > 0);
+          if (!keepOpen) {
+            removeConversation(detail.id);
+            router.replace(routes.chat);
+            return;
+          }
+          setActiveConversationId(detail.id);
+          return;
+        }
+
         setActiveConversationId(detail.id);
+
         upsertConversation({
           id: detail.id,
           title: detail.title?.trim() || "New Conversation",
@@ -53,6 +79,8 @@ export default function ConversationPage() {
     setMessages,
     setActiveConversationId,
     upsertConversation,
+    removeConversation,
+    router,
   ]);
 
   if (loading) {

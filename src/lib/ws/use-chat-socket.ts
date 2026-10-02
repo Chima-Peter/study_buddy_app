@@ -84,13 +84,7 @@ function handleChatFrame(frame: WsFrame) {
       if (!store.activeConversationId) {
         store.setActiveConversationId(conversationId);
       }
-      store.upsertConversation({
-        id: conversationId,
-        title:
-          store.conversations.find((c) => c.id === conversationId)?.title ??
-          "New Conversation",
-        status: "active",
-      });
+      // Don't add to the sidebar until a turn is saved (chat.done / chat.title).
       if (
         typeof window !== "undefined" &&
         window.location.pathname === "/chat"
@@ -190,6 +184,21 @@ function handleChatFrame(frame: WsFrame) {
         targetConversation === store.streamingConversationId
       ) {
         store.failStream(message, targetConversation, requestId);
+      }
+
+      // Drop empty drafts that never got a saved turn into the sidebar list.
+      if (targetConversation) {
+        const listed = store.conversations.find((c) => c.id === targetConversation);
+        const hasSavedTurn = store.messages.some(
+          (m) => m.role === "assistant" && Boolean(m.continuationKey),
+        );
+        if (
+          listed &&
+          !hasSavedTurn &&
+          (listed.title === "New Conversation" || !listed.title?.trim())
+        ) {
+          store.removeConversation(targetConversation);
+        }
       }
       break;
     }

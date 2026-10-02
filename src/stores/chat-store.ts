@@ -44,6 +44,7 @@ interface ChatState {
     append?: boolean,
   ) => void;
   upsertConversation: (item: ConversationListItem) => void;
+  removeConversation: (id: string) => void;
   setActiveConversationId: (id: string | null) => void;
   setMessages: (messages: UiMessage[]) => void;
   appendUserMessage: (content: string, requestId?: string) => void;
@@ -141,6 +142,10 @@ export const useChatStore = create<ChatState>((set) => ({
       next[idx] = { ...next[idx], ...item };
       return { conversations: next };
     }),
+  removeConversation: (id) =>
+    set((state) => ({
+      conversations: state.conversations.filter((c) => c.id !== id),
+    })),
   setActiveConversationId: (id) => set({ activeConversationId: id }),
   setMessages: (messages) => set({ messages }),
   appendUserMessage: (content, requestId) =>
