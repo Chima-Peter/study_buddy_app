@@ -84,13 +84,7 @@ function handleChatFrame(frame: WsFrame) {
       if (!store.activeConversationId) {
         store.setActiveConversationId(conversationId);
       }
-      // Don't add to the sidebar until a turn is saved (chat.done / chat.title).
-      if (
-        typeof window !== "undefined" &&
-        window.location.pathname === "/chat"
-      ) {
-        store.setPendingRouteConversationId(conversationId);
-      }
+      // Stay on /chat until chat.done so a refresh doesn't keep an empty id in the URL.
       break;
     }
     case "chat.response": {

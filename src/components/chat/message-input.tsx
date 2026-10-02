@@ -92,7 +92,7 @@ export function MessageInput({
             canSend
               ? blocked
                 ? "bg-black/[0.08] text-[var(--text-secondary)]"
-                : "bg-[var(--text-primary)] text-white hover:opacity-90"
+                : "bg-[var(--text-primary)] text-[var(--text-inverse)] hover:opacity-90"
               : "bg-black/[0.06] text-muted dark:bg-white/10",
             "disabled:pointer-events-none",
           )}

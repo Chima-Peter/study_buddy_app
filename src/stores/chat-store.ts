@@ -28,7 +28,7 @@ interface ChatState {
   activeConversationId: string | null;
   /** Conversation the current WS turn belongs to (set on send / first frame). */
   streamingConversationId: string | null;
-  /** After creating a chat on /chat, navigate to /chat/[id]. */
+  /** After the first saved turn on /chat, navigate to /chat/[id]. */
   pendingRouteConversationId: string | null;
   messages: UiMessage[];
   /** Follow-ups waiting for the in-flight turn to finish (chat.done). */
