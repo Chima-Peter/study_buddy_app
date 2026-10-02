@@ -37,7 +37,7 @@ export function DocumentFilters({
           Status
         </label>
         <select
-          className="h-11 w-full rounded-md border border-border bg-surface-tertiary px-3 text-sm"
+          className="h-11 w-full rounded-md border border-border bg-surface-elevated px-3 text-sm text-[var(--text-primary)]"
           value={status}
           onChange={(e) => onStatusChange(e.target.value)}
         >

@@ -117,7 +117,7 @@ export default function StudyPage() {
           actions={
             <>
               <select
-                className="h-11 w-full rounded-full border border-border bg-panel/80 px-4 text-sm text-[var(--text-primary)] shadow-sm backdrop-blur sm:w-auto"
+                className="h-11 w-full rounded-full border border-border bg-surface-elevated px-4 text-sm text-[var(--text-primary)] shadow-sm sm:w-auto"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as "" | StudyCardsStatus)}
               >

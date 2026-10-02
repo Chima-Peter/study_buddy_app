@@ -52,6 +52,8 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
+
   --bg-primary: #081614;
   --bg-secondary: #0c2420;
   --bg-tertiary: #14332e;
@@ -80,6 +82,8 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
+
   --bg-primary: #ffffff;
   --bg-secondary: #ffffff;
   --bg-tertiary: #f0fdfa;
