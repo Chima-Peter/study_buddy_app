@@ -8,6 +8,14 @@ import { useChatStore } from "@/stores/chat-store";
 import { PageLoader } from "@/components/ui/spinner";
 import { routes } from "@/config/routes";
 
+/** True when this conversation’s transcript is already in the client store. */
+function hasLiveTranscript(conversationId: string) {
+  const state = useChatStore.getState();
+  return (
+    state.activeConversationId === conversationId && state.messages.length > 0
+  );
+}
+
 export default function ConversationPage() {
   const params = useParams<{ conversationId: string }>();
   const router = useRouter();
@@ -16,11 +24,26 @@ export default function ConversationPage() {
     setActiveConversationId,
     upsertConversation,
     removeConversation,
+    setPendingRouteConversationId,
   } = useChatStore();
-  const [loading, setLoading] = useState(true);
+  // Skip the loading gate when navigating after a finished stream / branch.
+  const [loading, setLoading] = useState(
+    () => !hasLiveTranscript(params.conversationId),
+  );
 
   useEffect(() => {
     let cancelled = false;
+
+    // Post-stream handoff (and branch) already hydrated the store — don't refetch.
+    if (hasLiveTranscript(params.conversationId)) {
+      const state = useChatStore.getState();
+      if (state.pendingRouteConversationId === params.conversationId) {
+        setPendingRouteConversationId(null);
+      }
+      setLoading(false);
+      return;
+    }
+
     (async () => {
       setLoading(true);
       try {
@@ -80,6 +103,7 @@ export default function ConversationPage() {
     setActiveConversationId,
     upsertConversation,
     removeConversation,
+    setPendingRouteConversationId,
     router,
   ]);
 
