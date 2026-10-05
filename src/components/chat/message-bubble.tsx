@@ -308,50 +308,10 @@ function UserMessage({
   );
 }
 
-function StreamingText({ text }: { text: string }) {
-  const parts = text.split(/(https?:\/\/[^\s<>"'`\]}]+)/g);
-  return (
-    <p className="whitespace-pre-wrap break-words">
-      {parts.map((part, i) => {
-        if (/^https?:\/\//.test(part)) {
-          let href = part;
-          let trailing = "";
-          const punct = href.match(/[.,;:!?)]+$/);
-          if (punct) {
-            trailing = punct[0];
-            href = href.slice(0, -trailing.length);
-          }
-          let host = href;
-          try {
-            host = new URL(href).hostname.replace(/^www\./, "");
-          } catch {
-            /* keep href */
-          }
-          return (
-            <span key={`${i}-${href}`}>
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="chat-resource-link"
-                title={href}
-              >
-                <span className="chat-resource-link__body">
-                  <span className="chat-resource-link__label break-all">
-                    {href}
-                  </span>
-                  <span className="chat-resource-link__host">{host}</span>
-                </span>
-              </a>
-              {trailing}
-            </span>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-      <span className="stream-caret" aria-hidden />
-    </p>
-  );
+function previewMarkdown(text: string): string {
+  const fence = "```";
+  const fences = text.split(fence).length - 1;
+  return fences % 2 === 1 ? `${text}\n${fence}` : text;
 }
 
 function AssistantMessage({
@@ -369,8 +329,9 @@ function AssistantMessage({
 }) {
   const streaming = Boolean(message.streaming);
   const revealed = useSmoothReveal(message.content, streaming);
-  const showThinking = streaming && !message.content;
-  const showWriting = streaming && !!revealed;
+  const body = streaming ? revealed : message.content;
+  const showThinking = streaming && !body;
+  const showWriting = streaming && !!body;
   const retries = message.retryCount ?? 0;
   const hasContent = Boolean(message.content.trim());
   const canRetry =
@@ -411,12 +372,12 @@ function AssistantMessage({
               showThinking && "min-h-[1.25rem]",
             )}
           >
-            {streaming && revealed ? (
-              <StreamingText text={revealed} />
-            ) : message.content && !streaming ? (
-              <Markdown className="chat-markdown">{message.content}</Markdown>
-            ) : showThinking ? (
+            {showThinking ? (
               <ThinkingIndicator label={message.progress || "Thinking"} />
+            ) : body ? (
+              <Markdown className="chat-markdown">
+                {streaming ? previewMarkdown(body) : body}
+              </Markdown>
             ) : null}
           </div>
         </div>
