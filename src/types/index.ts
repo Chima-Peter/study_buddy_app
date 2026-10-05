@@ -166,6 +166,7 @@ export type WsFrameType =
   | "heartbeat"
   | "token_refresh"
   | "chat.started"
+  | "chat.progress"
   | "chat.response"
   | "chat.title"
   | "chat.done"

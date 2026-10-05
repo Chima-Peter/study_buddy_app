@@ -416,7 +416,7 @@ function AssistantMessage({
             ) : message.content && !streaming ? (
               <Markdown className="chat-markdown">{message.content}</Markdown>
             ) : showThinking ? (
-              <ThinkingIndicator label="Thinking" />
+              <ThinkingIndicator label={message.progress || "Thinking"} />
             ) : null}
           </div>
         </div>

@@ -6,6 +6,8 @@ export interface UiMessage {
   role: "user" | "assistant";
   content: string;
   streaming?: boolean;
+  /** Live status label while the agent is working (before tokens). */
+  progress?: string;
   /** How many times this assistant turn has been retried (max 3). */
   retryCount?: number;
   /** Signed key from the server for edit/retry of this turn. */
@@ -55,6 +57,7 @@ interface ChatState {
     retryCount?: number,
     requestId?: string,
   ) => void;
+  setStreamProgress: (message: string, requestId?: string) => void;
   appendStreamChunk: (chunk: string, requestId?: string) => void;
   finalizeStream: (
     conversationId?: string,
@@ -185,6 +188,16 @@ export const useChatStore = create<ChatState>((set) => ({
         },
       ],
     })),
+  setStreamProgress: (message, requestId) =>
+    set((state) => {
+      const label = message.trim();
+      if (!label) return state;
+      const messages = [...state.messages];
+      const idx = findStreamingAssistantIndex(messages, requestId);
+      if (idx < 0) return state;
+      messages[idx] = { ...messages[idx], progress: label };
+      return { messages, isStreaming: true };
+    }),
   appendStreamChunk: (chunk, requestId) =>
     set((state) => {
       const messages = [...state.messages];
@@ -192,7 +205,7 @@ export const useChatStore = create<ChatState>((set) => ({
       if (idx < 0) return state;
       const message = messages[idx];
       const content = message.content + chunk;
-      messages[idx] = { ...message, content };
+      messages[idx] = { ...message, content, progress: undefined };
       return {
         messages,
         streamingContent: content,

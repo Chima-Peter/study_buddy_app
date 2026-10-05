@@ -87,6 +87,23 @@ function handleChatFrame(frame: WsFrame) {
       // Stay on /chat until chat.done so a refresh doesn't keep an empty id in the URL.
       break;
     }
+    case "chat.progress": {
+      promoteQueuedTurn(conversationId, requestId);
+
+      if (!frameTargetsActiveChat(conversationId)) return;
+
+      if (conversationId && !store.streamingConversationId) {
+        store.bindStream(conversationId);
+      }
+      if (conversationId && !store.activeConversationId) {
+        store.setActiveConversationId(conversationId);
+      }
+
+      ensureAssistantForRequest(conversationId, requestId);
+      const label = frame.message?.trim() || frame.response?.trim();
+      if (label) store.setStreamProgress(label, requestId);
+      break;
+    }
     case "chat.response": {
       promoteQueuedTurn(conversationId, requestId);
 
