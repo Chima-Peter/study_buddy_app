@@ -79,6 +79,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   const { send } = useChatSocket();
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollOnSendRef = useRef(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [promptSelect, setPromptSelect] = useState(false);
   const [prefill, setPrefill] = useState<string | null>(null);
@@ -148,6 +149,12 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
+    if (scrollOnSendRef.current) {
+      scrollOnSendRef.current = false;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      setShowScrollToBottom(false);
+      return;
+    }
     const distanceFromBottom =
       el.scrollHeight - el.scrollTop - el.clientHeight;
     // Only stick to bottom if the user hasn't scrolled up.
@@ -157,7 +164,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
       });
       setShowScrollToBottom(false);
     }
-  }, [messages, streamingHere]);
+  }, [messages, streamingHere, messageQueue]);
 
   const scrollToBottom = () => {
     const el = scrollContainerRef.current;
@@ -203,6 +210,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string }) {
     setError(null);
 
     const id = conversationId ?? activeConversationId ?? undefined;
+    scrollOnSendRef.current = true;
 
     // While a turn is in flight, enqueue on the server (Redis) and locally.
     if (streamingHere && id) {
