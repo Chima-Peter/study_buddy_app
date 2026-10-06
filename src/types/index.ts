@@ -157,6 +157,23 @@ export interface Notification {
   read_at?: string | null;
 }
 
+export type MemoryCategory =
+  | "learning_preferences"
+  | "academic_struggles"
+  | "academic_progress"
+  | "tests_exams"
+  | "user_personality";
+
+export interface Memory {
+  id: string;
+  content: string;
+  category: MemoryCategory;
+  document_id?: string | null;
+  created_at: string;
+  updated_at?: string | null;
+  expires_at?: string | null;
+}
+
 export interface SseEvent {
   type: string;
   data: unknown;

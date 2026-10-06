@@ -20,6 +20,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { PageLoader, Spinner } from "@/components/ui/spinner";
 import { disconnectSharedChatSocket } from "@/lib/ws/chat-socket";
 import {
+  Brain,
   Monitor,
   Moon,
   Palette,
@@ -28,6 +29,8 @@ import {
   UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { TimezoneSelect } from "@/components/settings/timezone-select";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const user = useSessionStore((s) => s.user);
@@ -44,10 +47,14 @@ export default function SettingsPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { isSubmitting, errors },
   } = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
   });
+
+  const timezone = watch("timezone");
 
   useEffect(() => {
     let cancelled = false;
@@ -172,10 +179,12 @@ export default function SettingsPage() {
               />
               <Input label="University" {...register("university")} />
               <Input label="Gender" {...register("gender")} />
-              <Input
-                label="Timezone"
-                className="sm:max-w-md"
-                {...register("timezone")}
+              <TimezoneSelect
+                value={timezone}
+                onChange={(value) =>
+                  setValue("timezone", value, { shouldDirty: true })
+                }
+                error={errors.timezone?.message}
               />
             </div>
             <div className="space-y-1.5">
@@ -242,6 +251,23 @@ export default function SettingsPage() {
             ))}
           </div>
         </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden p-0">
+        <Link
+          href={routes.settingsMemories}
+          className="flex items-center gap-3 p-5 transition-colors hover:bg-surface-tertiary/60"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-500/15 text-brand">
+            <Brain className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-base">Memories</CardTitle>
+            <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
+              See what StudyBuddy remembers about you
+            </p>
+          </div>
+        </Link>
       </Card>
 
       <Card className="border-error/30 p-5">

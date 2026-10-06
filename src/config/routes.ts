@@ -18,4 +18,5 @@ export const routes = {
   questionBankQuiz: (documentId: string) => `/question-bank/${documentId}/quiz`,
   notifications: "/notifications",
   settings: "/settings",
+  settingsMemories: "/settings/memories",
 } as const;
